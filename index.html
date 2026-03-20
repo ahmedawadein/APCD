@@ -359,7 +359,7 @@
 
   /* PHOTO PICKER POPUP */
   .photo-picker-overlay{position:fixed;inset:0;z-index:600;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);animation:fadeIn .18s}
-  .photo-picker-sheet{background:var(--navy-mid);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:20px 20px 32px;animation:slideUpSheet .22s ease}
+  .photo-picker-sheet{background:var(--navy-mid);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:20px 20px 28px;animation:slideUpSheet .22s ease}
   @keyframes slideUpSheet{from{transform:translateY(60px);opacity:0}to{transform:none;opacity:1}}
   .photo-picker-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);text-align:center;margin-bottom:16px}
   .photo-picker-options{display:flex;gap:10px}
@@ -370,6 +370,23 @@
   .photo-picker-btn .picker-sub{font-size:10.5px;color:var(--text-faint);text-align:center;line-height:1.4}
   .photo-picker-cancel{display:block;width:100%;margin-top:10px;padding:11px;border:1px solid var(--border-dim);border-radius:10px;background:transparent;color:var(--text-dim);font-family:'Lato',sans-serif;font-size:13.5px;font-weight:700;cursor:pointer;transition:all .15s}
   .photo-picker-cancel:hover{border-color:var(--red);color:var(--red)}
+  .picker-desc-step{display:none;animation:fadeIn .18s}
+  .picker-desc-step.active{display:block}
+  .picker-desc-label{font-size:12px;color:var(--text-dim);margin-bottom:8px;font-family:'Lato',sans-serif}
+  .picker-desc-input{width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:9px;color:var(--text-main);font-family:'Lato',sans-serif;font-size:14px;padding:11px 14px;outline:none;transition:border-color .15s,box-shadow .15s;margin-bottom:10px}
+  .picker-desc-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-glow)}
+  .picker-desc-input::placeholder{color:var(--text-faint)}
+  .picker-quick-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .picker-tag{padding:5px 11px;border:1px solid var(--border-dim);border-radius:20px;font-size:11.5px;font-family:'Lato',sans-serif;color:var(--text-dim);cursor:pointer;transition:all .13s;background:transparent}
+  .picker-tag:hover,.picker-tag.selected{border-color:var(--teal);background:var(--teal-glow);color:var(--teal)}
+  .picker-desc-actions{display:flex;gap:8px}
+  .picker-upload-btn{flex:1;padding:12px;border-radius:9px;background:var(--teal);color:var(--navy);font-family:'Lato',sans-serif;font-size:13.5px;font-weight:700;cursor:pointer;border:none;transition:all .15s}
+  .picker-upload-btn:hover{background:#22d4cc;transform:translateY(-1px)}
+  .picker-back-btn{padding:12px 16px;border-radius:9px;background:transparent;border:1px solid var(--border-dim);color:var(--text-dim);font-family:'Lato',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
+  .picker-back-btn:hover{border-color:var(--border);color:var(--text-main)}
+  .picker-preview-strip{display:flex;gap:8px;margin-bottom:10px;overflow-x:auto;padding-bottom:4px}
+  .picker-preview-thumb{width:58px;height:58px;border-radius:8px;object-fit:cover;border:1px solid var(--border-dim);flex-shrink:0}
+  .picker-file-count{font-size:12px;color:var(--teal);font-family:'DM Mono',monospace;margin-bottom:10px}
 
   /* PATIENT SEARCH BAR */
   #patient-lookup-bar{background:rgba(13,27,42,.95);border-bottom:1px solid var(--border);padding:12px 30px;display:flex;align-items:center;gap:12px;position:sticky;top:58px;z-index:40;backdrop-filter:blur(8px)}
@@ -1959,10 +1976,6 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
             <label>Patient</label>
             <input type="text" id="img-pid-display" readonly placeholder="Select patient using search bar above" style="background:rgba(28,184,176,.05);color:var(--teal);cursor:default">
           </div>
-          <div class="form-group span-2">
-            <label>Image Caption / Label (optional)</label>
-            <input type="text" id="img-caption" placeholder="e.g. Right eye anterior segment, 3 months post-op">
-          </div>
         </div>
       </div>
       <div class="form-card">
@@ -1986,6 +1999,13 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
         </div>
         <div id="upload-status" style="margin-top:10px;font-size:13px;color:var(--text-dim);min-height:20px"></div>
       </div>
+      <div class="form-card" id="image-grid-card-main" style="display:none">
+        <div class="form-card-title" style="display:flex;align-items:center;justify-content:space-between">
+          <span>Uploaded Images</span>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('upload-zone-main').style.display='';document.getElementById('image-grid-card-main').style.display='none'">+ Add More</button>
+        </div>
+        <div class="image-grid" id="image-grid-main"></div>
+      </div>
     </div>
 
   </div><!-- /content -->
@@ -1997,20 +2017,56 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
 <!-- PHOTO PICKER POPUP -->
 <div id="photo-picker-overlay" class="photo-picker-overlay" style="display:none" onclick="if(event.target===this)closePhotoPicker()">
   <div class="photo-picker-sheet">
-    <div class="photo-picker-title">Upload Photo</div>
-    <div class="photo-picker-options">
-      <button class="photo-picker-btn" onclick="triggerCamera()">
-        <span class="picker-icon">📸</span>
-        <span class="picker-label">Take Photo</span>
-        <span class="picker-sub">Open camera to capture a new image</span>
-      </button>
-      <button class="photo-picker-btn" onclick="triggerGallery()">
-        <span class="picker-icon">🖼️</span>
-        <span class="picker-label">Choose File</span>
-        <span class="picker-sub">Pick from gallery, photos, or hard disc</span>
-      </button>
+
+    <!-- Step 1: Choose source -->
+    <div id="picker-source-step">
+      <div class="photo-picker-title">Upload Photo</div>
+      <div class="photo-picker-options">
+        <button class="photo-picker-btn" onclick="pickerChooseSource('camera')">
+          <span class="picker-icon">📸</span>
+          <span class="picker-label">Take Photo</span>
+          <span class="picker-sub">Open camera to capture a new image</span>
+        </button>
+        <button class="photo-picker-btn" onclick="pickerChooseSource('gallery')">
+          <span class="picker-icon">🖼️</span>
+          <span class="picker-label">Choose File</span>
+          <span class="picker-sub">Pick from gallery, photos, or hard disc</span>
+        </button>
+      </div>
+      <button class="photo-picker-cancel" onclick="closePhotoPicker()">Cancel</button>
     </div>
-    <button class="photo-picker-cancel" onclick="closePhotoPicker()">Cancel</button>
+
+    <!-- Step 2: Add description (shown after files selected) -->
+    <div id="picker-desc-step" class="picker-desc-step">
+      <div class="photo-picker-title">Add Description</div>
+      <div id="picker-preview-strip" class="picker-preview-strip"></div>
+      <div id="picker-file-count" class="picker-file-count"></div>
+      <div class="picker-desc-label">Short description for this photo (optional)</div>
+      <input id="picker-desc-input" class="picker-desc-input" type="text"
+        placeholder="e.g. Right biometry, Left gonioscopy…"
+        onkeydown="if(event.key==='Enter')pickerConfirmUpload()">
+      <div class="picker-quick-tags" id="picker-quick-tags">
+        <span class="picker-tag" onclick="pickerSetTag(this,'Right biometry')">Right biometry</span>
+        <span class="picker-tag" onclick="pickerSetTag(this,'Left biometry')">Left biometry</span>
+        <span class="picker-tag" onclick="pickerSetTag(this,'Right gonioscopy')">Right gonioscopy</span>
+        <span class="picker-tag" onclick="pickerSetTag(this,'Left gonioscopy')">Left gonioscopy</span>
+        <span class="picker-tag" onclick="pickerSetTag(this,'Right anterior segment')">Right ant. segment</span>
+        <span class="picker-tag" onclick="pickerSetTag(this,'Left anterior segment')">Left ant. segment</span>
+        <span class="picker-tag" onclick="pickerSetTag(this,'Right fundus')">Right fundus</span>
+        <span class="picker-tag" onclick="pickerSetTag(this,'Left fundus')">Left fundus</span>
+        <span class="picker-tag" onclick="pickerSetTag(this,'Right OCT')">Right OCT</span>
+        <span class="picker-tag" onclick="pickerSetTag(this,'Left OCT')">Left OCT</span>
+        <span class="picker-tag" onclick="pickerSetTag(this,'Corneal topography')">Corneal topography</span>
+        <span class="picker-tag" onclick="pickerSetTag(this,'Post-op day 1')">Post-op day 1</span>
+        <span class="picker-tag" onclick="pickerSetTag(this,'Post-op week 1')">Post-op week 1</span>
+        <span class="picker-tag" onclick="pickerSetTag(this,'Post-op month 1')">Post-op month 1</span>
+      </div>
+      <div class="picker-desc-actions">
+        <button class="picker-back-btn" onclick="pickerGoBack()">← Back</button>
+        <button class="picker-upload-btn" onclick="pickerConfirmUpload()">Upload Photo</button>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -2226,9 +2282,25 @@ function openDetail(pid){
   const exams=DB.examinations.filter(x=>String(x.PID)===String(pid));
   document.getElementById('tab-exams').innerHTML=!exams.length?empty('No examinations recorded')
     :`<div class="visit-timeline">${exams.map(e=>`<div class="visit-entry"><div class="visit-card">
-      <div class="visit-date">${e.DateOfExam?new Date(e.DateOfExam).toLocaleDateString():'—'} · ${e.Eye||'—'} · ${e.ProcedureType||''}</div>
-      ${dr('Examiner',e.Examiner)}${dr('IOP',e.IOP?e.IOP+' mmHg':'—')}${dr('Axial Length',e.AxialLength?e.AxialLength+' mm':'—')}
-      ${dr('Lens Density',e.LensDensity)}${dr('Cataract Location',e.CataractLocation)}${dr('Fundus',e.Fundus)}${e.Comments?dr('Comments',e.Comments):''}
+      <div class="visit-date">${e.DateOfExam?new Date(e.DateOfExam).toLocaleDateString():'—'}${e.EUA==='Yes'?' · <span style="color:var(--amber);font-size:10px;font-family:\'DM Mono\',monospace">EUA</span>':''}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin:8px 0 4px;border:1px solid var(--border-dim);border-radius:6px;overflow:hidden;font-size:11.5px">
+        <div style="padding:6px 10px;border-right:1px solid var(--border-dim);background:rgba(247,183,49,.05)">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--amber);margin-bottom:5px">OD — RIGHT</div>
+          ${dr('VA',e.VA_OD)}${dr('IOP',e.IOP_OD?e.IOP_OD+' mmHg':'')}${dr('Cornea',e.CorneaOpacity_OD)}${dr('Cornea Ø H×V',e.CorneaDiamH_OD&&e.CorneaDiamV_OD?e.CorneaDiamH_OD+' × '+e.CorneaDiamV_OD+' mm':'')}
+          ${dr('CCT',e.CCT_OD?e.CCT_OD+' μm':'')}${dr('Lens',e.LensStatus_OD)}${dr('Lens Morphology',e.LensMorphology_OD)}
+          ${dr('Axial Length',e.AxialLength_OD?e.AxialLength_OD+' mm':'')}${dr('Fundus',e.Fundus_OD)}${dr('C/D',e.CD_OD)}
+          ${dr('Gonioscopy',e.Gonioscopy_OD)}${dr('Angle',e.AngleOD)}
+        </div>
+        <div style="padding:6px 10px;background:rgba(100,160,255,.04)">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:#7ab4ff;margin-bottom:5px">OS — LEFT</div>
+          ${dr('VA',e.VA_OS)}${dr('IOP',e.IOP_OS?e.IOP_OS+' mmHg':'')}${dr('Cornea',e.CorneaOpacity_OS)}${dr('Cornea Ø H×V',e.CorneaDiamH_OS&&e.CorneaDiamV_OS?e.CorneaDiamH_OS+' × '+e.CorneaDiamV_OS+' mm':'')}
+          ${dr('CCT',e.CCT_OS?e.CCT_OS+' μm':'')}${dr('Lens',e.LensStatus_OS)}${dr('Lens Morphology',e.LensMorphology_OS)}
+          ${dr('Axial Length',e.AxialLength_OS?e.AxialLength_OS+' mm':'')}${dr('Fundus',e.Fundus_OS)}${dr('C/D',e.CD_OS)}
+          ${dr('Gonioscopy',e.Gonioscopy_OS)}${dr('Angle',e.AngleOS)}
+        </div>
+      </div>
+      ${e.Syndrome?dr('Syndrome',e.Syndrome):''}${e.Comments?dr('Comments',e.Comments):''}
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text-faint);margin-top:6px">Examiner: ${e.Examiner||'—'} · Entered: ${e.EntryDate||'—'}</div>
     </div></div>`).join('')}</div>`;
 
   const ops=DB.operations.filter(x=>String(x.PID)===String(pid));
@@ -2244,9 +2316,25 @@ function openDetail(pid){
   const fups=DB.followups.filter(x=>String(x.PID)===String(pid));
   document.getElementById('tab-fups').innerHTML=!fups.length?empty('No follow-up visits recorded')
     :`<div class="visit-timeline">${fups.map(f=>`<div class="visit-entry"><div class="visit-card">
-      <div class="visit-date">${f.DateOfExam?new Date(f.DateOfExam).toLocaleDateString():'—'} · ${f.Eye||'—'} · ${f.VisitType||''}</div>
-      ${dr('Examiner',f.Examiner)}${dr('VA',f.VA)}${dr('Refraction',f.Sphere||f.Cylinder?`${f.Sphere||0} / ${f.Cylinder||0} × ${f.Axis||''}`:'')}
-      ${dr('IOP',f.IOP?f.IOP+' mmHg':'—')}${dr('Lens Status',f.LensStatus)}${f.Comments?dr('Comments',f.Comments):''}
+      <div class="visit-date">${f.DateOfExam?new Date(f.DateOfExam).toLocaleDateString():'—'}${f.VisitType?' · '+f.VisitType:''}${f.EUA==='Yes'?' · <span style="color:var(--amber);font-size:10px;font-family:\'DM Mono\',monospace">EUA</span>':''}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin:8px 0 4px;border:1px solid var(--border-dim);border-radius:6px;overflow:hidden;font-size:11.5px">
+        <div style="padding:6px 10px;border-right:1px solid var(--border-dim);background:rgba(247,183,49,.05)">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--amber);margin-bottom:5px">OD — RIGHT</div>
+          ${dr('VA',f.VA_OD)}${dr('Refraction',f.Sphere_OD||f.Cylinder_OD?`${f.Sphere_OD||0} / ${f.Cylinder_OD||0} × ${f.Axis_OD||''}`:'')}
+          ${dr('IOP',f.IOP_OD?f.IOP_OD+' mmHg':'')}${dr('Cornea',f.Cornea_OD)}${dr('Lens',f.LensStatus_OD)}
+          ${dr('Opacification',f.Opacification_OD)}${dr('Fundus',f.Fundus_OD)}${dr('C/D',f.CD_OD)}
+          ${dr('Axial Length',f.AxialLength_OD?f.AxialLength_OD+' mm':'')}${dr('Gonioscopy',f.Gonioscopy_OD)}${dr('Angle',f.AngleOD)}
+        </div>
+        <div style="padding:6px 10px;background:rgba(100,160,255,.04)">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:#7ab4ff;margin-bottom:5px">OS — LEFT</div>
+          ${dr('VA',f.VA_OS)}${dr('Refraction',f.Sphere_OS||f.Cylinder_OS?`${f.Sphere_OS||0} / ${f.Cylinder_OS||0} × ${f.Axis_OS||''}`:'')}
+          ${dr('IOP',f.IOP_OS?f.IOP_OS+' mmHg':'')}${dr('Cornea',f.Cornea_OS)}${dr('Lens',f.LensStatus_OS)}
+          ${dr('Opacification',f.Opacification_OS)}${dr('Fundus',f.Fundus_OS)}${dr('C/D',f.CD_OS)}
+          ${dr('Axial Length',f.AxialLength_OS?f.AxialLength_OS+' mm':'')}${dr('Gonioscopy',f.Gonioscopy_OS)}${dr('Angle',f.AngleOS)}
+        </div>
+      </div>
+      ${f.Comments?dr('Comments',f.Comments):''}
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text-faint);margin-top:6px">Examiner: ${f.Examiner||'—'} · Entered: ${f.EntryDate||'—'}</div>
     </div></div>`).join('')}</div>`;
 
   const hists=(DB.history||[]).filter(x=>String(x.PID)===String(pid));
@@ -3131,9 +3219,17 @@ function getFupComplications(eye){
 
 // ─── PHOTO PICKER ───
 let _photoPickerZoneId = 'main';
+let _pickerPendingFiles = null;  // files waiting for description confirmation
+let _pickerSource = null;        // 'camera' or 'gallery'
 
 function showPhotoPicker(zoneId){
   _photoPickerZoneId = zoneId || 'main';
+  _pickerPendingFiles = null;
+  // Reset to step 1
+  document.getElementById('picker-source-step').style.display = '';
+  document.getElementById('picker-desc-step').classList.remove('active');
+  document.getElementById('picker-desc-input').value = '';
+  document.querySelectorAll('.picker-tag').forEach(t=>t.classList.remove('selected'));
   document.getElementById('photo-picker-overlay').style.display = 'flex';
   document.body.style.overflow = 'hidden';
 }
@@ -3141,26 +3237,81 @@ function showPhotoPicker(zoneId){
 function closePhotoPicker(){
   document.getElementById('photo-picker-overlay').style.display = 'none';
   document.body.style.overflow = '';
+  _pickerPendingFiles = null;
 }
 
-function triggerCamera(){
-  closePhotoPicker();
-  // Use camera-specific input (with capture attribute)
-  const cameraInput = document.getElementById('img-file-input-'+_photoPickerZoneId+'-camera');
-  if(cameraInput){ cameraInput.value=''; cameraInput.click(); return; }
-  // Fallback for modal zone IDs (e.g. pid-based)
-  const fallback = document.getElementById('img-file-input-cam-'+_photoPickerZoneId);
-  if(fallback){ fallback.value=''; fallback.click(); }
+function pickerChooseSource(source){
+  _pickerSource = source;
+  const zid = _photoPickerZoneId;
+  const inputId = source === 'camera'
+    ? 'img-file-input-'+zid+'-camera'
+    : 'img-file-input-'+zid+'-gallery';
+  const input = document.getElementById(inputId);
+  if(input){ input.value = ''; input.click(); }
+  // The onchange handler will call pickerFilesSelected()
 }
 
-function triggerGallery(){
+// Called from the hidden file input's onchange (replaces handleImageSelect)
+function pickerFilesSelected(event, zoneId){
+  const files = [...event.target.files];
+  if(!files.length){ closePhotoPicker(); return; }
+  _pickerPendingFiles = files;
+  _photoPickerZoneId = zoneId;
+
+  // Show step 2
+  document.getElementById('picker-source-step').style.display = 'none';
+  document.getElementById('picker-desc-step').classList.add('active');
+  document.getElementById('picker-desc-input').value = '';
+  document.querySelectorAll('.picker-tag').forEach(t=>t.classList.remove('selected'));
+
+  // Show file preview strip
+  const strip = document.getElementById('picker-preview-strip');
+  const count = document.getElementById('picker-file-count');
+  strip.innerHTML = '';
+  files.slice(0,6).forEach(f => {
+    const url = URL.createObjectURL(f);
+    const img = document.createElement('img');
+    img.className = 'picker-preview-thumb';
+    img.src = url;
+    strip.appendChild(img);
+  });
+  count.textContent = files.length === 1
+    ? '1 photo selected'
+    : files.length + ' photos selected — one description will apply to all';
+
+  // Focus the input
+  setTimeout(()=>document.getElementById('picker-desc-input').focus(), 120);
+}
+
+function pickerSetTag(el, text){
+  const input = document.getElementById('picker-desc-input');
+  // Toggle: if already selected, clear it
+  if(el.classList.contains('selected')){
+    el.classList.remove('selected');
+    if(input.value === text) input.value = '';
+  } else {
+    document.querySelectorAll('.picker-tag').forEach(t=>t.classList.remove('selected'));
+    el.classList.add('selected');
+    input.value = text;
+  }
+  input.focus();
+}
+
+function pickerGoBack(){
+  document.getElementById('picker-source-step').style.display = '';
+  document.getElementById('picker-desc-step').classList.remove('active');
+  _pickerPendingFiles = null;
+}
+
+function pickerConfirmUpload(){
+  if(!_pickerPendingFiles || !_pickerPendingFiles.length) return;
+  const description = document.getElementById('picker-desc-input').value.trim();
+  const zid = _photoPickerZoneId;
+  const targetPid = zid === 'main' ? ACTIVE_PATIENT?.PID : zid;
+  if(!targetPid){ showToast('Please select a patient first','error'); closePhotoPicker(); return; }
   closePhotoPicker();
-  // Use gallery input (no capture attribute, supports multiple)
-  const galleryInput = document.getElementById('img-file-input-'+_photoPickerZoneId+'-gallery');
-  if(galleryInput){ galleryInput.value=''; galleryInput.click(); return; }
-  // Fallback for modal zone IDs
-  const fallback = document.getElementById('img-file-input-gal-'+_photoPickerZoneId);
-  if(fallback){ fallback.value=''; fallback.click(); }
+  uploadImages(_pickerPendingFiles, targetPid, zid, description);
+  _pickerPendingFiles = null;
 }
 
 // ─── IMAGE UPLOAD ───
@@ -3224,54 +3375,115 @@ function handleImageDrop(event, pid){
   const files = [...event.dataTransfer.files].filter(f=>f.type.startsWith('image/'));
   const targetPid = pid==='main' ? ACTIVE_PATIENT?.PID : pid;
   if(!targetPid){showToast('Please select a patient first','error');return;}
-  if(files.length) uploadImages(files, targetPid, pid);
+  if(files.length){
+    _pickerPendingFiles = files;
+    _photoPickerZoneId = pid;
+    // Show the picker at step 2 for drag-drop too
+    document.getElementById('picker-source-step').style.display = 'none';
+    document.getElementById('picker-desc-step').classList.add('active');
+    document.getElementById('picker-desc-input').value = '';
+    document.querySelectorAll('.picker-tag').forEach(t=>t.classList.remove('selected'));
+    const strip = document.getElementById('picker-preview-strip');
+    const count = document.getElementById('picker-file-count');
+    strip.innerHTML = '';
+    files.slice(0,6).forEach(f => {
+      const url = URL.createObjectURL(f);
+      const img = document.createElement('img');
+      img.className = 'picker-preview-thumb';
+      img.src = url;
+      strip.appendChild(img);
+    });
+    count.textContent = files.length === 1 ? '1 photo selected' : files.length + ' photos selected — one description will apply to all';
+    document.getElementById('photo-picker-overlay').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    setTimeout(()=>document.getElementById('picker-desc-input').focus(), 120);
+  }
 }
 
 function handleImageSelect(event, pid){
-  const files = [...event.target.files];
-  const targetPid = pid==='main' ? ACTIVE_PATIENT?.PID : pid;
-  if(!targetPid){showToast('Please select a patient first','error');event.target.value='';return;}
-  if(files.length) uploadImages(files, targetPid, pid);
+  // Route through the new two-step picker description flow
+  pickerFilesSelected(event, pid);
 }
 
-async function uploadImages(files, pid, zoneId){
+async function uploadImages(files, pid, zoneId, description){
   const zid = zoneId || pid;
+  const desc = (description || '').trim();
   const progress = document.getElementById('upload-progress-'+zid);
   const bar = document.getElementById('upload-bar-'+zid);
   const statusEl = document.getElementById('upload-status');
+
+  // ── Show local previews immediately ──
+  const grid = document.getElementById('image-grid-'+zid) || document.getElementById('image-grid-main');
+  if(grid){
+    files.forEach(file => {
+      const localUrl = URL.createObjectURL(file);
+      const thumb = document.createElement('div');
+      thumb.className = 'image-thumb image-thumb-local';
+      const thumbLabel = desc || file.name;
+      thumb.innerHTML = `<img src="${localUrl}" onclick="openLightbox('${localUrl}')" alt="${thumbLabel}">
+        <div class="image-thumb-label" style="background:rgba(45,207,202,.25);color:var(--teal)">⏳ ${thumbLabel}</div>`;
+      grid.appendChild(thumb);
+    });
+    // Clear any "no images" placeholder divs
+    [...grid.childNodes].forEach(n => { if(n.nodeType===3 || (n.nodeName==='DIV' && n.querySelector && !n.querySelector('img'))) n.remove(); });
+  }
+
+  // ── Collapse upload zone, show grid card ──
+  const zone = document.getElementById('upload-zone-'+zid);
+  if(zone) zone.style.display = 'none';
+  const gridCard = document.getElementById('image-grid-card-'+zid);
+  if(gridCard) gridCard.style.display = '';
+
   if(statusEl) statusEl.textContent = 'Uploading '+files.length+' image'+(files.length!==1?'s':'')+'…';
   if(progress) progress.style.display = 'block';
   let done = 0;
   for(const file of files){
     try {
       const b64 = await fileToBase64(file);
-      const caption = document.getElementById('img-caption')?.value.trim() || '';
+      // Use description as filename prefix if provided, otherwise just the file name
+      const storedName = desc ? desc + (files.length > 1 ? ' ('+(done+1)+')' : '') : file.name;
       await fetch(CONFIG.webAppUrl, {
         method:'POST',
         mode:'no-cors',
         body: JSON.stringify({
           action:'uploadImage',
           pid: pid,
-          filename: (caption ? caption+'_' : '') + file.name,
+          filename: storedName,
+          originalFilename: file.name,
           mimeType: file.type,
           data: b64
         })
       });
       done++;
       if(bar) bar.style.width = Math.round(done/files.length*100)+'%';
-    } catch(e) {
-      console.error('Upload failed',e);
+      // Update thumb label to confirmed state
+      if(grid){
+        const thumbs = grid.querySelectorAll('.image-thumb-local');
+        if(thumbs[done-1]){
+          const lbl = thumbs[done-1].querySelector('.image-thumb-label');
+          if(lbl){ lbl.textContent = desc || file.name; lbl.style.background=''; lbl.style.color=''; }
+          thumbs[done-1].classList.remove('image-thumb-local');
+        }
+      }
+    } catch(err) {
+      console.error('Upload failed',err);
     }
   }
-  // wait briefly then reload grid
-  await new Promise(r=>setTimeout(r, 2000));
+  await new Promise(r=>setTimeout(r, 1500));
   if(progress) progress.style.display = 'none';
   if(bar) bar.style.width = '0%';
   const statusEl2 = document.getElementById('upload-status');
   if(statusEl2) statusEl2.textContent = '';
-  const captionEl = document.getElementById('img-caption');
-  if(captionEl) captionEl.value = '';
-  // if modal is open on this patient, refresh image grid
+  // Re-show zone for modal (as compact "add more"), main view uses the Add More button
+  if(zone && zid !== 'main'){
+    zone.style.display = '';
+    const zoneIcon = zone.querySelector('.upload-zone-icon');
+    if(zoneIcon) zoneIcon.textContent = '➕';
+    const zoneText = zone.querySelector('.upload-zone-text');
+    if(zoneText) zoneText.textContent = 'Tap to add more photos';
+    const zoneSub = zone.querySelector('.upload-zone-sub');
+    if(zoneSub) zoneSub.textContent = 'JPG, PNG — multiple files supported';
+  }
   if(currentImagePID === pid) loadPatientImages(pid);
   showToast(done+' image'+(done!==1?'s':'')+' uploaded ✓','success');
 }
