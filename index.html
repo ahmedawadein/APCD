@@ -3289,21 +3289,21 @@ function openImagesTab(pid){
   currentImagePID = pid;
   const tab = document.getElementById('tab-images');
   if(!tab) return;
-  tab.innerHTML = \`
+  tab.innerHTML = `
     <div style="margin-bottom:12px">
-      <div class="upload-zone" id="upload-zone-\${pid}"
-        onclick="document.getElementById('img-file-\${pid}').click()"
+      <div class="upload-zone" id="upload-zone-${pid}"
+        onclick="document.getElementById('img-file-${pid}').click()"
         ondragover="event.preventDefault();this.classList.add('drag-over')"
         ondragleave="this.classList.remove('drag-over')"
-        ondrop="handleImageDrop(event,'\${pid}')">
-        <input type="file" id="img-file-\${pid}" accept="image/*" multiple style="display:none"
-          onchange="onFilesChosen(event,'\${pid}')">
+        ondrop="handleImageDrop(event,'${pid}')">
+        <input type="file" id="img-file-${pid}" accept="image/*" multiple style="display:none"
+          onchange="onFilesChosen(event,'${pid}')">
         <div class="upload-zone-icon">📷</div>
         <div class="upload-zone-text">Tap to upload a photo</div>
         <div class="upload-zone-sub">Choose from gallery, camera or hard disc</div>
       </div>
     </div>
-    <div class="image-grid" id="image-grid-\${pid}"></div>\`;
+    <div class="image-grid" id="image-grid-${pid}"></div>`;
   renderImages(pid);
 }
 
@@ -3315,14 +3315,14 @@ function renderImages(pid){
     grid.innerHTML = '<div style="text-align:center;padding:28px;color:var(--text-faint);font-size:12.5px;grid-column:1/-1">No images yet — tap above to upload</div>';
     return;
   }
-  grid.innerHTML = imgs.map((img,i) => \`
+  grid.innerHTML = imgs.map((img,i) => `
     <div class="image-thumb">
-      <img src="\${img.dataUrl}" onclick="openLightbox('\${img.dataUrl}')" alt="\${img.desc||img.name}">
-      <div class="image-thumb-label" title="\${img.desc||img.name}">\${img.desc||img.name}</div>
-      <button onclick="deleteImage('\${pid}',\${i},event)" title="Remove"
+      <img src="${img.dataUrl}" onclick="openLightbox('${img.dataUrl}')" alt="${img.desc||img.name}">
+      <div class="image-thumb-label" title="${img.desc||img.name}">${img.desc||img.name}</div>
+      <button onclick="deleteImage('${pid}',${i},event)" title="Remove"
         style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.65);border:none;color:#fff;
                border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;line-height:1">✕</button>
-    </div>\`).join('');
+    </div>`).join('');
 }
 
 function deleteImage(pid, idx, event){
