@@ -275,10 +275,156 @@
   .apb-meta{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-top:1px}
   .apb-clear{font-size:11px;color:var(--text-faint);cursor:pointer;padding:4px 10px;border:1px solid var(--border-dim);border-radius:5px;background:transparent;font-family:'Lato',sans-serif;transition:all .15s;white-space:nowrap}
   .apb-clear:hover{color:var(--red);border-color:rgba(224,82,82,.3)}
+
+  /* ═══════════════════════════════════════════════
+     MOBILE HAMBURGER BUTTON
+  ═══════════════════════════════════════════════ */
+  #hamburger{display:none;position:fixed;top:12px;left:12px;z-index:300;width:40px;height:40px;border-radius:10px;background:var(--navy-mid);border:1px solid var(--border-dim);cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0}
+  #hamburger span{display:block;width:18px;height:2px;background:var(--text-main);border-radius:2px;transition:all .25s}
+  #hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  #hamburger.open span:nth-child(2){opacity:0}
+  #hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+  #sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;backdrop-filter:blur(2px)}
+
+  /* ═══════════════════════════════════════════════
+     TABLET (≤900px)
+  ═══════════════════════════════════════════════ */
+  @media(max-width:900px){
+    .stats-grid{grid-template-columns:repeat(2,1fr)}
+    .form-grid.cols-4{grid-template-columns:repeat(2,1fr)}
+    .form-grid.cols-3{grid-template-columns:repeat(2,1fr)}
+    .formula-row{grid-template-columns:130px 1fr 100px 28px}
+  }
+
+  /* ═══════════════════════════════════════════════
+     MOBILE (≤640px)
+  ═══════════════════════════════════════════════ */
+  @media(max-width:640px){
+    /* Sidebar — slide in/out */
+    #hamburger{display:flex}
+    #sidebar{transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);width:260px;box-shadow:none}
+    #sidebar.open{transform:translateX(0);box-shadow:8px 0 32px rgba(0,0,0,.5)}
+    #sidebar-overlay.open{display:block}
+
+    /* Main layout */
+    #main{margin-left:0}
+    #topbar{padding:0 16px 0 60px;height:52px}
+    .topbar-title{font-size:15px}
+    #content{padding:16px 14px 80px}
+
+    /* Patient lookup bar */
+    #patient-lookup-bar{padding:10px 14px;flex-wrap:wrap;gap:8px;top:52px}
+    .lookup-wrap{max-width:100%;width:100%}
+    #apb{width:100%}
+
+    /* Stats */
+    .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+    .stat-card{padding:14px 16px}
+    .stat-value{font-size:24px}
+
+    /* Form grids — all single column on mobile */
+    .form-grid,.form-grid.cols-2,.form-grid.cols-3,.form-grid.cols-4{grid-template-columns:1fr}
+    .form-group.span-2,.form-group.span-3,.form-group.span-full{grid-column:1/-1}
+    .form-card{padding:16px 14px;margin-bottom:12px}
+
+    /* Bilateral grid — stack OD/OS vertically */
+    .bilateral-grid{grid-template-columns:1fr;gap:0}
+    .eye-col:first-child{border-right:none;border-bottom:1px solid var(--border-dim)}
+    .eye-col-body{padding:10px 12px}
+    .eye-col-header{padding:10px 12px;font-size:11px}
+
+    /* Radio groups — wrap tightly */
+    .radio-group{gap:5px;flex-wrap:wrap}
+    .radio-option label{padding:6px 12px;font-size:12px}
+    .bi-radio .radio-option label{padding:5px 10px;font-size:11.5px}
+
+    /* Checkbox groups */
+    .checkbox-group,.iol-comps,.morph-checks,.flag-group{gap:5px}
+    .checkbox-option label,.iol-comp-option label,.morph-option label{font-size:11px;padding:4px 9px}
+
+    /* Formula rows */
+    .formula-row{grid-template-columns:1fr 1fr 28px;gap:5px}
+    .formula-row>div:empty{display:none}
+    .formula-headers{grid-template-columns:1fr 1fr 28px}
+    .formula-headers span:nth-child(2){display:none}
+
+    /* Tables */
+    .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .data-table{min-width:500px}
+    .patients-toolbar{flex-wrap:wrap;gap:8px}
+    .search-wrap{max-width:100%;order:3;width:100%}
+
+    /* Modal */
+    .modal-overlay{padding:16px 10px;align-items:flex-start}
+    .modal{padding:20px 16px;max-height:90vh}
+    .tab-btn{padding:7px 10px;font-size:11.5px}
+
+    /* Examiner select wrap */
+    .examiner-wrap{flex-wrap:wrap}
+    .examiner-wrap select{min-width:0;flex:1}
+
+    /* Section header */
+    .section-header h2{font-size:20px}
+    .section-header p{font-size:12px}
+
+    /* Form actions — full width buttons */
+    .form-actions{flex-direction:column-reverse;gap:8px}
+    .form-actions .btn{width:100%;justify-content:center;padding:13px}
+
+    /* Toast */
+    #toast{bottom:16px;right:10px;left:10px}
+    .toast-item{max-width:100%}
+
+    /* Date display */
+    .date-display .date-text{font-size:14px}
+
+    /* Config screen */
+    .config-hero h1{font-size:26px}
+    .settings-url-row{flex-direction:column}
+    .settings-url-row .btn{width:100%;justify-content:center}
+
+    /* Postop badge — smaller */
+    .postop-badge{font-size:9.5px;padding:2px 7px}
+
+    /* APB clear button */
+    .apb-clear{font-size:10.5px;padding:3px 8px}
+
+    /* Add formula button */
+    .add-formula-btn{font-size:11.5px;padding:5px 10px}
+
+    /* Lookup results */
+    .lookup-results{max-height:200px}
+    .lookup-result-item{padding:9px 14px}
+
+    /* Detail rows in modal */
+    .detail-row{flex-direction:column;gap:3px}
+    .detail-key{min-width:0}
+    .detail-val{text-align:left}
+
+    /* nav-item font */
+    .nav-item{font-size:14px;padding:10px 14px}
+
+    /* Scroll hint for bilateral sections */
+    .bilateral-note{display:block}
+  }
+
+  /* ═══════════════════════════════════════════════
+     SMALL PHONES (≤380px)
+  ═══════════════════════════════════════════════ */
+  @media(max-width:380px){
+    .stats-grid{grid-template-columns:1fr 1fr;gap:8px}
+    .stat-value{font-size:20px}
+    .eye-col-header{font-size:10px}
+    .radio-option label{padding:5px 9px;font-size:11.5px}
+  }
 </style>
 </head>
 <body>
 <div id="app">
+<button id="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+  <span></span><span></span><span></span>
+</button>
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
 
 <!-- SIDEBAR -->
 <nav id="sidebar">
@@ -1819,6 +1965,30 @@ function toggleConditional(triggerName, showValue, ...fieldIds){
     if(el) el.classList.toggle('disabled', !show);
   });
 }
+
+
+// ─── MOBILE SIDEBAR ───
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');
+  const hb=document.getElementById('hamburger');
+  const ov=document.getElementById('sidebar-overlay');
+  const open=sb.classList.toggle('open');
+  hb.classList.toggle('open',open);
+  ov.classList.toggle('open',open);
+  document.body.style.overflow=open?'hidden':'';
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('hamburger').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+// Close sidebar when a nav item is clicked on mobile
+document.querySelectorAll('.nav-item').forEach(el=>{
+  el.addEventListener('click',()=>{
+    if(window.innerWidth<=640) closeSidebar();
+  });
+});
 
 </script>
 </body>
