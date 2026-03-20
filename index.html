@@ -1338,6 +1338,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
   </div><!-- /content -->
 
 </div><!-- /main -->
+<div id="sync-bar"><div class="sync-dot"></div><span class="sync-msg" id="sync-msg"></span></div>
 </div><!-- /app -->
 
 <div id="toast"></div>
@@ -1438,10 +1439,48 @@ async function fetchSheet(name){
   const data=await res.json();
   return data.rows||[];
 }
-async function pushRow(sheet,row){
-  const res=await fetch(CONFIG.webAppUrl,{method:'POST',body:JSON.stringify({sheet,row})});
-  const data=await res.json();
-  if(data.status!=='ok')throw new Error('Push failed');
+// Pending sync queue for background saves
+let syncQueue = [];
+let syncTimer = null;
+
+function showSyncBar(state, msg){
+  const bar = document.getElementById('sync-bar');
+  const msgEl = document.getElementById('sync-msg');
+  if(!bar) return;
+  bar.className = 'sync-bar ' + state;  // reset
+  bar.classList.add(state);
+  msgEl.textContent = msg;
+  if(state !== 'syncing'){
+    clearTimeout(bar._hideTimer);
+    bar._hideTimer = setTimeout(()=>{ bar.className=''; }, state==='success'?2500:5000);
+  }
+}
+
+async function pushRow(sheet, row){
+  // 1. Instantly update local DB (optimistic) — caller handles this
+  // 2. Show syncing indicator immediately
+  showSyncBar('syncing', 'Saving to Google Sheets…');
+  // 3. Send to Google in background — don't block UI
+  try {
+    const res = await fetch(CONFIG.webAppUrl, {
+      method:'POST',
+      body: JSON.stringify({sheet, row})
+    });
+    const data = await res.json();
+    if(data.status !== 'ok') throw new Error('Server error');
+    showSyncBar('success', 'Saved ✓');
+  } catch(err) {
+    showSyncBar('error', 'Sync failed — check connection');
+    // Re-queue for retry after 8s
+    setTimeout(()=>{ 
+      showSyncBar('syncing','Retrying…');
+      fetch(CONFIG.webAppUrl,{method:'POST',body:JSON.stringify({sheet,row})})
+        .then(r=>r.json())
+        .then(d=>{ if(d.status==='ok') showSyncBar('success','Saved ✓'); else showSyncBar('error','Sync failed — data may not be saved'); })
+        .catch(()=>showSyncBar('error','Sync failed — data may not be saved'));
+    }, 8000);
+    throw err; // still throw so caller knows
+  }
 }
 
 // ─── DASHBOARD ───
@@ -1552,19 +1591,22 @@ document.getElementById('detail-modal').addEventListener('click',function(e){if(
 // ─── SUBMIT PATIENT ───
 async function submitPatient(e){
   e.preventDefault();if(!CONFIG.webAppUrl){showToast('Configure Google Sheets first','error');showView('setup');return;}
-  const btn=document.getElementById('patient-submit-btn');setLoading(btn,true);
+  const btn=document.getElementById('patient-submit-btn');
   const sex=document.querySelector('input[name="p-sex"]:checked');
   const row={PID:document.getElementById('p-pid').value.trim(),DateOfRegistration:document.getElementById('p-regdate').value,Name:document.getElementById('p-name').value.trim(),NationalID:document.getElementById('p-natid').value.trim(),DOB:document.getElementById('p-dob').value,Sex:sex?sex.value:'',Phone:document.getElementById('p-phone').value,AlternatePhone:document.getElementById('p-phone2').value,Address:document.getElementById('p-address').value,Referring:document.getElementById('p-referring').value,Others:document.getElementById('p-others').value,EntryDate:today()};
-  try{await pushRow('Patients',row);DB.patients.push(row);showToast('Patient saved ✓','success');document.getElementById('patient-form').reset();generatePID();showView('patients');}
-  catch{showToast('Error saving patient','error');}
-  setLoading(btn,false,'Save Patient');
+  DB.patients.push(row);
+  showToast('Patient saved ✓','success');
+  document.getElementById('patient-form').reset();
+  generatePID();
+  showView('patients');
+  pushRow('Patients',row).catch(()=>{});
 }
 
 // ─── SUBMIT EXAMINATION ───
 async function submitExamination(e){
   e.preventDefault();if(!CONFIG.webAppUrl){showToast('Configure Google Sheets first','error');showView('setup');return;}
   if(!ACTIVE_PATIENT){showToast('Please select a patient first using the search bar','error');return;}
-  const btn=document.getElementById('exam-submit-btn');setLoading(btn,true);
+  const btn=document.getElementById('exam-submit-btn');
   const g=(id)=>document.getElementById(id);
   const r=(name)=>{const el=document.querySelector(`input[name="${name}"]:checked`);return el?el.value:'';}
   const row={
@@ -1621,29 +1663,33 @@ async function submitExamination(e){
     FamilyHistory:g('e-fhx').checked?'Yes':'No',FamilyHistoryDesc:g('e-fhx-desc').value,
     Comments:g('e-comments').value,EntryDate:today()
   };
-  try{await pushRow('Examinations',row);DB.examinations.push(row);showToast('Examination saved ✓','success');document.getElementById('exam-form').reset();showView('patients');}
-  catch{showToast('Error saving examination','error');}
-  setLoading(btn,false,'Save Examination');
+  DB.examinations.push(row);
+  showToast('Examination saved ✓','success');
+  document.getElementById('exam-form').reset();
+  showView('patients');
+  pushRow('Examinations',row).catch(()=>{});
 }
 
 // ─── SUBMIT SURGERY ───
 async function submitSurgery(e){
   e.preventDefault();if(!CONFIG.webAppUrl){showToast('Configure Google Sheets first','error');showView('setup');return;}
   if(!ACTIVE_PATIENT){showToast('Please select a patient first using the search bar','error');return;}
-  const btn=document.getElementById('surgery-submit-btn');setLoading(btn,true);
+  const btn=document.getElementById('surgery-submit-btn');
   const eye=document.querySelector('input[name="s-eye"]:checked');
   const iol=document.querySelector('input[name="iol-yn"]:checked');
   const row={ID:'OP'+Date.now(),PID:document.getElementById('s-pid').value||ACTIVE_PATIENT?.PID||'',DateOfOp:document.getElementById('s-date').value,Eye:eye?eye.value:'',OperationName:document.getElementById('s-optype').value,IOL:iol?iol.value:'',AnteriorCapsule:document.getElementById('s-ant-cap').value,PosteriorCapsule:document.getElementById('s-post-cap').value,CapsuleStain:document.getElementById('s-cap-stain').checked?'Yes':'No',Viscoelastic:document.getElementById('s-visco').value,AnteriorVitrectomy:document.getElementById('s-ant-vit').value,Membranectomy:document.getElementById('sp-memb').checked?'Yes':'No',Iridectomy:document.getElementById('sp-irid').checked?'Yes':'No',IrisInjury:document.getElementById('sp-iris-inj').checked?'Yes':'No',Sphincterinjury:document.getElementById('sp-sphinc').checked?'Yes':'No',Synechiolysis:document.getElementById('sp-syn').checked?'Yes':'No',IrisReconstruction:document.getElementById('sp-iris-rec').checked?'Yes':'No',IrisManipulations:document.getElementById('sp-iris-man').checked?'Yes':'No',Hyphaema:document.getElementById('sp-hyph').checked?'Yes':'No',DroppedCortex:document.getElementById('sp-drop-cortex').checked?'Yes':'No',DroppedIOL:document.getElementById('sp-drop-iol').checked?'Yes':'No',VitreousHaemorrhage:document.getElementById('sp-vit-haem').checked?'Yes':'No',OtherComplications:document.getElementById('s-complications').value,IOLType:document.getElementById('s-iol-type').value,IOLPlace:document.getElementById('s-iol-place').value,IOLPower:document.getElementById('s-iol-power').value,TargetRefraction:document.getElementById('s-target-ref').value,Orientation:document.getElementById('s-orientation').value,Steroids:document.getElementById('s-steroids').checked?'Yes':'No',Atropine:document.getElementById('s-atropine').checked?'Yes':'No',Route:document.getElementById('s-route').value,Medications:document.getElementById('s-meds').value,Examiner:document.getElementById('s-examiner').value,Duration:document.getElementById('s-duration').value,EntryDate:today()};
-  try{await pushRow('Operations',row);DB.operations.push(row);showToast('Operation saved ✓','success');document.getElementById('surgery-form').reset();showView('patients');}
-  catch{showToast('Error saving operation','error');}
-  setLoading(btn,false,'Save Operation');
+  DB.operations.push(row);
+  showToast('Operation saved ✓','success');
+  document.getElementById('surgery-form').reset();
+  showView('patients');
+  pushRow('Operations',row).catch(()=>{});
 }
 
 // ─── SUBMIT FOLLOW-UP ───
 async function submitFollowup(e){
   e.preventDefault();if(!CONFIG.webAppUrl){showToast('Configure Google Sheets first','error');showView('setup');return;}
   if(!ACTIVE_PATIENT){showToast('Please select a patient first using the search bar','error');return;}
-  const btn=document.getElementById('followup-submit-btn');setLoading(btn,true);
+  const btn=document.getElementById('followup-submit-btn');
   const g=(id)=>document.getElementById(id);
   const r=(name)=>{const el=document.querySelector(`input[name="${name}"]:checked`);return el?el.value:'';}
   const row={
@@ -1682,9 +1728,11 @@ async function submitFollowup(e){
     AxialLength_OS:g('f-axl-os').value,K1_OS:g('f-k1-os').value,K2_OS:g('f-k2-os').value,Formulas_OS:getFormulasJSON('f','os'),
     Comments:g('f-comments').value,EntryDate:today()
   };
-  try{await pushRow('Followup',row);DB.followups.push(row);showToast('Follow-up saved ✓','success');document.getElementById('followup-form').reset();showView('patients');}
-  catch{showToast('Error saving follow-up','error');}
-  setLoading(btn,false,'Save Follow-up');
+  DB.followups.push(row);
+  showToast('Follow-up saved ✓','success');
+  document.getElementById('followup-form').reset();
+  showView('patients');
+  pushRow('Followup',row).catch(()=>{});
 }
 
 // ─── ACTIVE PATIENT STATE ───
