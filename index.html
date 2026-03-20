@@ -1450,12 +1450,15 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
                     <option value="">— Select —</option>
                     <option>Trabeculotomy</option>
                     <option>Trabeculectomy</option>
+                    <option>Goniotomy</option>
+                    <option>GATT</option>
                     <option>Glaucoma drainage device</option>
                     <option>Nd:YAG laser capsulotomy</option>
                     <option>Strabismus surgery</option>
                     <option>Ptosis surgery</option>
                     <option>Penetrating keratoplasty</option>
-                    <option>Retinal detachment surgery</option>
+                    <option>Scleral buckle</option>
+                    <option>Vitrectomy</option>
                     <option>Intravitreal injection</option>
                     <option value="__add__">＋ Add other…</option>
                   </select>
@@ -1821,6 +1824,28 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
                 <button type="button" class="add-formula-btn" onclick="addFormula('f','os')">＋ Add formula</button>
               </div>
             </div></div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">Complications</div>
+          <p style="font-size:12.5px;color:var(--text-dim);margin-bottom:12px">Select all that apply</p>
+          <div class="checkbox-group" style="gap:7px">
+            <div class="checkbox-option"><input type="checkbox" id="fc-hyph" value="Hyphaema"><label for="fc-hyph">Hyphaema</label></div>
+            <div class="checkbox-option"><input type="checkbox" id="fc-acr" value="Anterior chamber reaction"><label for="fc-acr">Anterior chamber reaction</label></div>
+            <div class="checkbox-option"><input type="checkbox" id="fc-phim" value="Capsular phimosis"><label for="fc-phim">Capsular phimosis</label></div>
+            <div class="checkbox-option"><input type="checkbox" id="fc-vao" value="Visual axis opacification"><label for="fc-vao">Visual axis opacification</label></div>
+            <div class="checkbox-option"><input type="checkbox" id="fc-amb" value="Amblyopia"><label for="fc-amb">Amblyopia</label></div>
+            <div class="checkbox-option"><input type="checkbox" id="fc-rd" value="Retinal detachment"><label for="fc-rd">Retinal detachment</label></div>
+            <div class="checkbox-option"><input type="checkbox" id="fc-endo" value="Endophthalmitis"><label for="fc-endo">Endophthalmitis</label></div>
+            <div class="checkbox-option"><input type="checkbox" id="fc-disencl" value="Disenclavation of IOL"><label for="fc-disencl">Disenclavation of IOL</label></div>
+            <div class="checkbox-option"><input type="checkbox" id="fc-disp" value="Displacement / dislocation of IOL"><label for="fc-disp">Displacement / dislocation of IOL</label></div>
+            <div class="checkbox-option"><input type="checkbox" id="fc-glauc" value="Glaucoma"><label for="fc-glauc">Glaucoma</label></div>
+          </div>
+          <div id="fc-custom-comps" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:6px"></div>
+          <div style="display:flex;gap:6px;margin-top:8px">
+            <input type="text" id="fc-other-input" placeholder="Other complication…" style="flex:1;font-size:13px;padding:7px 11px">
+            <button type="button" class="add-formula-btn" style="margin-top:0;padding:6px 12px" onclick="addFupComplication()">＋ Add</button>
           </div>
         </div>
 
@@ -2274,11 +2299,13 @@ async function submitFollowup(e){
     CD_OS:g('f-cd-os').value,Gonioscopy_OS:r('f-gonio-os'),AngleOS:r('f-angle-os'),GonioDesc_OS:g('f-gonio-desc-os')?.value||'',
     AxialLength_OD:g('f-axl-od').value,K1_OD:g('f-k1-od').value,K2_OD:g('f-k2-od').value,Formulas_OD:getFormulasJSON('f','od'),
     AxialLength_OS:g('f-axl-os').value,K1_OS:g('f-k1-os').value,K2_OS:g('f-k2-os').value,Formulas_OS:getFormulasJSON('f','os'),
+    Complications:getFupComplications(),
     Comments:g('f-comments').value,EntryDate:today()
   };
   DB.followups.push(row);
   showToast('Follow-up saved ✓','success');
   document.getElementById('followup-form').reset();
+  customFupComps=[];const cc=document.getElementById('fc-custom-comps');if(cc)cc.innerHTML='';
   showView('patients');
   pushRow('Followup',row).catch(()=>{});
 }
@@ -2833,7 +2860,7 @@ function onSurgCategory(cat){
 
 // Custom other surgery types
 let CUSTOM_OTHER_SURGS = JSON.parse(localStorage.getItem('pedicat_other_surgs') || '[]');
-const BASE_OTHER_SURGS = ['Trabeculotomy','Trabeculectomy','Glaucoma drainage device','Nd:YAG laser capsulotomy','Strabismus surgery','Ptosis surgery','Penetrating keratoplasty','Retinal detachment surgery','Intravitreal injection'];
+const BASE_OTHER_SURGS = ['Trabeculotomy','Trabeculectomy','Goniotomy','GATT','Glaucoma drainage device','Nd:YAG laser capsulotomy','Strabismus surgery','Ptosis surgery','Penetrating keratoplasty','Scleral buckle','Vitrectomy','Intravitreal injection'];
 
 function addOtherSurgType(){
   const name = prompt('Enter surgery type:');
@@ -2914,6 +2941,31 @@ function handleOtherOptypeChange(){
   } else {
     custom.style.display = 'none';
   }
+}
+
+
+// ─── FOLLOWUP CUSTOM COMPLICATIONS ───
+let customFupComps = [];
+function addFupComplication(){
+  const inp = document.getElementById('fc-other-input');
+  const val = inp?.value.trim();
+  if(!val) return;
+  customFupComps.push(val);
+  const container = document.getElementById('fc-custom-comps');
+  if(container){
+    const id = 'fc-custom-'+Date.now();
+    const div = document.createElement('div');
+    div.className = 'checkbox-option';
+    div.innerHTML = `<input type="checkbox" id="${id}" value="${val}" checked><label for="${id}">${val}</label>`;
+    container.appendChild(div);
+  }
+  inp.value = '';
+}
+function getFupComplications(){
+  const fixed = ['fc-hyph','fc-acr','fc-phim','fc-vao','fc-amb','fc-rd','fc-endo','fc-disencl','fc-disp','fc-glauc'];
+  const checked = fixed.filter(id=>document.getElementById(id)?.checked).map(id=>document.getElementById(id).value);
+  const custom = [...document.querySelectorAll('#fc-custom-comps input[type=checkbox]:checked')].map(c=>c.value);
+  return [...checked,...custom].join('; ');
 }
 
 // ─── MOBILE SIDEBAR ───
