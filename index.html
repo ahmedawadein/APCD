@@ -601,9 +601,9 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
                   </label>
                 </div>
                 <div id="e-refraction-od">
-                  <div class="bi-field" style="margin-bottom:6px"><label>Sphere (D)</label><input type="number" id="e-sph-od" step="0.25" placeholder="e.g. -2.50"></div>
-                  <div class="bi-field" style="margin-bottom:6px"><label>Cylinder (D)</label><input type="number" id="e-cyl-od" step="0.25" placeholder="e.g. -0.75"></div>
-                  <div class="bi-field"><label>Axis (°)</label><input type="number" id="e-axis-od" min="0" max="180" placeholder="0–180"></div>
+                  <div class="bi-field" style="margin-bottom:6px"><label>Sphere (D)</label><input type="number" id="e-sphere-od" step="0.25" placeholder="e.g. -2.50"></div>
+                  <div class="bi-field" style="margin-bottom:6px"><label>Cylinder (D)</label><input type="number" id="e-cylinder-od" step="0.25" placeholder="e.g. -0.75"></div>
+                  <div class="bi-field"><label>Axis (°)</label><input type="number" id="e-axisval-od" min="0" max="180" placeholder="0–180"></div>
                 </div>
               </div>
             </div></div>
@@ -618,9 +618,9 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
                   </label>
                 </div>
                 <div id="e-refraction-os">
-                  <div class="bi-field" style="margin-bottom:6px"><label>Sphere (D)</label><input type="number" id="e-sph-os" step="0.25" placeholder="e.g. -2.50"></div>
-                  <div class="bi-field" style="margin-bottom:6px"><label>Cylinder (D)</label><input type="number" id="e-cyl-os" step="0.25" placeholder="e.g. -0.75"></div>
-                  <div class="bi-field"><label>Axis (°)</label><input type="number" id="e-axis-os" min="0" max="180" placeholder="0–180"></div>
+                  <div class="bi-field" style="margin-bottom:6px"><label>Sphere (D)</label><input type="number" id="e-sphere-os" step="0.25" placeholder="e.g. -2.50"></div>
+                  <div class="bi-field" style="margin-bottom:6px"><label>Cylinder (D)</label><input type="number" id="e-cylinder-os" step="0.25" placeholder="e.g. -0.75"></div>
+                  <div class="bi-field"><label>Axis (°)</label><input type="number" id="e-axisval-os" min="0" max="180" placeholder="0–180"></div>
                 </div>
               </div>
             </div></div>
@@ -1565,8 +1565,8 @@ async function submitExamination(e){
   const row={
     ID:'EX'+Date.now(),PID:ACTIVE_PATIENT.PID,DateOfExam:g('e-date').value,
     Examiner:g('e-examiner').value,
-    VA_OD:g('e-va-od').value,Irrefractable_OD:g('e-irr-od')?.checked?'Yes':'No',Sphere_OD:g('e-sph-od')?.value||'',Cylinder_OD:g('e-cyl-od')?.value||'',Axis_OD:g('e-axis-od')?.value||'',
-    VA_OS:g('e-va-os').value,Irrefractable_OS:g('e-irr-os')?.checked?'Yes':'No',Sphere_OS:g('e-sph-os')?.value||'',Cylinder_OS:g('e-cyl-os')?.value||'',Axis_OS:g('e-axis-os')?.value||'',
+    VA_OD:g('e-va-od').value,Irrefractable_OD:g('e-irr-od')?.checked?'Yes':'No',Sphere_OD:g('e-sphere-od')?.value||'',Cylinder_OD:g('e-cylinder-od')?.value||'',Axis_OD:g('e-axisval-od')?.value||'',
+    VA_OS:g('e-va-os').value,Irrefractable_OS:g('e-irr-os')?.checked?'Yes':'No',Sphere_OS:g('e-sphere-os')?.value||'',Cylinder_OS:g('e-cylinder-os')?.value||'',Axis_OS:g('e-axisval-os')?.value||'',
     CorneaOpacity_OD:r('e-cornea-od'),LocationCornea_OD:g('e-cornea-loc-od').value,Density_OD:g('e-cornea-density-od').value,
     CorneaDiamH_OD:g('e-cornea-diamh-od').value,CorneaDiamV_OD:g('e-cornea-diamv-od').value,
     CCT_OD:g('e-cct-od').value,PupilDiam_OD:g('e-pupil-diam-od').value,
@@ -1970,9 +1970,12 @@ function toggleIrrefractable(prefix, eye){
   wrap.style.pointerEvents = disabled ? 'none' : '';
   // clear values when irrefractable
   if(disabled){
-    const sph = document.getElementById(`${prefix}-sph-${eye}`);
-    const cyl = document.getElementById(`${prefix}-cyl-${eye}`);
-    const axis = document.getElementById(`${prefix}-axis-${eye}`);
+    const sphId = prefix==="e" ? `${prefix}-sphere-${eye}` : `${prefix}-sph-${eye}`;
+  const sph = document.getElementById(sphId);
+    const cylId = prefix==="e" ? `${prefix}-cylinder-${eye}` : `${prefix}-cyl-${eye}`;
+  const cyl = document.getElementById(cylId);
+    const axisId = prefix==="e" ? `${prefix}-axisval-${eye}` : `${prefix}-axis-${eye}`;
+  const axis = document.getElementById(axisId);
     if(sph) sph.value = '';
     if(cyl) cyl.value = '';
     if(axis) axis.value = '';
