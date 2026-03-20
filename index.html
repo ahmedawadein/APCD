@@ -357,6 +357,20 @@
   .image-lightbox-close:hover{opacity:1}
   .image-caption-input{margin-top:8px;font-size:12.5px;padding:6px 10px}
 
+  /* PHOTO PICKER POPUP */
+  .photo-picker-overlay{position:fixed;inset:0;z-index:600;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);animation:fadeIn .18s}
+  .photo-picker-sheet{background:var(--navy-mid);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:20px 20px 32px;animation:slideUpSheet .22s ease}
+  @keyframes slideUpSheet{from{transform:translateY(60px);opacity:0}to{transform:none;opacity:1}}
+  .photo-picker-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);text-align:center;margin-bottom:16px}
+  .photo-picker-options{display:flex;gap:10px}
+  .photo-picker-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:9px;padding:18px 12px;border:1px solid var(--border-dim);border-radius:12px;background:rgba(255,255,255,.04);cursor:pointer;transition:all .15s;font-family:'Lato',sans-serif;color:var(--text-main)}
+  .photo-picker-btn:hover{border-color:var(--teal);background:var(--teal-glow);color:var(--teal)}
+  .photo-picker-btn .picker-icon{font-size:28px}
+  .photo-picker-btn .picker-label{font-size:13px;font-weight:700}
+  .photo-picker-btn .picker-sub{font-size:10.5px;color:var(--text-faint);text-align:center;line-height:1.4}
+  .photo-picker-cancel{display:block;width:100%;margin-top:10px;padding:11px;border:1px solid var(--border-dim);border-radius:10px;background:transparent;color:var(--text-dim);font-family:'Lato',sans-serif;font-size:13.5px;font-weight:700;cursor:pointer;transition:all .15s}
+  .photo-picker-cancel:hover{border-color:var(--red);color:var(--red)}
+
   /* PATIENT SEARCH BAR */
   #patient-lookup-bar{background:rgba(13,27,42,.95);border-bottom:1px solid var(--border);padding:12px 30px;display:flex;align-items:center;gap:12px;position:sticky;top:58px;z-index:40;backdrop-filter:blur(8px)}
   #patient-lookup-bar.hidden{display:none!important}
@@ -1932,15 +1946,18 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
       <div class="form-card">
         <div class="form-card-title">Upload</div>
         <div class="upload-zone" id="upload-zone-main"
-          onclick="document.getElementById('img-file-input-main').click()"
+          onclick="showPhotoPicker('main')"
           ondragover="event.preventDefault();this.classList.add('drag-over')"
           ondragleave="this.classList.remove('drag-over')"
           ondrop="handleImageDrop(event,'main')">
-          <input type="file" id="img-file-input-main" accept="image/*" multiple capture="environment"
+          <!-- Camera input (no capture attr = shows OS picker, but we handle separately) -->
+          <input type="file" id="img-file-input-main-camera" accept="image/*"
+            capture="environment" onchange="handleImageSelect(event,'main')">
+          <input type="file" id="img-file-input-main-gallery" accept="image/*" multiple
             onchange="handleImageSelect(event,'main')">
           <div class="upload-zone-icon">📷</div>
-          <div class="upload-zone-text">Tap to take photo or choose from gallery</div>
-          <div class="upload-zone-sub">JPG, PNG — multiple files supported</div>
+          <div class="upload-zone-text">Tap to upload a photo</div>
+          <div class="upload-zone-sub">Take a new photo or choose from your gallery / hard disc</div>
           <div class="upload-progress" id="upload-progress-main">
             <div class="upload-progress-bar" id="upload-bar-main" style="width:0%"></div>
           </div>
@@ -1954,6 +1971,26 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
 </div><!-- /main -->
 <div id="sync-bar"><div class="sync-dot"></div><span class="sync-msg" id="sync-msg"></span></div>
 </div><!-- /app -->
+
+<!-- PHOTO PICKER POPUP -->
+<div id="photo-picker-overlay" class="photo-picker-overlay" style="display:none" onclick="if(event.target===this)closePhotoPicker()">
+  <div class="photo-picker-sheet">
+    <div class="photo-picker-title">Upload Photo</div>
+    <div class="photo-picker-options">
+      <button class="photo-picker-btn" onclick="triggerCamera()">
+        <span class="picker-icon">📸</span>
+        <span class="picker-label">Take Photo</span>
+        <span class="picker-sub">Open camera to capture a new image</span>
+      </button>
+      <button class="photo-picker-btn" onclick="triggerGallery()">
+        <span class="picker-icon">🖼️</span>
+        <span class="picker-label">Choose File</span>
+        <span class="picker-sub">Pick from gallery, photos, or hard disc</span>
+      </button>
+    </div>
+    <button class="photo-picker-cancel" onclick="closePhotoPicker()">Cancel</button>
+  </div>
+</div>
 
 <div id="toast"></div>
 <div id="image-lightbox" class="image-lightbox" style="display:none" onclick="closeLightbox(event)"><button class="image-lightbox-close" onclick="closeLightbox()">✕</button><img id="lightbox-img" src="" alt=""></div>
@@ -3068,6 +3105,40 @@ function getFupComplications(eye){
 }
 
 
+// ─── PHOTO PICKER ───
+let _photoPickerZoneId = 'main';
+
+function showPhotoPicker(zoneId){
+  _photoPickerZoneId = zoneId || 'main';
+  document.getElementById('photo-picker-overlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closePhotoPicker(){
+  document.getElementById('photo-picker-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function triggerCamera(){
+  closePhotoPicker();
+  // Use camera-specific input (with capture attribute)
+  const cameraInput = document.getElementById('img-file-input-'+_photoPickerZoneId+'-camera');
+  if(cameraInput){ cameraInput.value=''; cameraInput.click(); return; }
+  // Fallback for modal zone IDs (e.g. pid-based)
+  const fallback = document.getElementById('img-file-input-cam-'+_photoPickerZoneId);
+  if(fallback){ fallback.value=''; fallback.click(); }
+}
+
+function triggerGallery(){
+  closePhotoPicker();
+  // Use gallery input (no capture attribute, supports multiple)
+  const galleryInput = document.getElementById('img-file-input-'+_photoPickerZoneId+'-gallery');
+  if(galleryInput){ galleryInput.value=''; galleryInput.click(); return; }
+  // Fallback for modal zone IDs
+  const fallback = document.getElementById('img-file-input-gal-'+_photoPickerZoneId);
+  if(fallback){ fallback.value=''; fallback.click(); }
+}
+
 // ─── IMAGE UPLOAD ───
 let currentImagePID = null;
 
@@ -3076,6 +3147,24 @@ function openImagesTab(pid){
   const tab = document.getElementById('tab-images');
   if(!tab) return;
   tab.innerHTML = `
+    <div style="margin-bottom:14px">
+      <div class="upload-zone" id="upload-zone-${pid}"
+        onclick="showPhotoPicker('${pid}')"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="handleImageDrop(event,'${pid}')">
+        <input type="file" id="img-file-input-${pid}-camera" accept="image/*"
+          capture="environment" onchange="handleImageSelect(event,'${pid}')">
+        <input type="file" id="img-file-input-${pid}-gallery" accept="image/*" multiple
+          onchange="handleImageSelect(event,'${pid}')">
+        <div class="upload-zone-icon">📷</div>
+        <div class="upload-zone-text">Tap to upload a photo</div>
+        <div class="upload-zone-sub">Take a new photo or choose from gallery / hard disc</div>
+        <div class="upload-progress" id="upload-progress-${pid}">
+          <div class="upload-progress-bar" id="upload-bar-${pid}" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
     <div id="image-grid-${pid}" style="margin-top:4px">
       <div style="text-align:center;padding:24px;color:var(--text-faint);font-size:12.5px">
         <span class="spinner"></span> Loading images…
