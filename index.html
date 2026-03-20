@@ -505,7 +505,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
           <h3>Step 3 — Connect</h3>
           <p>Paste your Web App URL here and click Connect.</p>
           <div class="settings-url-row">
-            <input type="url" id="webapp-url-input" placeholder="https://script.google.com/macros/s/...">
+            <input type="url" id="webapp-url-input" value="https://script.google.com/macros/s/AKfycbwBRx8ViEtjwVpZkjvZD8hhUDTnbncO96zsTGtT9dR9qyzQVJ5_lHe7U_ehrZTJ6VKOUA/exec">
             <button class="btn btn-primary" onclick="saveConfig()">Connect</button>
           </div>
           <div id="test-result" style="margin-top:10px;font-size:12.5px"></div>
@@ -1367,15 +1367,18 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
 
 <script>
 // ─── STATE ───
-let CONFIG={webAppUrl:''};
+let CONFIG={webAppUrl:'https://script.google.com/macros/s/AKfycbwBRx8ViEtjwVpZkjvZD8hhUDTnbncO96zsTGtT9dR9qyzQVJ5_lHe7U_ehrZTJ6VKOUA/exec'};
 let DB={patients:[],examinations:[],operations:[],followups:[]};
 
 // ─── INIT ───
 document.addEventListener('DOMContentLoaded',()=>{
   const saved=localStorage.getItem('pedicat_v2_config');
-  if(saved){CONFIG=JSON.parse(saved);document.getElementById('webapp-url-input').value=CONFIG.webAppUrl||'';}
+  if(saved){CONFIG=JSON.parse(saved);}
+  // Always ensure the hardcoded URL is set if none saved
+  if(!CONFIG.webAppUrl){CONFIG.webAppUrl='https://script.google.com/macros/s/AKfycbwBRx8ViEtjwVpZkjvZD8hhUDTnbncO96zsTGtT9dR9qyzQVJ5_lHe7U_ehrZTJ6VKOUA/exec';localStorage.setItem('pedicat_v2_config',JSON.stringify(CONFIG));}
+  document.getElementById('webapp-url-input').value=CONFIG.webAppUrl;
   updateConnectionBadge();
-  if(CONFIG.webAppUrl) loadAll();
+  loadAll();
   refreshExaminerSelects();
   setTimeout(initDateDisplays, 100);
   const today=new Date().toISOString().split('T')[0];
