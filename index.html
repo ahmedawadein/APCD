@@ -183,6 +183,24 @@
   .hint{font-size:11px;color:var(--text-faint);margin-top:3px}
   .two-col-detail{display:grid;grid-template-columns:1fr 1fr;gap:0}
 
+
+  /* BILATERAL OD/OS LAYOUT */
+  .bilateral-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border-dim);border-radius:var(--radius);overflow:hidden;margin-top:4px}
+  .eye-col{padding:0}
+  .eye-col-header{padding:8px 14px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:500;text-align:center;border-bottom:1px solid var(--border-dim)}
+  .eye-col-header.od{background:rgba(28,184,176,.1);color:var(--teal)}
+  .eye-col-header.os{background:rgba(155,127,232,.1);color:var(--purple)}
+  .eye-col:first-child{border-right:1px solid var(--border-dim)}
+  .eye-col-body{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+  .bi-field{display:flex;flex-direction:column;gap:4px}
+  .bi-field label{font-size:10px;font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;color:var(--text-faint)}
+  .bi-field input,.bi-field select,.bi-field textarea{background:var(--input-bg);border:1px solid rgba(255,255,255,.08);border-radius:7px;color:var(--text-main);font-family:'Lato',sans-serif;font-size:13px;padding:7px 11px;width:100%;outline:none;transition:border-color .15s,box-shadow .15s;appearance:none}
+  .bi-field input:focus,.bi-field select:focus{border-color:var(--teal);box-shadow:0 0 0 2px var(--teal-glow)}
+  .bi-field select option{background:var(--navy-mid)}
+  .bi-radio{display:flex;gap:5px;flex-wrap:wrap}
+  .bi-radio .radio-option label{padding:5px 11px;font-size:11.5px}
+  .section-shared{padding:12px 14px;border-top:1px solid var(--border-dim);background:rgba(0,0,0,.1)}
+
   /* PATIENT SEARCH BAR */
   #patient-lookup-bar{background:rgba(13,27,42,.95);border-bottom:1px solid var(--border);padding:12px 30px;display:flex;align-items:center;gap:12px;position:sticky;top:58px;z-index:40;backdrop-filter:blur(8px)}
   #patient-lookup-bar.hidden{display:none!important}
@@ -358,14 +376,13 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
 
     <!-- ═══════════════════════════════ EXAMINATION ═══ -->
     <div id="view-new-examination" class="hidden">
-      <div class="section-header"><h2>Preoperative Examination</h2><p>Initial and preoperative clinical findings</p></div>
+      <div class="section-header"><h2>Preoperative Examination</h2><p>Initial and preoperative clinical findings — both eyes in one submission</p></div>
       <form id="exam-form" onsubmit="submitExamination(event)">
         <div class="form-card">
           <div class="form-card-title">Procedure Info</div>
           <div class="form-grid cols-4">
             <div class="form-group span-2"><label>Patient</label><input type="text" id="e-pid-display" readonly placeholder="Select patient using search bar above" style="background:rgba(28,184,176,.05);color:var(--teal);cursor:default"><input type="hidden" id="e-pid"></div>
             <div class="form-group"><label>Date of Exam *</label><input type="date" id="e-date" required></div>
-            <div class="form-group"><label>Eye *</label><div class="radio-group"><div class="radio-option"><input type="radio" name="e-eye" id="ee-od" value="OD"><label for="ee-od">OD</label></div><div class="radio-option"><input type="radio" name="e-eye" id="ee-os" value="OS"><label for="ee-os">OS</label></div><div class="radio-option"><input type="radio" name="e-eye" id="ee-ou" value="OU"><label for="ee-ou">OU</label></div></div></div>
             <div class="form-group span-2"><label>Procedure Type</label><select id="e-proctype"><option value="">— Select —</option><option>Initial Examination</option><option>Unspecified Preoperative Examination</option><option>One Day Postoperative Examination</option><option>One Week Postoperative Examination</option><option>One Month Postoperative Examination</option><option>Three Months Postoperative Examination</option><option>Six Months Postoperative Examination</option><option>One Year Postoperative Examination</option><option>Postoperative Examination Unspecified</option></select></div>
             <div class="form-group span-2"><label>Examiner</label><select id="e-examiner"><option value="">— Select —</option><option>Esraa Elmalah</option><option>Hatem Saeed</option><option>Mohamed Elsada</option><option>Lobna Khazbak</option><option>Hala Elhilaly</option></select></div>
           </div>
@@ -373,58 +390,97 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
 
         <div class="form-card">
           <div class="form-card-title">Cornea</div>
-          <div class="form-grid cols-4">
-            <div class="form-group"><label>Corneal Opacity</label><div class="radio-group"><div class="radio-option"><input type="radio" name="e-cornea" id="co-n" value="Normal"><label for="co-n">Normal</label></div><div class="radio-option"><input type="radio" name="e-cornea" id="co-y" value="Present"><label for="co-y">Present</label></div></div></div>
-            <div class="form-group"><label>Location</label><input type="text" id="e-cornea-loc" placeholder="e.g. central"></div>
-            <div class="form-group"><label>Density</label><input type="text" id="e-cornea-density" placeholder="e.g. mild/moderate/dense"></div>
-            <div class="form-group"><label>Horizontal Diameter (mm)</label><input type="number" id="e-cornea-diamh" step="0.1" placeholder="mm"></div>
-            <div class="form-group"><label>Vertical Diameter (mm)</label><input type="number" id="e-cornea-diamv" step="0.1" placeholder="mm"></div>
-            <div class="form-group"><label>CCT (µm)</label><input type="number" id="e-cct" placeholder="µm"></div>
-            <div class="form-group"><label>CCT Other Eye (µm)</label><input type="number" id="e-cct-other" placeholder="µm"></div>
-            <div class="form-group"><label>Pupil Diameter (mm)</label><input type="number" id="e-pupil-diam" step="0.1" placeholder="mm"></div>
+          <div class="bilateral-grid">
+            <div class="eye-col"><div class="eye-col-header od">OD — Right Eye</div><div class="eye-col-body">
+              <div class="bi-field"><label>Corneal Opacity</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-cornea-od" id="co-od-n" value="Normal"><label for="co-od-n">Normal</label></div><div class="radio-option"><input type="radio" name="e-cornea-od" id="co-od-y" value="Present"><label for="co-od-y">Present</label></div></div></div>
+              <div class="bi-field"><label>Location</label><input type="text" id="e-cornea-loc-od" placeholder="e.g. central"></div>
+              <div class="bi-field"><label>Density</label><input type="text" id="e-cornea-density-od" placeholder="mild/moderate/dense"></div>
+              <div class="bi-field"><label>Horizontal Diameter (mm)</label><input type="number" id="e-cornea-diamh-od" step="0.1" placeholder="mm"></div>
+              <div class="bi-field"><label>Vertical Diameter (mm)</label><input type="number" id="e-cornea-diamv-od" step="0.1" placeholder="mm"></div>
+              <div class="bi-field"><label>CCT (µm)</label><input type="number" id="e-cct-od" placeholder="µm"></div>
+              <div class="bi-field"><label>Pupil Diameter (mm)</label><input type="number" id="e-pupil-diam-od" step="0.1" placeholder="mm"></div>
+            </div></div>
+            <div class="eye-col"><div class="eye-col-header os">OS — Left Eye</div><div class="eye-col-body">
+              <div class="bi-field"><label>Corneal Opacity</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-cornea-os" id="co-os-n" value="Normal"><label for="co-os-n">Normal</label></div><div class="radio-option"><input type="radio" name="e-cornea-os" id="co-os-y" value="Present"><label for="co-os-y">Present</label></div></div></div>
+              <div class="bi-field"><label>Location</label><input type="text" id="e-cornea-loc-os" placeholder="e.g. central"></div>
+              <div class="bi-field"><label>Density</label><input type="text" id="e-cornea-density-os" placeholder="mild/moderate/dense"></div>
+              <div class="bi-field"><label>Horizontal Diameter (mm)</label><input type="number" id="e-cornea-diamh-os" step="0.1" placeholder="mm"></div>
+              <div class="bi-field"><label>Vertical Diameter (mm)</label><input type="number" id="e-cornea-diamv-os" step="0.1" placeholder="mm"></div>
+              <div class="bi-field"><label>CCT (µm)</label><input type="number" id="e-cct-os" placeholder="µm"></div>
+              <div class="bi-field"><label>Pupil Diameter (mm)</label><input type="number" id="e-pupil-diam-os" step="0.1" placeholder="mm"></div>
+            </div></div>
           </div>
         </div>
 
         <div class="form-card">
           <div class="form-card-title">Anterior Segment</div>
-          <div class="form-grid cols-4">
-            <div class="form-group"><label>Synechiae</label><div class="radio-group"><div class="radio-option"><input type="radio" name="e-syn" id="syn-n" value="Absent"><label for="syn-n">Absent</label></div><div class="radio-option"><input type="radio" name="e-syn" id="syn-y" value="Present"><label for="syn-y">Present</label></div></div></div>
-            <div class="form-group"><label>Location</label><input type="text" id="e-syn-loc" placeholder="anterior/posterior"></div>
-            <div class="form-group"><label>Angle</label><input type="text" id="e-angle"></div>
-            <div class="form-group"><label>Angle Description</label><input type="text" id="e-angledesc"></div>
-            <div class="form-group"><label>IOP (mmHg)</label><input type="number" id="e-iop" min="0" max="80" placeholder="mmHg"></div>
-            <div class="form-group"><label>Pupil Before Dilation</label><input type="text" id="e-pupilbefore" placeholder="mm or description"></div>
+          <div class="bilateral-grid">
+            <div class="eye-col"><div class="eye-col-header od">OD</div><div class="eye-col-body">
+              <div class="bi-field"><label>Synechiae</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-syn-od" id="syn-od-n" value="Absent"><label for="syn-od-n">Absent</label></div><div class="radio-option"><input type="radio" name="e-syn-od" id="syn-od-y" value="Present"><label for="syn-od-y">Present</label></div></div></div>
+              <div class="bi-field"><label>Location</label><input type="text" id="e-syn-loc-od" placeholder="anterior/posterior"></div>
+              <div class="bi-field"><label>Angle</label><input type="text" id="e-angle-od"></div>
+              <div class="bi-field"><label>Angle Description</label><input type="text" id="e-angledesc-od"></div>
+              <div class="bi-field"><label>IOP (mmHg)</label><input type="number" id="e-iop-od" min="0" max="80" placeholder="mmHg"></div>
+              <div class="bi-field"><label>Pupil Before Dilation</label><input type="text" id="e-pupilbefore-od" placeholder="mm or description"></div>
+            </div></div>
+            <div class="eye-col"><div class="eye-col-header os">OS</div><div class="eye-col-body">
+              <div class="bi-field"><label>Synechiae</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-syn-os" id="syn-os-n" value="Absent"><label for="syn-os-n">Absent</label></div><div class="radio-option"><input type="radio" name="e-syn-os" id="syn-os-y" value="Present"><label for="syn-os-y">Present</label></div></div></div>
+              <div class="bi-field"><label>Location</label><input type="text" id="e-syn-loc-os" placeholder="anterior/posterior"></div>
+              <div class="bi-field"><label>Angle</label><input type="text" id="e-angle-os"></div>
+              <div class="bi-field"><label>Angle Description</label><input type="text" id="e-angledesc-os"></div>
+              <div class="bi-field"><label>IOP (mmHg)</label><input type="number" id="e-iop-os" min="0" max="80" placeholder="mmHg"></div>
+              <div class="bi-field"><label>Pupil Before Dilation</label><input type="text" id="e-pupilbefore-os" placeholder="mm or description"></div>
+            </div></div>
           </div>
         </div>
 
         <div class="form-card">
           <div class="form-card-title">Lens</div>
-          <div class="form-grid cols-4">
-            <div class="form-group"><label>Lens Density</label><select id="e-lens-density"><option value="">— Select —</option><option>Average</option><option>Dense</option><option>Very Dense</option><option>Soft</option></select></div>
-            <div class="form-group"><label>Lens Morphology</label><input type="text" id="e-lens-morph" placeholder="e.g. lamellar, polar"></div>
-            <div class="form-group"><label>Cataract Location</label><select id="e-cat-loc"><option value="">— Select —</option><option>Total</option><option>Nuclear</option><option>Cortical</option><option>Posterior Subcapsular</option><option>Anterior Polar</option><option>Posterior Polar</option><option>Lamellar</option></select></div>
-            <div class="form-group"><label>Subluxation</label><div class="radio-group"><div class="radio-option"><input type="radio" name="e-sub" id="sub-n" value="Absent"><label for="sub-n">Absent</label></div><div class="radio-option"><input type="radio" name="e-sub" id="sub-y" value="Present"><label for="sub-y">Present</label></div></div></div>
-            <div class="form-group"><label>Subluxation Grade</label><input type="text" id="e-sub-grade"></div>
-            <div class="form-group"><label>Subluxation Degrees</label><input type="number" id="e-sub-deg" min="0" max="360" placeholder="°"></div>
-            <div class="form-group"><label>Subluxation Location</label><input type="text" id="e-sub-loc" placeholder="e.g. superonasal"></div>
-          </div>
-          <div class="section-divider"></div>
-          <div class="form-grid cols-4">
-            <div class="form-group"><label>Spherophakia</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-sph"><label for="e-sph">Present</label></div></div></div>
-            <div class="form-group"><label>Lenticonus</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-lent"><label for="e-lent">Present</label></div></div></div>
-            <div class="form-group"><label>PHPV</label><select id="e-phpv"><option value="Absent">Absent</option><option value="Anterior">Anterior</option><option value="Posterior">Posterior</option><option value="Combined">Combined</option></select></div>
-            <div class="form-group"><label>PHPV Type</label><input type="text" id="e-phpv-type"></div>
+          <div class="bilateral-grid">
+            <div class="eye-col"><div class="eye-col-header od">OD</div><div class="eye-col-body">
+              <div class="bi-field"><label>Lens Density</label><select id="e-lens-density-od"><option value="">— Select —</option><option>Average</option><option>Dense</option><option>Very Dense</option><option>Soft</option></select></div>
+              <div class="bi-field"><label>Lens Morphology</label><input type="text" id="e-lens-morph-od" placeholder="e.g. lamellar, polar"></div>
+              <div class="bi-field"><label>Cataract Location</label><select id="e-cat-loc-od"><option value="">— Select —</option><option>Total</option><option>Nuclear</option><option>Cortical</option><option>Posterior Subcapsular</option><option>Anterior Polar</option><option>Posterior Polar</option><option>Lamellar</option></select></div>
+              <div class="bi-field"><label>Subluxation</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-sub-od" id="sub-od-n" value="Absent"><label for="sub-od-n">Absent</label></div><div class="radio-option"><input type="radio" name="e-sub-od" id="sub-od-y" value="Present"><label for="sub-od-y">Present</label></div></div></div>
+              <div class="bi-field"><label>Subluxation Grade</label><input type="text" id="e-sub-grade-od"></div>
+              <div class="bi-field"><label>Subluxation Degrees</label><input type="number" id="e-sub-deg-od" min="0" max="360" placeholder="°"></div>
+              <div class="bi-field"><label>Subluxation Location</label><input type="text" id="e-sub-loc-od" placeholder="e.g. superonasal"></div>
+              <div class="bi-field"><label>Spherophakia</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-sph-od"><label for="e-sph-od">Present</label></div></div></div>
+              <div class="bi-field"><label>Lenticonus</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-lent-od"><label for="e-lent-od">Present</label></div></div></div>
+              <div class="bi-field"><label>PHPV</label><select id="e-phpv-od"><option value="Absent">Absent</option><option value="Anterior">Anterior</option><option value="Posterior">Posterior</option><option value="Combined">Combined</option></select></div>
+              <div class="bi-field"><label>PHPV Type</label><input type="text" id="e-phpv-type-od"></div>
+            </div></div>
+            <div class="eye-col"><div class="eye-col-header os">OS</div><div class="eye-col-body">
+              <div class="bi-field"><label>Lens Density</label><select id="e-lens-density-os"><option value="">— Select —</option><option>Average</option><option>Dense</option><option>Very Dense</option><option>Soft</option></select></div>
+              <div class="bi-field"><label>Lens Morphology</label><input type="text" id="e-lens-morph-os" placeholder="e.g. lamellar, polar"></div>
+              <div class="bi-field"><label>Cataract Location</label><select id="e-cat-loc-os"><option value="">— Select —</option><option>Total</option><option>Nuclear</option><option>Cortical</option><option>Posterior Subcapsular</option><option>Anterior Polar</option><option>Posterior Polar</option><option>Lamellar</option></select></div>
+              <div class="bi-field"><label>Subluxation</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-sub-os" id="sub-os-n" value="Absent"><label for="sub-os-n">Absent</label></div><div class="radio-option"><input type="radio" name="e-sub-os" id="sub-os-y" value="Present"><label for="sub-os-y">Present</label></div></div></div>
+              <div class="bi-field"><label>Subluxation Grade</label><input type="text" id="e-sub-grade-os"></div>
+              <div class="bi-field"><label>Subluxation Degrees</label><input type="number" id="e-sub-deg-os" min="0" max="360" placeholder="°"></div>
+              <div class="bi-field"><label>Subluxation Location</label><input type="text" id="e-sub-loc-os" placeholder="e.g. superonasal"></div>
+              <div class="bi-field"><label>Spherophakia</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-sph-os"><label for="e-sph-os">Present</label></div></div></div>
+              <div class="bi-field"><label>Lenticonus</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-lent-os"><label for="e-lent-os">Present</label></div></div></div>
+              <div class="bi-field"><label>PHPV</label><select id="e-phpv-os"><option value="Absent">Absent</option><option value="Anterior">Anterior</option><option value="Posterior">Posterior</option><option value="Combined">Combined</option></select></div>
+              <div class="bi-field"><label>PHPV Type</label><input type="text" id="e-phpv-type-os"></div>
+            </div></div>
           </div>
         </div>
 
         <div class="form-card">
           <div class="form-card-title">Fundus & Biometry</div>
-          <div class="form-grid cols-4">
-            <div class="form-group"><label>Fundus</label><div class="radio-group"><div class="radio-option"><input type="radio" name="e-fundus" id="fu-n" value="Normal"><label for="fu-n">Normal</label></div><div class="radio-option"><input type="radio" name="e-fundus" id="fu-ab" value="Abnormal"><label for="fu-ab">Abnormal</label></div><div class="radio-option"><input type="radio" name="e-fundus" id="fu-nv" value="Not visible"><label for="fu-nv">Not visible</label></div></div></div>
-            <div class="form-group span-2"><label>Fundus Abnormalities</label><input type="text" id="e-fundus-abn" placeholder="describe if abnormal"></div>
-            <div class="form-group"><label>C/D Ratio</label><input type="number" id="e-cd" step="0.05" min="0" max="1" placeholder="0.0–1.0"></div>
-            <div class="form-group"><label>Axial Length (mm)</label><input type="number" id="e-axl" step="0.01" placeholder="mm"></div>
-            <div class="form-group"><label>AXL Other Eye (mm)</label><input type="number" id="e-axl-other" step="0.01" placeholder="mm"></div>
+          <div class="bilateral-grid">
+            <div class="eye-col"><div class="eye-col-header od">OD</div><div class="eye-col-body">
+              <div class="bi-field"><label>Fundus</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-fundus-od" id="fu-od-n" value="Normal"><label for="fu-od-n">Normal</label></div><div class="radio-option"><input type="radio" name="e-fundus-od" id="fu-od-ab" value="Abnormal"><label for="fu-od-ab">Abnormal</label></div><div class="radio-option"><input type="radio" name="e-fundus-od" id="fu-od-nv" value="Not visible"><label for="fu-od-nv">N/V</label></div></div></div>
+              <div class="bi-field"><label>Fundus Abnormalities</label><input type="text" id="e-fundus-abn-od" placeholder="describe"></div>
+              <div class="bi-field"><label>C/D Ratio</label><input type="number" id="e-cd-od" step="0.05" min="0" max="1" placeholder="0.0–1.0"></div>
+              <div class="bi-field"><label>Axial Length (mm)</label><input type="number" id="e-axl-od" step="0.01" placeholder="mm"></div>
+            </div></div>
+            <div class="eye-col"><div class="eye-col-header os">OS</div><div class="eye-col-body">
+              <div class="bi-field"><label>Fundus</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-fundus-os" id="fu-os-n" value="Normal"><label for="fu-os-n">Normal</label></div><div class="radio-option"><input type="radio" name="e-fundus-os" id="fu-os-ab" value="Abnormal"><label for="fu-os-ab">Abnormal</label></div><div class="radio-option"><input type="radio" name="e-fundus-os" id="fu-os-nv" value="Not visible"><label for="fu-os-nv">N/V</label></div></div></div>
+              <div class="bi-field"><label>Fundus Abnormalities</label><input type="text" id="e-fundus-abn-os" placeholder="describe"></div>
+              <div class="bi-field"><label>C/D Ratio</label><input type="number" id="e-cd-os" step="0.05" min="0" max="1" placeholder="0.0–1.0"></div>
+              <div class="bi-field"><label>Axial Length (mm)</label><input type="number" id="e-axl-os" step="0.01" placeholder="mm"></div>
+            </div></div>
           </div>
         </div>
 
@@ -448,6 +504,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
     </div>
 
     <!-- ═══════════════════════════════ SURGERY ═══ -->
+        <!-- ═══════════════════════════════ SURGERY ═══ -->
     <div id="view-new-surgery" class="hidden">
       <div class="section-header"><h2>Operation Record</h2><p>Intraoperative details and technique</p></div>
       <form id="surgery-form" onsubmit="submitSurgery(event)">
@@ -533,51 +590,79 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
 
     <!-- ═══════════════════════════════ FOLLOW-UP ═══ -->
     <div id="view-new-followup" class="hidden">
-      <div class="section-header"><h2>Follow-up Visit</h2><p>Postoperative examination findings</p></div>
+      <div class="section-header"><h2>Follow-up Visit</h2><p>Postoperative examination — both eyes in one submission</p></div>
       <form id="followup-form" onsubmit="submitFollowup(event)">
         <div class="form-card">
           <div class="form-card-title">Visit Info</div>
           <div class="form-grid cols-4">
             <div class="form-group span-2"><label>Patient</label><input type="text" id="f-pid-display" readonly placeholder="Select patient using search bar above" style="background:rgba(28,184,176,.05);color:var(--teal);cursor:default"><input type="hidden" id="f-pid"></div>
             <div class="form-group"><label>Date of Exam *</label><input type="date" id="f-date" required></div>
-            <div class="form-group"><label>Eye *</label><div class="radio-group"><div class="radio-option"><input type="radio" name="f-eye" id="fe-od" value="OD"><label for="fe-od">OD</label></div><div class="radio-option"><input type="radio" name="f-eye" id="fe-os" value="OS"><label for="fe-os">OS</label></div><div class="radio-option"><input type="radio" name="f-eye" id="fe-ou" value="OU"><label for="fe-ou">OU</label></div></div></div>
             <div class="form-group span-2"><label>Visit Type</label><select id="f-visittype"><option value="">— Select —</option><option>One Day Postoperative Examination</option><option>One Week Postoperative Examination</option><option>One Month Postoperative Examination</option><option>Three Months Postoperative Examination</option><option>Six Months Postoperative Examination</option><option>One Year Postoperative Examination</option><option>Postoperative Examination Unspecified</option></select></div>
             <div class="form-group span-2"><label>Examiner</label><select id="f-examiner"><option value="">— Select —</option><option>Esraa Elmalah</option><option>Hatem Saeed</option><option>Mohamed Elsada</option><option>Lobna Khazbak</option><option>Hala Elhilaly</option></select></div>
           </div>
         </div>
 
         <div class="form-card">
-          <div class="form-card-title">Slit Lamp Findings</div>
-          <div class="form-grid cols-3">
-            <div class="form-group"><label>Cornea</label><div class="radio-group"><div class="radio-option"><input type="radio" name="f-cornea" id="fc-n" value="Clear"><label for="fc-n">Clear</label></div><div class="radio-option"><input type="radio" name="f-cornea" id="fc-ab" value="Abnormal"><label for="fc-ab">Abnormal</label></div></div><input type="text" id="f-cornea-desc" placeholder="details…" style="margin-top:6px"></div>
-            <div class="form-group"><label>Anterior Chamber</label><div class="radio-group"><div class="radio-option"><input type="radio" name="f-ac" id="fac-q" value="Quiet"><label for="fac-q">Quiet</label></div><div class="radio-option"><input type="radio" name="f-ac" id="fac-ab" value="Abnormal"><label for="fac-ab">Abnormal</label></div></div><input type="text" id="f-ac-desc" placeholder="cells, flare…" style="margin-top:6px"></div>
-            <div class="form-group"><label>CCT (µm)</label><input type="number" id="f-cct" placeholder="µm"></div>
-            <div class="form-group"><label>Iris</label><div class="radio-group"><div class="radio-option"><input type="radio" name="f-iris" id="fi-n" value="Normal"><label for="fi-n">Normal</label></div><div class="radio-option"><input type="radio" name="f-iris" id="fi-ab" value="Abnormal"><label for="fi-ab">Abnormal</label></div></div><input type="text" id="f-iris-desc" placeholder="details…" style="margin-top:6px"></div>
-            <div class="form-group"><label>Pupil</label><div class="radio-group"><div class="radio-option"><input type="radio" name="f-pupil" id="fp-n" value="Round"><label for="fp-n">Round</label></div><div class="radio-option"><input type="radio" name="f-pupil" id="fp-ab" value="Abnormal"><label for="fp-ab">Abnormal</label></div></div><input type="text" id="f-pupil-desc" placeholder="details…" style="margin-top:6px"></div>
-            <div class="form-group"><label>Lens / IOL Status</label><select id="f-lens-status"><option value="">— Select —</option><option>Aphakic</option><option>IOL in situ — well positioned</option><option>IOL decentred</option><option>IOL tilted</option><option>IOL displaced</option><option>Pseudophakic — other</option></select><input type="text" id="f-lens-desc" placeholder="lens details…" style="margin-top:6px"></div>
+          <div class="form-card-title">Visual Acuity & Refraction</div>
+          <div class="bilateral-grid">
+            <div class="eye-col"><div class="eye-col-header od">OD — Right Eye</div><div class="eye-col-body">
+              <div class="bi-field"><label>Visual Acuity</label><select id="f-va-od"><option value="">— Select —</option><option>Cannot be measured</option><option>Cannot Fix or Follow</option><option>Central Steady Maintained</option><option>Uncentral Unsteady Unmaintained</option><option>Central Steady Unmaintained</option><option>Central Unsteady Unmaintained</option><option>NOPL</option><option>PLBP</option><option>PLGP</option><option>HMBP</option><option>HMGP</option><option>cf 20 cm</option><option>cf 30 cm</option><option>cf 40 cm</option><option>cf 50 cm</option><option>cf 60 cm</option><option>cf 70 cm</option><option>cf 80 cm</option><option>cf 90 cm</option><option>1/60</option><option>2/60</option><option>3/60</option><option>4/60</option><option>5/60</option><option>0.1</option><option>0.16</option><option>0.2</option><option>0.25</option><option>0.3</option><option>0.4</option><option>0.5</option><option>0.6</option><option>0.63</option><option>0.7</option><option>0.8</option><option>0.9</option><option>1.0</option></select></div>
+              <div class="bi-field"><label>Sphere (D)</label><input type="number" id="f-sph-od" step="0.25" placeholder="e.g. -2.50"></div>
+              <div class="bi-field"><label>Cylinder (D)</label><input type="number" id="f-cyl-od" step="0.25" placeholder="e.g. -0.75"></div>
+              <div class="bi-field"><label>Axis (°)</label><input type="number" id="f-axis-od" min="0" max="180" placeholder="0–180"></div>
+              <div class="bi-field"><label>IOP (mmHg)</label><input type="number" id="f-iop-od" min="0" max="80" placeholder="mmHg"></div>
+            </div></div>
+            <div class="eye-col"><div class="eye-col-header os">OS — Left Eye</div><div class="eye-col-body">
+              <div class="bi-field"><label>Visual Acuity</label><select id="f-va-os"><option value="">— Select —</option><option>Cannot be measured</option><option>Cannot Fix or Follow</option><option>Central Steady Maintained</option><option>Uncentral Unsteady Unmaintained</option><option>Central Steady Unmaintained</option><option>Central Unsteady Unmaintained</option><option>NOPL</option><option>PLBP</option><option>PLGP</option><option>HMBP</option><option>HMGP</option><option>cf 20 cm</option><option>cf 30 cm</option><option>cf 40 cm</option><option>cf 50 cm</option><option>cf 60 cm</option><option>cf 70 cm</option><option>cf 80 cm</option><option>cf 90 cm</option><option>1/60</option><option>2/60</option><option>3/60</option><option>4/60</option><option>5/60</option><option>0.1</option><option>0.16</option><option>0.2</option><option>0.25</option><option>0.3</option><option>0.4</option><option>0.5</option><option>0.6</option><option>0.63</option><option>0.7</option><option>0.8</option><option>0.9</option><option>1.0</option></select></div>
+              <div class="bi-field"><label>Sphere (D)</label><input type="number" id="f-sph-os" step="0.25" placeholder="e.g. -2.50"></div>
+              <div class="bi-field"><label>Cylinder (D)</label><input type="number" id="f-cyl-os" step="0.25" placeholder="e.g. -0.75"></div>
+              <div class="bi-field"><label>Axis (°)</label><input type="number" id="f-axis-os" min="0" max="180" placeholder="0–180"></div>
+              <div class="bi-field"><label>IOP (mmHg)</label><input type="number" id="f-iop-os" min="0" max="80" placeholder="mmHg"></div>
+            </div></div>
           </div>
-          <div class="form-group span-full" style="margin-top:10px"><label>Opacification / PCO</label><input type="text" id="f-opacification" placeholder="describe if present"></div>
         </div>
 
         <div class="form-card">
-          <div class="form-card-title">Vision & Refraction</div>
-          <div class="form-grid cols-4">
-            <div class="form-group span-2"><label>Visual Acuity</label><select id="f-va"><option value="">— Select —</option><option>Cannot be measured</option><option>Cannot Fix or Follow</option><option>Central Steady Maintained</option><option>Uncentral Unsteady Unmaintained</option><option>Central Steady Unmaintained</option><option>Central Unsteady Unmaintained</option><option>NOPL</option><option>PLBP</option><option>PLGP</option><option>HMBP</option><option>HMGP</option><option>cf 20 cm</option><option>cf 30 cm</option><option>cf 40 cm</option><option>cf 50 cm</option><option>cf 60 cm</option><option>cf 70 cm</option><option>cf 80 cm</option><option>cf 90 cm</option><option>1/60</option><option>2/60</option><option>3/60</option><option>4/60</option><option>5/60</option><option>0.1</option><option>0.16</option><option>0.2</option><option>0.25</option><option>0.3</option><option>0.4</option><option>0.5</option><option>0.6</option><option>0.63</option><option>0.7</option><option>0.8</option><option>0.9</option><option>1.0</option></select></div>
-            <div class="form-group"><label>Sphere (D)</label><input type="number" id="f-sph" step="0.25" placeholder="e.g. -2.50"></div>
-            <div class="form-group"><label>Cylinder (D)</label><input type="number" id="f-cyl" step="0.25" placeholder="e.g. -0.75"></div>
-            <div class="form-group"><label>Axis (°)</label><input type="number" id="f-axis" min="0" max="180" placeholder="0–180"></div>
-            <div class="form-group"><label>IOP (mmHg)</label><input type="number" id="f-iop" min="0" max="80" placeholder="mmHg"></div>
+          <div class="form-card-title">Slit Lamp Findings</div>
+          <div class="bilateral-grid">
+            <div class="eye-col"><div class="eye-col-header od">OD</div><div class="eye-col-body">
+              <div class="bi-field"><label>Cornea</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="f-cornea-od" id="fc-od-n" value="Clear"><label for="fc-od-n">Clear</label></div><div class="radio-option"><input type="radio" name="f-cornea-od" id="fc-od-ab" value="Abnormal"><label for="fc-od-ab">Abnormal</label></div></div><input type="text" id="f-cornea-desc-od" placeholder="details…" style="margin-top:6px"></div>
+              <div class="bi-field"><label>Anterior Chamber</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="f-ac-od" id="fac-od-q" value="Quiet"><label for="fac-od-q">Quiet</label></div><div class="radio-option"><input type="radio" name="f-ac-od" id="fac-od-ab" value="Abnormal"><label for="fac-od-ab">Abnormal</label></div></div><input type="text" id="f-ac-desc-od" placeholder="cells, flare…" style="margin-top:6px"></div>
+              <div class="bi-field"><label>CCT (µm)</label><input type="number" id="f-cct-od" placeholder="µm"></div>
+              <div class="bi-field"><label>Iris</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="f-iris-od" id="fi-od-n" value="Normal"><label for="fi-od-n">Normal</label></div><div class="radio-option"><input type="radio" name="f-iris-od" id="fi-od-ab" value="Abnormal"><label for="fi-od-ab">Abnormal</label></div></div><input type="text" id="f-iris-desc-od" placeholder="details…" style="margin-top:6px"></div>
+              <div class="bi-field"><label>Pupil</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="f-pupil-od" id="fp-od-n" value="Round"><label for="fp-od-n">Round</label></div><div class="radio-option"><input type="radio" name="f-pupil-od" id="fp-od-ab" value="Abnormal"><label for="fp-od-ab">Abnormal</label></div></div><input type="text" id="f-pupil-desc-od" placeholder="details…" style="margin-top:6px"></div>
+              <div class="bi-field"><label>Lens / IOL Status</label><select id="f-lens-status-od"><option value="">— Select —</option><option>Aphakic</option><option>IOL in situ — well positioned</option><option>IOL decentred</option><option>IOL tilted</option><option>IOL displaced</option><option>Pseudophakic — other</option></select><input type="text" id="f-lens-desc-od" placeholder="details…" style="margin-top:6px"></div>
+              <div class="bi-field"><label>Opacification / PCO</label><input type="text" id="f-opacification-od" placeholder="describe if present"></div>
+            </div></div>
+            <div class="eye-col"><div class="eye-col-header os">OS</div><div class="eye-col-body">
+              <div class="bi-field"><label>Cornea</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="f-cornea-os" id="fc-os-n" value="Clear"><label for="fc-os-n">Clear</label></div><div class="radio-option"><input type="radio" name="f-cornea-os" id="fc-os-ab" value="Abnormal"><label for="fc-os-ab">Abnormal</label></div></div><input type="text" id="f-cornea-desc-os" placeholder="details…" style="margin-top:6px"></div>
+              <div class="bi-field"><label>Anterior Chamber</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="f-ac-os" id="fac-os-q" value="Quiet"><label for="fac-os-q">Quiet</label></div><div class="radio-option"><input type="radio" name="f-ac-os" id="fac-os-ab" value="Abnormal"><label for="fac-os-ab">Abnormal</label></div></div><input type="text" id="f-ac-desc-os" placeholder="cells, flare…" style="margin-top:6px"></div>
+              <div class="bi-field"><label>CCT (µm)</label><input type="number" id="f-cct-os" placeholder="µm"></div>
+              <div class="bi-field"><label>Iris</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="f-iris-os" id="fi-os-n" value="Normal"><label for="fi-os-n">Normal</label></div><div class="radio-option"><input type="radio" name="f-iris-os" id="fi-os-ab" value="Abnormal"><label for="fi-os-ab">Abnormal</label></div></div><input type="text" id="f-iris-desc-os" placeholder="details…" style="margin-top:6px"></div>
+              <div class="bi-field"><label>Pupil</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="f-pupil-os" id="fp-os-n" value="Round"><label for="fp-os-n">Round</label></div><div class="radio-option"><input type="radio" name="f-pupil-os" id="fp-os-ab" value="Abnormal"><label for="fp-os-ab">Abnormal</label></div></div><input type="text" id="f-pupil-desc-os" placeholder="details…" style="margin-top:6px"></div>
+              <div class="bi-field"><label>Lens / IOL Status</label><select id="f-lens-status-os"><option value="">— Select —</option><option>Aphakic</option><option>IOL in situ — well positioned</option><option>IOL decentred</option><option>IOL tilted</option><option>IOL displaced</option><option>Pseudophakic — other</option></select><input type="text" id="f-lens-desc-os" placeholder="details…" style="margin-top:6px"></div>
+              <div class="bi-field"><label>Opacification / PCO</label><input type="text" id="f-opacification-os" placeholder="describe if present"></div>
+            </div></div>
           </div>
         </div>
 
         <div class="form-card">
           <div class="form-card-title">Fundus</div>
-          <div class="form-grid cols-3">
-            <div class="form-group"><label>Fundus</label><div class="radio-group"><div class="radio-option"><input type="radio" name="f-fundus" id="ff-n" value="Normal"><label for="ff-n">Normal</label></div><div class="radio-option"><input type="radio" name="f-fundus" id="ff-ab" value="Abnormal"><label for="ff-ab">Abnormal</label></div><div class="radio-option"><input type="radio" name="f-fundus" id="ff-nv" value="Not visible"><label for="ff-nv">Not visible</label></div></div></div>
-            <div class="form-group span-2"><label>Fundus Description</label><input type="text" id="f-fundus-desc" placeholder="if abnormal"></div>
-            <div class="form-group"><label>C/D Ratio</label><input type="number" id="f-cd" step="0.05" min="0" max="1" placeholder="0.0–1.0"></div>
-            <div class="form-group"><label>Gonioscopy</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="f-gonio"><label for="f-gonio">Performed</label></div></div></div>
-            <div class="form-group"><label>Gonioscopy Description</label><input type="text" id="f-gonio-desc"></div>
+          <div class="bilateral-grid">
+            <div class="eye-col"><div class="eye-col-header od">OD</div><div class="eye-col-body">
+              <div class="bi-field"><label>Fundus</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="f-fundus-od" id="ff-od-n" value="Normal"><label for="ff-od-n">Normal</label></div><div class="radio-option"><input type="radio" name="f-fundus-od" id="ff-od-ab" value="Abnormal"><label for="ff-od-ab">Abnormal</label></div><div class="radio-option"><input type="radio" name="f-fundus-od" id="ff-od-nv" value="Not visible"><label for="ff-od-nv">N/V</label></div></div></div>
+              <div class="bi-field"><label>Description</label><input type="text" id="f-fundus-desc-od" placeholder="if abnormal"></div>
+              <div class="bi-field"><label>C/D Ratio</label><input type="number" id="f-cd-od" step="0.05" min="0" max="1" placeholder="0.0–1.0"></div>
+              <div class="bi-field"><label>Gonioscopy</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="f-gonio-od"><label for="f-gonio-od">Performed</label></div></div></div>
+              <div class="bi-field"><label>Gonioscopy Description</label><input type="text" id="f-gonio-desc-od"></div>
+            </div></div>
+            <div class="eye-col"><div class="eye-col-header os">OS</div><div class="eye-col-body">
+              <div class="bi-field"><label>Fundus</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="f-fundus-os" id="ff-os-n" value="Normal"><label for="ff-os-n">Normal</label></div><div class="radio-option"><input type="radio" name="f-fundus-os" id="ff-os-ab" value="Abnormal"><label for="ff-os-ab">Abnormal</label></div><div class="radio-option"><input type="radio" name="f-fundus-os" id="ff-os-nv" value="Not visible"><label for="ff-os-nv">N/V</label></div></div></div>
+              <div class="bi-field"><label>Description</label><input type="text" id="f-fundus-desc-os" placeholder="if abnormal"></div>
+              <div class="bi-field"><label>C/D Ratio</label><input type="number" id="f-cd-os" step="0.05" min="0" max="1" placeholder="0.0–1.0"></div>
+              <div class="bi-field"><label>Gonioscopy</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="f-gonio-os"><label for="f-gonio-os">Performed</label></div></div></div>
+              <div class="bi-field"><label>Gonioscopy Description</label><input type="text" id="f-gonio-desc-os"></div>
+            </div></div>
           </div>
         </div>
 
@@ -594,6 +679,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
     </div>
 
   </div><!-- /content -->
+
 </div><!-- /main -->
 </div><!-- /app -->
 
@@ -815,12 +901,44 @@ async function submitExamination(e){
   e.preventDefault();if(!CONFIG.webAppUrl){showToast('Configure Google Sheets first','error');showView('setup');return;}
   if(!ACTIVE_PATIENT){showToast('Please select a patient first using the search bar','error');return;}
   const btn=document.getElementById('exam-submit-btn');setLoading(btn,true);
-  const eye=document.querySelector('input[name="e-eye"]:checked');
-  const cornea=document.querySelector('input[name="e-cornea"]:checked');
-  const syn=document.querySelector('input[name="e-syn"]:checked');
-  const sub=document.querySelector('input[name="e-sub"]:checked');
-  const fundus=document.querySelector('input[name="e-fundus"]:checked');
-  const row={ID:'EX'+Date.now(),PID:document.getElementById('e-pid').value||ACTIVE_PATIENT?.PID||'',DateOfExam:document.getElementById('e-date').value,Eye:eye?eye.value:'',ProcedureType:document.getElementById('e-proctype').value,Examiner:document.getElementById('e-examiner').value,CorneaOpacity:cornea?cornea.value:'',LocationCornea:document.getElementById('e-cornea-loc').value,Density:document.getElementById('e-cornea-density').value,CorneaDiamH:document.getElementById('e-cornea-diamh').value,CorneaDiamV:document.getElementById('e-cornea-diamv').value,CCT:document.getElementById('e-cct').value,CCTOtherEye:document.getElementById('e-cct-other').value,PupilDiam:document.getElementById('e-pupil-diam').value,Synaechia:syn?syn.value:'',Location:document.getElementById('e-syn-loc').value,Angle:document.getElementById('e-angle').value,AngleDesc:document.getElementById('e-angledesc').value,IOP:document.getElementById('e-iop').value,LensDensity:document.getElementById('e-lens-density').value,LensMorphology:document.getElementById('e-lens-morph').value,CataractLocation:document.getElementById('e-cat-loc').value,Spherophakia:document.getElementById('e-sph').checked?'Yes':'No',Lenticonus:document.getElementById('e-lent').checked?'Yes':'No',PHPV:document.getElementById('e-phpv').value,PHPVType:document.getElementById('e-phpv-type').value,Subluxation:sub?sub.value:'',SubluxationGrade:document.getElementById('e-sub-grade').value,SubluxationDeg:document.getElementById('e-sub-deg').value,SubluxationLoc:document.getElementById('e-sub-loc').value,Fundus:fundus?fundus.value:'',FundusAbnorm:document.getElementById('e-fundus-abn').value,CD:document.getElementById('e-cd').value,AxialLength:document.getElementById('e-axl').value,AXLOtherEye:document.getElementById('e-axl-other').value,Syndrome:document.getElementById('e-syndrome').value,Investigations:document.getElementById('e-invest').value,Consanguinity:document.getElementById('e-consang').checked?'Yes':'No',FamilyHistory:document.getElementById('e-fhx').checked?'Yes':'No',FamilyHistoryDesc:document.getElementById('e-fhx-desc').value,PupilBefore:document.getElementById('e-pupilbefore').value,Comments:document.getElementById('e-comments').value,EntryDate:today()};
+  const g=(id)=>document.getElementById(id);
+  const r=(name)=>{const el=document.querySelector(`input[name="${name}"]:checked`);return el?el.value:'';}
+  const row={
+    ID:'EX'+Date.now(),PID:ACTIVE_PATIENT.PID,DateOfExam:g('e-date').value,
+    ProcedureType:g('e-proctype').value,Examiner:g('e-examiner').value,
+    CorneaOpacity_OD:r('e-cornea-od'),LocationCornea_OD:g('e-cornea-loc-od').value,Density_OD:g('e-cornea-density-od').value,
+    CorneaDiamH_OD:g('e-cornea-diamh-od').value,CorneaDiamV_OD:g('e-cornea-diamv-od').value,
+    CCT_OD:g('e-cct-od').value,PupilDiam_OD:g('e-pupil-diam-od').value,
+    Synaechia_OD:r('e-syn-od'),Location_OD:g('e-syn-loc-od').value,
+    Angle_OD:g('e-angle-od').value,AngleDesc_OD:g('e-angledesc-od').value,
+    IOP_OD:g('e-iop-od').value,PupilBefore_OD:g('e-pupilbefore-od').value,
+    LensDensity_OD:g('e-lens-density-od').value,LensMorphology_OD:g('e-lens-morph-od').value,
+    CataractLocation_OD:g('e-cat-loc-od').value,
+    Subluxation_OD:r('e-sub-od'),SubluxationGrade_OD:g('e-sub-grade-od').value,
+    SubluxationDeg_OD:g('e-sub-deg-od').value,SubluxationLoc_OD:g('e-sub-loc-od').value,
+    Spherophakia_OD:g('e-sph-od').checked?'Yes':'No',Lenticonus_OD:g('e-lent-od').checked?'Yes':'No',
+    PHPV_OD:g('e-phpv-od').value,PHPVType_OD:g('e-phpv-type-od').value,
+    Fundus_OD:r('e-fundus-od'),FundusAbnorm_OD:g('e-fundus-abn-od').value,
+    CD_OD:g('e-cd-od').value,AxialLength_OD:g('e-axl-od').value,
+    CorneaOpacity_OS:r('e-cornea-os'),LocationCornea_OS:g('e-cornea-loc-os').value,Density_OS:g('e-cornea-density-os').value,
+    CorneaDiamH_OS:g('e-cornea-diamh-os').value,CorneaDiamV_OS:g('e-cornea-diamv-os').value,
+    CCT_OS:g('e-cct-os').value,PupilDiam_OS:g('e-pupil-diam-os').value,
+    Synaechia_OS:r('e-syn-os'),Location_OS:g('e-syn-loc-os').value,
+    Angle_OS:g('e-angle-os').value,AngleDesc_OS:g('e-angledesc-os').value,
+    IOP_OS:g('e-iop-os').value,PupilBefore_OS:g('e-pupilbefore-os').value,
+    LensDensity_OS:g('e-lens-density-os').value,LensMorphology_OS:g('e-lens-morph-os').value,
+    CataractLocation_OS:g('e-cat-loc-os').value,
+    Subluxation_OS:r('e-sub-os'),SubluxationGrade_OS:g('e-sub-grade-os').value,
+    SubluxationDeg_OS:g('e-sub-deg-os').value,SubluxationLoc_OS:g('e-sub-loc-os').value,
+    Spherophakia_OS:g('e-sph-os').checked?'Yes':'No',Lenticonus_OS:g('e-lent-os').checked?'Yes':'No',
+    PHPV_OS:g('e-phpv-os').value,PHPVType_OS:g('e-phpv-type-os').value,
+    Fundus_OS:r('e-fundus-os'),FundusAbnorm_OS:g('e-fundus-abn-os').value,
+    CD_OS:g('e-cd-os').value,AxialLength_OS:g('e-axl-os').value,
+    Syndrome:g('e-syndrome').value,Investigations:g('e-invest').value,
+    Consanguinity:g('e-consang').checked?'Yes':'No',
+    FamilyHistory:g('e-fhx').checked?'Yes':'No',FamilyHistoryDesc:g('e-fhx-desc').value,
+    Comments:g('e-comments').value,EntryDate:today()
+  };
   try{await pushRow('Examinations',row);DB.examinations.push(row);showToast('Examination saved ✓','success');document.getElementById('exam-form').reset();showView('patients');}
   catch{showToast('Error saving examination','error');}
   setLoading(btn,false,'Save Examination');
@@ -844,13 +962,37 @@ async function submitFollowup(e){
   e.preventDefault();if(!CONFIG.webAppUrl){showToast('Configure Google Sheets first','error');showView('setup');return;}
   if(!ACTIVE_PATIENT){showToast('Please select a patient first using the search bar','error');return;}
   const btn=document.getElementById('followup-submit-btn');setLoading(btn,true);
-  const eye=document.querySelector('input[name="f-eye"]:checked');
-  const cornea=document.querySelector('input[name="f-cornea"]:checked');
-  const ac=document.querySelector('input[name="f-ac"]:checked');
-  const iris=document.querySelector('input[name="f-iris"]:checked');
-  const pupil=document.querySelector('input[name="f-pupil"]:checked');
-  const fundus=document.querySelector('input[name="f-fundus"]:checked');
-  const row={ID:'FU'+Date.now(),PID:document.getElementById('f-pid').value||ACTIVE_PATIENT?.PID||'',DateOfExam:document.getElementById('f-date').value,Eye:eye?eye.value:'',VisitType:document.getElementById('f-visittype').value,Examiner:document.getElementById('f-examiner').value,Cornea:cornea?cornea.value:'',CorneaDesc:document.getElementById('f-cornea-desc').value,AC:ac?ac.value:'',ACDesc:document.getElementById('f-ac-desc').value,CCT:document.getElementById('f-cct').value,Iris:iris?iris.value:'',IrisDesc:document.getElementById('f-iris-desc').value,Pupil:pupil?pupil.value:'',PupilDesc:document.getElementById('f-pupil-desc').value,LensStatus:document.getElementById('f-lens-status').value,LensDesc:document.getElementById('f-lens-desc').value,Opacification:document.getElementById('f-opacification').value,Fundus:fundus?fundus.value:'',FundusDesc:document.getElementById('f-fundus-desc').value,IOP:document.getElementById('f-iop').value,CD:document.getElementById('f-cd').value,VA:document.getElementById('f-va').value,Sphere:document.getElementById('f-sph').value,Cylinder:document.getElementById('f-cyl').value,Axis:document.getElementById('f-axis').value,Gonioscopy:document.getElementById('f-gonio').checked?'Yes':'No',GonioDesc:document.getElementById('f-gonio-desc').value,Comments:document.getElementById('f-comments').value,EntryDate:today()};
+  const g=(id)=>document.getElementById(id);
+  const r=(name)=>{const el=document.querySelector(`input[name="${name}"]:checked`);return el?el.value:'';}
+  const row={
+    ID:'FU'+Date.now(),PID:ACTIVE_PATIENT.PID,DateOfExam:g('f-date').value,
+    VisitType:g('f-visittype').value,Examiner:g('f-examiner').value,
+    VA_OD:g('f-va-od').value,Sphere_OD:g('f-sph-od').value,Cylinder_OD:g('f-cyl-od').value,
+    Axis_OD:g('f-axis-od').value,IOP_OD:g('f-iop-od').value,
+    Cornea_OD:r('f-cornea-od'),CorneaDesc_OD:g('f-cornea-desc-od').value,
+    AC_OD:r('f-ac-od'),ACDesc_OD:g('f-ac-desc-od').value,
+    CCT_OD:g('f-cct-od').value,
+    Iris_OD:r('f-iris-od'),IrisDesc_OD:g('f-iris-desc-od').value,
+    Pupil_OD:r('f-pupil-od'),PupilDesc_OD:g('f-pupil-desc-od').value,
+    LensStatus_OD:g('f-lens-status-od').value,LensDesc_OD:g('f-lens-desc-od').value,
+    Opacification_OD:g('f-opacification-od').value,
+    Fundus_OD:r('f-fundus-od'),FundusDesc_OD:g('f-fundus-desc-od').value,
+    CD_OD:g('f-cd-od').value,Gonioscopy_OD:g('f-gonio-od').checked?'Yes':'No',
+    GonioDesc_OD:g('f-gonio-desc-od').value,
+    VA_OS:g('f-va-os').value,Sphere_OS:g('f-sph-os').value,Cylinder_OS:g('f-cyl-os').value,
+    Axis_OS:g('f-axis-os').value,IOP_OS:g('f-iop-os').value,
+    Cornea_OS:r('f-cornea-os'),CorneaDesc_OS:g('f-cornea-desc-os').value,
+    AC_OS:r('f-ac-os'),ACDesc_OS:g('f-ac-desc-os').value,
+    CCT_OS:g('f-cct-os').value,
+    Iris_OS:r('f-iris-os'),IrisDesc_OS:g('f-iris-desc-os').value,
+    Pupil_OS:r('f-pupil-os'),PupilDesc_OS:g('f-pupil-desc-os').value,
+    LensStatus_OS:g('f-lens-status-os').value,LensDesc_OS:g('f-lens-desc-os').value,
+    Opacification_OS:g('f-opacification-os').value,
+    Fundus_OS:r('f-fundus-os'),FundusDesc_OS:g('f-fundus-desc-os').value,
+    CD_OS:g('f-cd-os').value,Gonioscopy_OS:g('f-gonio-os').checked?'Yes':'No',
+    GonioDesc_OS:g('f-gonio-desc-os').value,
+    Comments:g('f-comments').value,EntryDate:today()
+  };
   try{await pushRow('Followup',row);DB.followups.push(row);showToast('Follow-up saved ✓','success');document.getElementById('followup-form').reset();showView('patients');}
   catch{showToast('Error saving follow-up','error');}
   setLoading(btn,false,'Save Follow-up');
