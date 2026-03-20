@@ -250,10 +250,13 @@
   .iol-comp-option label:hover{color:var(--text-dim)}
 
   /* DATE INPUT — display as DD/MM/YYYY via text fallback */
-  .date-display{position:relative}
-  .date-display input[type=date]{opacity:0;position:absolute;top:0;left:0;width:100%;height:100%;cursor:pointer}
-  .date-display .date-text{background:var(--input-bg);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius);color:var(--text-main);font-family:'Lato',sans-serif;font-size:13.5px;padding:9px 13px;width:100%;pointer-events:none}
-  .date-display:focus-within .date-text{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-glow)}
+  /* Native date input styling — calendar popup works on both desktop and mobile */
+  input[type=date]{color-scheme:dark}
+  input[type=date]::-webkit-calendar-picker-indicator{
+    filter:invert(1) sepia(1) saturate(3) hue-rotate(155deg);
+    opacity:.7;cursor:pointer
+  }
+  input[type=date]::-webkit-calendar-picker-indicator:hover{opacity:1}
 
   /* PATIENT SEARCH BAR */
   #patient-lookup-bar{background:rgba(13,27,42,.95);border-bottom:1px solid var(--border);padding:12px 30px;display:flex;align-items:center;gap:12px;position:sticky;top:58px;z-index:40;backdrop-filter:blur(8px)}
@@ -376,7 +379,6 @@
     .toast-item{max-width:100%}
 
     /* Date display */
-    .date-display .date-text{font-size:14px}
 
     /* Config screen */
     .config-hero h1{font-size:26px}
@@ -1451,11 +1453,11 @@ function renderDashboard(){
   const el=document.getElementById('dashboard-recent');
   if(!DB.patients.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">◈</div><h3>No patients yet</h3><p>Add your first patient to get started.</p></div>`;return;}
   const recent=[...DB.patients].slice(-8).reverse();
-  el.innerHTML=`<table class="data-table"><thead><tr><th>PID</th><th>Name</th><th>Sex</th><th>Exams</th><th>Ops</th><th>Follow-ups</th></tr></thead><tbody>${recent.map(p=>{
+  el.innerHTML=`<table class="data-table"><thead><tr><th>PID</th><th>Name</th><th>Sex</th><th>Exams</th><th>Ops</th><th>Follow-ups</th><th></th></tr></thead><tbody>${recent.map(p=>{
     const ec=DB.examinations.filter(x=>String(x.PID)===String(p.PID)).length;
     const oc=DB.operations.filter(x=>String(x.PID)===String(p.PID)).length;
     const fc=DB.followups.filter(x=>String(x.PID)===String(p.PID)).length;
-    return `<tr><td class="mono">${p.PID}</td><td class="name">${p.Name||''}</td><td>${p.Sex||'—'}</td><td>${ec}</td><td>${oc}</td><td>${fc}</td></tr>`;
+    return `<tr><td class="mono">${p.PID}</td><td class="name">${p.Name||''}</td><td>${p.Sex||'—'}</td><td>${ec}</td><td>${oc}</td><td>${fc}</td><td><button class="table-action" data-pid="${p.PID}" onclick="openDetail(this.dataset.pid)">View ›</button></td></tr>`;
   }).join('')}</tbody></table>`;
 }
 
@@ -1470,7 +1472,7 @@ function renderPatientsTable(filter=''){
     const oc=DB.operations.filter(x=>String(x.PID)===String(p.PID)).length;
     const fc=DB.followups.filter(x=>String(x.PID)===String(p.PID)).length;
     const age=p.DOB?calcAge(p.DOB):'—';
-    return `<tr><td class="mono">${p.PID}</td><td class="name">${p.Name||''}</td><td>${age}</td><td>${p.Sex||'—'}</td><td class="mono">${p.Phone||'—'}</td><td>${ec}</td><td>${oc}</td><td>${fc}</td><td><button class="table-action" onclick="openDetail('${p.PID}')">View ›</button></td></tr>`;
+    return `<tr><td class="mono">${p.PID}</td><td class="name">${p.Name||''}</td><td>${age}</td><td>${p.Sex||'—'}</td><td class="mono">${p.Phone||'—'}</td><td>${ec}</td><td>${oc}</td><td>${fc}</td><td><button class="table-action" data-pid="${p.PID}" onclick="openDetail(this.dataset.pid)">View ›</button></td></tr>`;
   }).join('');
 }
 function filterPatients(){renderPatientsTable(document.getElementById('patient-search').value);}
@@ -1872,21 +1874,8 @@ function formatDateDisplay(isoVal){
   return `${d}/${m}/${y}`;
 }
 function initDateDisplays(){
-  document.querySelectorAll('input[type=date]').forEach(inp=>{
-    // wrap in display div if not already
-    if(inp.parentElement.classList.contains('date-display')) return;
-    const wrapper = document.createElement('div');
-    wrapper.className = 'date-display';
-    const display = document.createElement('div');
-    display.className = 'date-text';
-    display.textContent = inp.value ? formatDateDisplay(inp.value) : inp.placeholder || 'DD/MM/YYYY';
-    inp.parentNode.insertBefore(wrapper, inp);
-    wrapper.appendChild(display);
-    wrapper.appendChild(inp);
-    inp.addEventListener('change', ()=>{
-      display.textContent = inp.value ? formatDateDisplay(inp.value) : 'DD/MM/YYYY';
-    });
-  });
+  // Native date inputs — calendar popup works on both desktop and mobile
+  // No custom overlay needed; browser handles the calendar natively
 }
 
 // ─── COLLECT IOL COMPLICATIONS ───
