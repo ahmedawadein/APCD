@@ -186,10 +186,14 @@
 
   /* BILATERAL OD/OS LAYOUT */
   .bilateral-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border-dim);border-radius:var(--radius);overflow:hidden;margin-top:4px}
+  .eye-col:first-child{background:rgba(247,183,49,.04)}
+  .eye-col:last-child{background:rgba(100,160,255,.05)}
+  .eye-col:first-child .eye-col-body{border-left:3px solid rgba(247,183,49,.3)}
+  .eye-col:last-child .eye-col-body{border-left:3px solid rgba(100,160,255,.3)}
   .eye-col{padding:0}
   .eye-col-header{padding:8px 14px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:500;text-align:center;border-bottom:1px solid var(--border-dim)}
-  .eye-col-header.od{background:rgba(45,207,202,.14);color:var(--teal);font-weight:600}
-  .eye-col-header.os{background:rgba(176,158,245,.14);color:var(--purple);font-weight:600}
+  .eye-col-header.od{background:rgba(247,183,49,.15);color:var(--amber);font-weight:600;border-bottom:2px solid rgba(247,183,49,.35)}
+  .eye-col-header.os{background:rgba(100,160,255,.15);color:#7ab4ff;font-weight:600;border-bottom:2px solid rgba(100,160,255,.35)}
   .eye-col:first-child{border-right:1px solid var(--border-dim)}
   .eye-col-body{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
   .bi-field{display:flex;flex-direction:column;gap:4px}
@@ -257,6 +261,43 @@
     opacity:.7;cursor:pointer
   }
   input[type=date]::-webkit-calendar-picker-indicator:hover{opacity:1}
+
+
+  /* OD column — all inputs get amber tint on focus */
+  .eye-col:first-child .bi-field input:focus,
+  .eye-col:first-child .bi-field select:focus{
+    border-color:var(--amber);
+    box-shadow:0 0 0 2px rgba(247,183,49,.15)
+  }
+  /* OS column — all inputs get blue tint on focus */
+  .eye-col:last-child .bi-field input:focus,
+  .eye-col:last-child .bi-field select:focus{
+    border-color:#7ab4ff;
+    box-shadow:0 0 0 2px rgba(100,160,255,.15)
+  }
+  /* OD radio checked = amber */
+  .eye-col:first-child .radio-option input[type=radio]:checked+label{
+    border-color:var(--amber);
+    background:rgba(247,183,49,.12);
+    color:var(--amber)
+  }
+  /* OS radio checked = blue */
+  .eye-col:last-child .radio-option input[type=radio]:checked+label{
+    border-color:#7ab4ff;
+    background:rgba(100,160,255,.12);
+    color:#7ab4ff
+  }
+  /* OD section divider */
+  .eye-col:first-child .lens-status-section{border-top:1px solid rgba(247,183,49,.15)}
+  /* OS section divider */
+  .eye-col:last-child .lens-status-section{border-top:1px solid rgba(100,160,255,.15)}
+  /* Mobile stacked — full-width tint */
+  @media(max-width:640px){
+    .eye-col:first-child{background:rgba(247,183,49,.04)}
+    .eye-col:last-child{background:rgba(100,160,255,.05)}
+    .eye-col:first-child .eye-col-body{border-left:3px solid rgba(247,183,49,.3);border-bottom:none}
+    .eye-col:last-child .eye-col-body{border-left:3px solid rgba(100,160,255,.3)}
+  }
 
   /* PATIENT SEARCH BAR */
   #patient-lookup-bar{background:rgba(13,27,42,.95);border-bottom:1px solid var(--border);padding:12px 30px;display:flex;align-items:center;gap:12px;position:sticky;top:58px;z-index:40;backdrop-filter:blur(8px)}
@@ -963,7 +1004,27 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
             <div class="form-group span-2"><label>Patient</label><input type="text" id="s-pid-display" readonly placeholder="Select patient using search bar above" style="background:rgba(28,184,176,.05);color:var(--teal);cursor:default"><input type="hidden" id="s-pid"></div>
             <div class="form-group"><label>Date of Operation *</label><input type="date" id="s-date" required></div>
             <div class="form-group"><label>Eye *</label><div class="radio-group"><div class="radio-option"><input type="radio" name="s-eye" id="se-od" value="OD"><label for="se-od">OD</label></div><div class="radio-option"><input type="radio" name="s-eye" id="se-os" value="OS"><label for="se-os">OS</label></div></div></div>
-            <div class="form-group span-2"><label>Operation Type *</label><select id="s-optype"><option value="">— Select —</option><option>Anterior Lensectomy</option><option>Posterior Lensectomy</option><option>Irrigation/Aspiration</option><option>Secondary Implantation</option><option>Membranectomy</option><option>Other</option></select></div>
+            <div class="form-group span-2"><label>Operation Type *</label><select id="s-optype" onchange="onOptypeChange()"><option value="">— Select —</option>
+<option>Anterior Lensectomy</option>
+<option>Posterior Lensectomy</option>
+<option>Irrigation/Aspiration</option>
+<option>Secondary Implantation</option>
+<option>IOL Explantation</option>
+<option>IOL Exchange</option>
+<option>IOL Repositioning</option>
+<option>Secondary Implantation with Scleral Fixation</option>
+<option>Scleral Fixation — Flanged Technique</option>
+<option>Scleral Fixation — Hoffman Pockets</option>
+<option>Scleral Fixation — Yamane Technique</option>
+<option>Membranectomy</option>
+<option>Other</option>
+</select>
+<div id="scleral-points-wrap" style="display:none;margin-top:8px">
+  <div class="radio-group">
+    <div class="radio-option"><input type="radio" name="s-scleral-pts" id="sp-1pt" value="1-point"><label for="sp-1pt">1-point fixation</label></div>
+    <div class="radio-option"><input type="radio" name="s-scleral-pts" id="sp-2pt" value="2-point"><label for="sp-2pt">2-point fixation</label></div>
+  </div>
+</div></div>
             <div class="form-group span-2"><label>Examiner / Surgeon</label><div class="examiner-wrap"><select id="s-examiner" onchange="handleExaminerChange('s-examiner')"></select></div></div>
             <div class="form-group"><label>Duration (min)</label><input type="number" id="s-duration" min="0" placeholder="minutes"></div>
           </div>
@@ -979,7 +1040,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
           </div>
           <div class="section-divider"></div>
           <div class="form-grid cols-3">
-            <div class="form-group"><label>Viscoelastic</label><select id="s-visco"><option value="">— Select —</option><option>MethylCellulose</option><option>Sodium Hyaluronate</option></select></div>
+            <div class="form-group"><label>Viscoelastic</label><select id="s-visco"><option value="">— Select —</option><option>None</option><option>MethylCellulose</option><option>Sodium Hyaluronate</option></select></div>
             <div class="form-group"><label>Medications (Periop)</label><select id="s-meds"><option value="">— Select —</option><option>Diprofos</option><option>Decadrone</option><option>Triamcinolone</option></select></div>
             <div class="form-group"><label>Route</label><select id="s-route"><option value="">— Select —</option><option>Subtenon</option><option>Intravitreal</option><option>Topical</option><option>Systemic</option></select></div>
             <div class="form-group"><label>Steroids</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="s-steroids"><label for="s-steroids">Given</label></div></div></div>
@@ -1002,6 +1063,30 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
             <div class="flag-option"><input type="checkbox" id="sp-drop-iol"><label for="sp-drop-iol">Dropped IOL</label></div>
             <div class="flag-option"><input type="checkbox" id="sp-vit-haem"><label for="sp-vit-haem">Vitreous Haemorrhage</label></div>
           </div>
+          <div class="section-divider"></div>
+          <div class="form-grid cols-3" style="margin-top:4px">
+            <div class="form-group">
+              <label>Peripheral Iridectomy</label>
+              <div class="radio-group">
+                <div class="radio-option"><input type="radio" name="s-periph-irid" id="pi-no" value="No" checked><label for="pi-no">No</label></div>
+                <div class="radio-option"><input type="radio" name="s-periph-irid" id="pi-yes" value="Yes"><label for="pi-yes">Yes</label></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Suture — Main Wound</label>
+              <div class="radio-group">
+                <div class="radio-option"><input type="radio" name="s-suture-main" id="sm-yes" value="Yes" checked><label for="sm-yes">Yes</label></div>
+                <div class="radio-option"><input type="radio" name="s-suture-main" id="sm-no" value="No"><label for="sm-no">No</label></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Suture — Side Ports</label>
+              <div class="radio-group">
+                <div class="radio-option"><input type="radio" name="s-suture-side" id="ss-yes" value="Yes" checked><label for="ss-yes">Yes</label></div>
+                <div class="radio-option"><input type="radio" name="s-suture-side" id="ss-no" value="No"><label for="ss-no">No</label></div>
+              </div>
+            </div>
+          </div>
           <div class="form-group" style="margin-top:12px"><label>Other Complications</label><textarea id="s-complications" placeholder="Any additional intraoperative complications…"></textarea></div>
         </div>
 
@@ -1009,7 +1094,17 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
           <div class="form-card-title">IOL Details</div>
           <div class="form-group" style="margin-bottom:14px"><label>IOL Implanted?</label><div class="radio-group"><div class="radio-option"><input type="radio" name="iol-yn" id="iol-yes" value="Yes" onchange="toggleIOL(true)"><label for="iol-yes">Yes</label></div><div class="radio-option"><input type="radio" name="iol-yn" id="iol-no" value="No" onchange="toggleIOL(false)"><label for="iol-no">No — Aphakic</label></div></div></div>
           <div id="iol-details" class="form-grid cols-4">
-            <div class="form-group span-2"><label>IOL Type / Model</label><select id="s-iol-type"><option value="">— Select —</option><option>Acrysof one-piece</option><option>Acrysof three-piece</option><option>Sensar</option><option>PMMA 6.5 mm</option><option>PMMA 5 mm</option><option>Verisyse</option><option>Veriflex</option><option>Scleral Fixation Lens</option><option>medicontur</option></select></div>
+            <div class="form-group span-2"><label>IOL Type / Model</label><select id="s-iol-type" onchange="handleIOLTypeChange()"><option value="">— Select —</option>
+<option>Sensar 1-piece</option>
+<option>Sensar 3-piece</option>
+<option>Acrysof 1-piece</option>
+<option>Acrysof 3-piece</option>
+<option>PMMA 6 mm</option>
+<option>Anterior iris-claw</option>
+<option>Posterior iris-claw</option>
+<option>Tecnis 1-piece</option>
+<option>Tecnis 3-piece</option>
+<option>Scleral fixation lens</option><option value="__add__">＋ Add new IOL…</option></select></div>
             <div class="form-group"><label>IOL Placement</label><select id="s-iol-place"><option value="">— Select —</option><option>Bag</option><option>Sulcus</option><option>Iris Support Anterior</option><option>Iris Support Posterior</option><option>Scleral Fixation one-point</option><option>Scleral Fixation two-point</option><option>Scleral Fixation Tunnel</option><option>Unspecified</option></select></div>
             <div class="form-group"><label>IOL Power (D)</label><input type="number" id="s-iol-power" step="0.5" placeholder="diopters"></div>
             <div class="form-group"><label>Target Refraction (D)</label><input type="number" id="s-target-ref" step="0.25" placeholder="diopters"></div>
@@ -1406,7 +1501,7 @@ function showView(v){
   if(v==='patients')renderPatientsTable();
   if(v==='dashboard')renderDashboard();
   if(v==='new-patient')generatePID();
-  if(['new-examination','new-surgery','new-followup','new-patient'].includes(v)){refreshExaminerSelects();resetFormulas();setTimeout(()=>{initDateDisplays();initMorphWidgets();},50);}
+  if(['new-examination','new-surgery','new-followup','new-patient'].includes(v)){refreshExaminerSelects();refreshIOLSelect();resetFormulas();setTimeout(()=>{initDateDisplays();initMorphWidgets();},50);}
   if(v==='new-followup')setTimeout(updatePostopBadge,100);
 }
 
@@ -1674,7 +1769,7 @@ async function submitSurgery(e){
   const btn=document.getElementById('surgery-submit-btn');
   const eye=document.querySelector('input[name="s-eye"]:checked');
   const iol=document.querySelector('input[name="iol-yn"]:checked');
-  const row={ID:'OP'+Date.now(),PID:document.getElementById('s-pid').value||ACTIVE_PATIENT?.PID||'',DateOfOp:document.getElementById('s-date').value,Eye:eye?eye.value:'',OperationName:document.getElementById('s-optype').value,IOL:iol?iol.value:'',AnteriorCapsule:document.getElementById('s-ant-cap').value,PosteriorCapsule:document.getElementById('s-post-cap').value,CapsuleStain:document.getElementById('s-cap-stain').checked?'Yes':'No',Viscoelastic:document.getElementById('s-visco').value,AnteriorVitrectomy:document.getElementById('s-ant-vit').value,Membranectomy:document.getElementById('sp-memb').checked?'Yes':'No',Iridectomy:document.getElementById('sp-irid').checked?'Yes':'No',IrisInjury:document.getElementById('sp-iris-inj').checked?'Yes':'No',Sphincterinjury:document.getElementById('sp-sphinc').checked?'Yes':'No',Synechiolysis:document.getElementById('sp-syn').checked?'Yes':'No',IrisReconstruction:document.getElementById('sp-iris-rec').checked?'Yes':'No',IrisManipulations:document.getElementById('sp-iris-man').checked?'Yes':'No',Hyphaema:document.getElementById('sp-hyph').checked?'Yes':'No',DroppedCortex:document.getElementById('sp-drop-cortex').checked?'Yes':'No',DroppedIOL:document.getElementById('sp-drop-iol').checked?'Yes':'No',VitreousHaemorrhage:document.getElementById('sp-vit-haem').checked?'Yes':'No',OtherComplications:document.getElementById('s-complications').value,IOLType:document.getElementById('s-iol-type').value,IOLPlace:document.getElementById('s-iol-place').value,IOLPower:document.getElementById('s-iol-power').value,TargetRefraction:document.getElementById('s-target-ref').value,Orientation:document.getElementById('s-orientation').value,Steroids:document.getElementById('s-steroids').checked?'Yes':'No',Atropine:document.getElementById('s-atropine').checked?'Yes':'No',Route:document.getElementById('s-route').value,Medications:document.getElementById('s-meds').value,Examiner:document.getElementById('s-examiner').value,Duration:document.getElementById('s-duration').value,Comments:document.getElementById('s-comments').value,EntryDate:today()};
+  const row={ID:'OP'+Date.now(),PID:document.getElementById('s-pid').value||ACTIVE_PATIENT?.PID||'',DateOfOp:document.getElementById('s-date').value,Eye:eye?eye.value:'',OperationName:document.getElementById('s-optype').value,ScleralPoints:(()=>{const el=document.querySelector('input[name="s-scleral-pts"]:checked');return el?el.value:'';})(),IOL:iol?iol.value:'',AnteriorCapsule:document.getElementById('s-ant-cap').value,PosteriorCapsule:document.getElementById('s-post-cap').value,CapsuleStain:document.getElementById('s-cap-stain').checked?'Yes':'No',Viscoelastic:document.getElementById('s-visco').value,AnteriorVitrectomy:document.getElementById('s-ant-vit').value,PeriphIridectomy:(()=>{const el=document.querySelector('input[name="s-periph-irid"]:checked');return el?el.value:'No';})(),SutureMainWound:(()=>{const el=document.querySelector('input[name="s-suture-main"]:checked');return el?el.value:'Yes';})(),SutureSidePorts:(()=>{const el=document.querySelector('input[name="s-suture-side"]:checked');return el?el.value:'Yes';})(),Membranectomy:document.getElementById('sp-memb').checked?'Yes':'No',Iridectomy:document.getElementById('sp-irid').checked?'Yes':'No',IrisInjury:document.getElementById('sp-iris-inj').checked?'Yes':'No',Sphincterinjury:document.getElementById('sp-sphinc').checked?'Yes':'No',Synechiolysis:document.getElementById('sp-syn').checked?'Yes':'No',IrisReconstruction:document.getElementById('sp-iris-rec').checked?'Yes':'No',IrisManipulations:document.getElementById('sp-iris-man').checked?'Yes':'No',Hyphaema:document.getElementById('sp-hyph').checked?'Yes':'No',DroppedCortex:document.getElementById('sp-drop-cortex').checked?'Yes':'No',DroppedIOL:document.getElementById('sp-drop-iol').checked?'Yes':'No',VitreousHaemorrhage:document.getElementById('sp-vit-haem').checked?'Yes':'No',OtherComplications:document.getElementById('s-complications').value,IOLType:document.getElementById('s-iol-type').value,IOLPlace:document.getElementById('s-iol-place').value,IOLPower:document.getElementById('s-iol-power').value,TargetRefraction:document.getElementById('s-target-ref').value,Orientation:document.getElementById('s-orientation').value,Steroids:document.getElementById('s-steroids').checked?'Yes':'No',Atropine:document.getElementById('s-atropine').checked?'Yes':'No',Route:document.getElementById('s-route').value,Medications:document.getElementById('s-meds').value,Examiner:document.getElementById('s-examiner').value,Duration:document.getElementById('s-duration').value,Comments:document.getElementById('s-comments').value,EntryDate:today()};
   DB.operations.push(row);
   showToast('Operation saved ✓','success');
   document.getElementById('surgery-form').reset();
@@ -2093,6 +2188,45 @@ function toggleConditional(triggerName, showValue, ...fieldIds){
   });
 }
 
+
+
+// ─── CUSTOM IOL TYPES ───
+let CUSTOM_IOLS = JSON.parse(localStorage.getItem('pedicat_iols') || '[]');
+const BASE_IOLS = ['Sensar 1-piece','Sensar 3-piece','Acrysof 1-piece','Acrysof 3-piece','PMMA 6 mm','Anterior iris-claw','Posterior iris-claw','Tecnis 1-piece','Tecnis 3-piece','Scleral fixation lens'];
+
+function handleIOLTypeChange(){
+  const el = document.getElementById('s-iol-type');
+  if(!el || el.value !== '__add__') return;
+  const name = prompt('Enter new IOL type/model name:');
+  if(!name || !name.trim()){ el.value=''; return; }
+  const trimmed = name.trim();
+  if(![...BASE_IOLS,...CUSTOM_IOLS].includes(trimmed)){
+    CUSTOM_IOLS.push(trimmed);
+    localStorage.setItem('pedicat_iols', JSON.stringify(CUSTOM_IOLS));
+  }
+  refreshIOLSelect();
+  el.value = trimmed;
+  showToast(trimmed + ' added ✓', 'success');
+}
+
+function refreshIOLSelect(){
+  const el = document.getElementById('s-iol-type');
+  if(!el) return;
+  const prev = el.value;
+  const allOpts = [...BASE_IOLS, ...CUSTOM_IOLS];
+  el.innerHTML = '<option value="">— Select —</option>' +
+    allOpts.map(n=>`<option value="${n}"${n===prev?' selected':''}>${n}</option>`).join('') +
+    '<option value="__add__">＋ Add new IOL…</option>';
+}
+
+
+// ─── OPERATION TYPE CHANGE ───
+function onOptypeChange(){
+  const val = document.getElementById('s-optype')?.value || '';
+  const isScleral = val.toLowerCase().includes('scleral');
+  const wrap = document.getElementById('scleral-points-wrap');
+  if(wrap) wrap.style.display = isScleral ? 'block' : 'none';
+}
 
 // ─── MOBILE SIDEBAR ───
 function toggleSidebar(){
