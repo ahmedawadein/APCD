@@ -229,6 +229,23 @@
   /* POSTOP TIMEPOINT BADGE */
   .postop-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:10.5px;font-family:'DM Mono',monospace;background:rgba(155,127,232,.12);color:var(--purple);border:1px solid rgba(155,127,232,.25);margin-left:8px;vertical-align:middle}
 
+
+  /* LENS STATUS SECTIONS */
+  .lens-status-section{display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border-dim)}
+  .lens-status-section.visible{display:block}
+  .iol-comps{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+  .iol-comp-option{position:relative}
+  .iol-comp-option input[type=checkbox]{position:absolute;opacity:0;width:0;height:0}
+  .iol-comp-option label{display:block;padding:4px 10px;border:1px solid rgba(255,255,255,.08);border-radius:5px;cursor:pointer;font-size:11px;color:var(--text-faint);transition:all .15s;user-select:none}
+  .iol-comp-option input[type=checkbox]:checked+label{border-color:var(--red);background:rgba(224,82,82,.1);color:var(--red)}
+  .iol-comp-option label:hover{color:var(--text-dim)}
+
+  /* DATE INPUT — display as DD/MM/YYYY via text fallback */
+  .date-display{position:relative}
+  .date-display input[type=date]{opacity:0;position:absolute;top:0;left:0;width:100%;height:100%;cursor:pointer}
+  .date-display .date-text{background:var(--input-bg);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius);color:var(--text-main);font-family:'Lato',sans-serif;font-size:13.5px;padding:9px 13px;width:100%;pointer-events:none}
+  .date-display:focus-within .date-text{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-glow)}
+
   /* PATIENT SEARCH BAR */
   #patient-lookup-bar{background:rgba(13,27,42,.95);border-bottom:1px solid var(--border);padding:12px 30px;display:flex;align-items:center;gap:12px;position:sticky;top:58px;z-index:40;backdrop-filter:blur(8px)}
   #patient-lookup-bar.hidden{display:none!important}
@@ -465,30 +482,106 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
           <div class="form-card-title">Lens</div>
           <div class="bilateral-grid">
             <div class="eye-col"><div class="eye-col-header od">OD</div><div class="eye-col-body">
-              <div class="bi-field"><label>Lens Density</label><select id="e-lens-density-od"><option value="">— Select —</option><option>Average</option><option>Dense</option><option>Very Dense</option><option>Soft</option></select></div>
-              <div class="bi-field"><label>Lens Morphology</label><input type="text" id="e-lens-morph-od" placeholder="e.g. lamellar, polar"></div>
-              <div class="bi-field"><label>Cataract Location</label><select id="e-cat-loc-od"><option value="">— Select —</option><option>Total</option><option>Nuclear</option><option>Cortical</option><option>Posterior Subcapsular</option><option>Anterior Polar</option><option>Posterior Polar</option><option>Lamellar</option></select></div>
-              <div class="bi-field"><label>Subluxation</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-sub-od" id="sub-od-n" value="Absent"><label for="sub-od-n">Absent</label></div><div class="radio-option"><input type="radio" name="e-sub-od" id="sub-od-y" value="Present"><label for="sub-od-y">Present</label></div></div></div>
-              <div class="bi-field"><label>Subluxation Grade</label><input type="text" id="e-sub-grade-od"></div>
-              <div class="bi-field"><label>Subluxation Degrees</label><input type="number" id="e-sub-deg-od" min="0" max="360" placeholder="°"></div>
-              <div class="bi-field"><label>Subluxation Location</label><input type="text" id="e-sub-loc-od" placeholder="e.g. superonasal"></div>
-              <div class="bi-field"><label>Spherophakia</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-sph-od"><label for="e-sph-od">Present</label></div></div></div>
-              <div class="bi-field"><label>Lenticonus</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-lent-od"><label for="e-lent-od">Present</label></div></div></div>
-              <div class="bi-field"><label>PHPV</label><select id="e-phpv-od"><option value="Absent">Absent</option><option value="Anterior">Anterior</option><option value="Posterior">Posterior</option><option value="Combined">Combined</option></select></div>
-              <div class="bi-field"><label>PHPV Type</label><input type="text" id="e-phpv-type-od"></div>
+              <div class="bi-field">
+                <label>Lens Status</label>
+                <div class="bi-radio radio-group">
+                  <div class="radio-option"><input type="radio" name="e-lens-status-od" id="ls-od-cat" value="Cataract" onchange="onLensStatus('od','exam')"><label for="ls-od-cat">Cataract</label></div>
+                  <div class="radio-option"><input type="radio" name="e-lens-status-od" id="ls-od-clear" value="Clear lens" onchange="onLensStatus('od','exam')"><label for="ls-od-clear">Clear</label></div>
+                  <div class="radio-option"><input type="radio" name="e-lens-status-od" id="ls-od-aph" value="Aphakia" onchange="onLensStatus('od','exam')"><label for="ls-od-aph">Aphakia</label></div>
+                  <div class="radio-option"><input type="radio" name="e-lens-status-od" id="ls-od-pse" value="Pseudophakia" onchange="onLensStatus('od','exam')"><label for="ls-od-pse">Pseudophakia</label></div>
+                </div>
+              </div>
+              <!-- CATARACT section -->
+              <div class="lens-status-section" id="ls-od-cat-section">
+                <div class="bi-field"><label>Lens Density</label><select id="e-lens-density-od"><option value="">— Select —</option><option>Average</option><option>Dense</option><option>Very Dense</option><option>Soft</option></select></div>
+                <div class="bi-field"><label>Lens Morphology</label><input type="text" id="e-lens-morph-od" placeholder="e.g. lamellar, polar"></div>
+                <div class="bi-field"><label>Cataract Location</label><select id="e-cat-loc-od"><option value="">— Select —</option><option>Total</option><option>Nuclear</option><option>Cortical</option><option>Posterior Subcapsular</option><option>Anterior Polar</option><option>Posterior Polar</option><option>Lamellar</option></select></div>
+                <div class="bi-field"><label>Subluxation</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-sub-od" id="sub-od-n" value="Absent" checked><label for="sub-od-n">Absent</label></div><div class="radio-option"><input type="radio" name="e-sub-od" id="sub-od-y" value="Present"><label for="sub-od-y">Present</label></div></div></div>
+                <div class="bi-field"><label>Subluxation Grade</label><input type="text" id="e-sub-grade-od"></div>
+                <div class="bi-field"><label>Subluxation Degrees</label><input type="number" id="e-sub-deg-od" min="0" max="360" placeholder="°"></div>
+                <div class="bi-field"><label>Subluxation Location</label><input type="text" id="e-sub-loc-od" placeholder="e.g. superonasal"></div>
+                <div class="bi-field"><label>Spherophakia</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-sph-od"><label for="e-sph-od">Present</label></div></div></div>
+                <div class="bi-field"><label>Lenticonus</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-lent-od"><label for="e-lent-od">Present</label></div></div></div>
+                <div class="bi-field"><label>PHPV</label><select id="e-phpv-od"><option value="Absent">Absent</option><option value="Anterior">Anterior</option><option value="Posterior">Posterior</option><option value="Combined">Combined</option></select></div>
+                <div class="bi-field"><label>PHPV Type</label><input type="text" id="e-phpv-type-od"></div>
+              </div>
+              <!-- APHAKIA section -->
+              <div class="lens-status-section" id="ls-od-aph-section">
+                <div class="bi-field"><label>Posterior Capsule</label><select id="e-aph-pc-od"><option value="">— Select —</option><option>Absent</option><option>Clear and intact</option><option>Opacified and intact</option><option>Open</option></select></div>
+              </div>
+              <!-- PSEUDOPHAKIA section -->
+              <div class="lens-status-section" id="ls-od-pse-section">
+                <div class="bi-field"><label>IOL Location</label><select id="e-iol-loc-od"><option value="">— Select —</option><option>Bag</option><option>Sulcus</option><option>Anterior enclavation iris-claw</option><option>Posterior enclavation iris-claw</option><option>Scleral fixation with sutures</option><option>Scleral fixation with tunnels</option><option>Scleral fixation with Hoffman pockets</option><option>Scleral fixation with Yamane technique</option><option>Scleral fixation with flanged technique</option></select></div>
+                <div class="bi-field"><label>Posterior Capsule</label><select id="e-pse-pc-od"><option value="">— Select —</option><option>Absent</option><option>Clear and intact</option><option>Opacified and intact</option><option>Open</option></select></div>
+                <div class="bi-field"><label>Adequate Centration</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-centration-od" id="cen-od-y" value="Yes" checked><label for="cen-od-y">Yes</label></div><div class="radio-option"><input type="radio" name="e-centration-od" id="cen-od-n" value="No"><label for="cen-od-n">No</label></div></div></div>
+                <div class="bi-field"><label>Complications</label>
+                  <div class="iol-comps">
+                    <div class="iol-comp-option"><input type="checkbox" id="ic-od-optic" value="Optic capture"><label for="ic-od-optic">Optic capture</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="ic-od-decent" value="Decentration"><label for="ic-od-decent">Decentration</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="ic-od-tilt" value="Tilt"><label for="ic-od-tilt">Tilt</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="ic-od-hap" value="Cut haptic"><label for="ic-od-hap">Cut haptic</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="ic-od-antdis" value="Anterior dislocation"><label for="ic-od-antdis">Ant. dislocation</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="ic-od-postdis" value="Posterior dislocation"><label for="ic-od-postdis">Post. dislocation</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="ic-od-pit" value="Pitting"><label for="ic-od-pit">Pitting</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="ic-od-iris" value="Iris pigments"><label for="ic-od-iris">Iris pigments</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="ic-od-phim" value="Capsular phimosis"><label for="ic-od-phim">Caps. phimosis</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="ic-od-antmem" value="Anterior membrane"><label for="ic-od-antmem">Ant. membrane</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="ic-od-retmem" value="Retrolental membrane"><label for="ic-od-retmem">Retrolental membrane</label></div>
+                  </div>
+                  <input type="text" id="ic-od-other" placeholder="Other complications…" style="margin-top:6px">
+                </div>
+              </div>
             </div></div>
             <div class="eye-col"><div class="eye-col-header os">OS</div><div class="eye-col-body">
-              <div class="bi-field"><label>Lens Density</label><select id="e-lens-density-os"><option value="">— Select —</option><option>Average</option><option>Dense</option><option>Very Dense</option><option>Soft</option></select></div>
-              <div class="bi-field"><label>Lens Morphology</label><input type="text" id="e-lens-morph-os" placeholder="e.g. lamellar, polar"></div>
-              <div class="bi-field"><label>Cataract Location</label><select id="e-cat-loc-os"><option value="">— Select —</option><option>Total</option><option>Nuclear</option><option>Cortical</option><option>Posterior Subcapsular</option><option>Anterior Polar</option><option>Posterior Polar</option><option>Lamellar</option></select></div>
-              <div class="bi-field"><label>Subluxation</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-sub-os" id="sub-os-n" value="Absent"><label for="sub-os-n">Absent</label></div><div class="radio-option"><input type="radio" name="e-sub-os" id="sub-os-y" value="Present"><label for="sub-os-y">Present</label></div></div></div>
-              <div class="bi-field"><label>Subluxation Grade</label><input type="text" id="e-sub-grade-os"></div>
-              <div class="bi-field"><label>Subluxation Degrees</label><input type="number" id="e-sub-deg-os" min="0" max="360" placeholder="°"></div>
-              <div class="bi-field"><label>Subluxation Location</label><input type="text" id="e-sub-loc-os" placeholder="e.g. superonasal"></div>
-              <div class="bi-field"><label>Spherophakia</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-sph-os"><label for="e-sph-os">Present</label></div></div></div>
-              <div class="bi-field"><label>Lenticonus</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-lent-os"><label for="e-lent-os">Present</label></div></div></div>
-              <div class="bi-field"><label>PHPV</label><select id="e-phpv-os"><option value="Absent">Absent</option><option value="Anterior">Anterior</option><option value="Posterior">Posterior</option><option value="Combined">Combined</option></select></div>
-              <div class="bi-field"><label>PHPV Type</label><input type="text" id="e-phpv-type-os"></div>
+              <div class="bi-field">
+                <label>Lens Status</label>
+                <div class="bi-radio radio-group">
+                  <div class="radio-option"><input type="radio" name="e-lens-status-os" id="ls-os-cat" value="Cataract" onchange="onLensStatus('os','exam')"><label for="ls-os-cat">Cataract</label></div>
+                  <div class="radio-option"><input type="radio" name="e-lens-status-os" id="ls-os-clear" value="Clear lens" onchange="onLensStatus('os','exam')"><label for="ls-os-clear">Clear</label></div>
+                  <div class="radio-option"><input type="radio" name="e-lens-status-os" id="ls-os-aph" value="Aphakia" onchange="onLensStatus('os','exam')"><label for="ls-os-aph">Aphakia</label></div>
+                  <div class="radio-option"><input type="radio" name="e-lens-status-os" id="ls-os-pse" value="Pseudophakia" onchange="onLensStatus('os','exam')"><label for="ls-os-pse">Pseudophakia</label></div>
+                </div>
+              </div>
+              <!-- CATARACT section -->
+              <div class="lens-status-section" id="ls-os-cat-section">
+                <div class="bi-field"><label>Lens Density</label><select id="e-lens-density-os"><option value="">— Select —</option><option>Average</option><option>Dense</option><option>Very Dense</option><option>Soft</option></select></div>
+                <div class="bi-field"><label>Lens Morphology</label><input type="text" id="e-lens-morph-os" placeholder="e.g. lamellar, polar"></div>
+                <div class="bi-field"><label>Cataract Location</label><select id="e-cat-loc-os"><option value="">— Select —</option><option>Total</option><option>Nuclear</option><option>Cortical</option><option>Posterior Subcapsular</option><option>Anterior Polar</option><option>Posterior Polar</option><option>Lamellar</option></select></div>
+                <div class="bi-field"><label>Subluxation</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-sub-os" id="sub-os-n" value="Absent" checked><label for="sub-os-n">Absent</label></div><div class="radio-option"><input type="radio" name="e-sub-os" id="sub-os-y" value="Present"><label for="sub-os-y">Present</label></div></div></div>
+                <div class="bi-field"><label>Subluxation Grade</label><input type="text" id="e-sub-grade-os"></div>
+                <div class="bi-field"><label>Subluxation Degrees</label><input type="number" id="e-sub-deg-os" min="0" max="360" placeholder="°"></div>
+                <div class="bi-field"><label>Subluxation Location</label><input type="text" id="e-sub-loc-os" placeholder="e.g. superonasal"></div>
+                <div class="bi-field"><label>Spherophakia</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-sph-os"><label for="e-sph-os">Present</label></div></div></div>
+                <div class="bi-field"><label>Lenticonus</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-lent-os"><label for="e-lent-os">Present</label></div></div></div>
+                <div class="bi-field"><label>PHPV</label><select id="e-phpv-os"><option value="Absent">Absent</option><option value="Anterior">Anterior</option><option value="Posterior">Posterior</option><option value="Combined">Combined</option></select></div>
+                <div class="bi-field"><label>PHPV Type</label><input type="text" id="e-phpv-type-os"></div>
+              </div>
+              <!-- APHAKIA section -->
+              <div class="lens-status-section" id="ls-os-aph-section">
+                <div class="bi-field"><label>Posterior Capsule</label><select id="e-aph-pc-os"><option value="">— Select —</option><option>Absent</option><option>Clear and intact</option><option>Opacified and intact</option><option>Open</option></select></div>
+              </div>
+              <!-- PSEUDOPHAKIA section -->
+              <div class="lens-status-section" id="ls-os-pse-section">
+                <div class="bi-field"><label>IOL Location</label><select id="e-iol-loc-os"><option value="">— Select —</option><option>Bag</option><option>Sulcus</option><option>Anterior enclavation iris-claw</option><option>Posterior enclavation iris-claw</option><option>Scleral fixation with sutures</option><option>Scleral fixation with tunnels</option><option>Scleral fixation with Hoffman pockets</option><option>Scleral fixation with Yamane technique</option><option>Scleral fixation with flanged technique</option></select></div>
+                <div class="bi-field"><label>Posterior Capsule</label><select id="e-pse-pc-os"><option value="">— Select —</option><option>Absent</option><option>Clear and intact</option><option>Opacified and intact</option><option>Open</option></select></div>
+                <div class="bi-field"><label>Adequate Centration</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-centration-os" id="cen-os-y" value="Yes" checked><label for="cen-os-y">Yes</label></div><div class="radio-option"><input type="radio" name="e-centration-os" id="cen-os-n" value="No"><label for="cen-os-n">No</label></div></div></div>
+                <div class="bi-field"><label>Complications</label>
+                  <div class="iol-comps">
+                    <div class="iol-comp-option"><input type="checkbox" id="ic-os-optic" value="Optic capture"><label for="ic-os-optic">Optic capture</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="ic-os-decent" value="Decentration"><label for="ic-os-decent">Decentration</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="ic-os-tilt" value="Tilt"><label for="ic-os-tilt">Tilt</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="ic-os-hap" value="Cut haptic"><label for="ic-os-hap">Cut haptic</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="ic-os-antdis" value="Anterior dislocation"><label for="ic-os-antdis">Ant. dislocation</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="ic-os-postdis" value="Posterior dislocation"><label for="ic-os-postdis">Post. dislocation</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="ic-os-pit" value="Pitting"><label for="ic-os-pit">Pitting</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="ic-os-iris" value="Iris pigments"><label for="ic-os-iris">Iris pigments</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="ic-os-phim" value="Capsular phimosis"><label for="ic-os-phim">Caps. phimosis</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="ic-os-antmem" value="Anterior membrane"><label for="ic-os-antmem">Ant. membrane</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="ic-os-retmem" value="Retrolental membrane"><label for="ic-os-retmem">Retrolental membrane</label></div>
+                  </div>
+                  <input type="text" id="ic-os-other" placeholder="Other complications…" style="margin-top:6px">
+                </div>
+              </div>
             </div></div>
           </div>
         </div>
@@ -668,7 +761,43 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
               <div class="bi-field"><label>CCT (µm)</label><input type="number" id="f-cct-od" placeholder="µm"></div>
               <div class="bi-field"><label>Iris</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="f-iris-od" id="fi-od-n" value="Normal"><label for="fi-od-n">Normal</label></div><div class="radio-option"><input type="radio" name="f-iris-od" id="fi-od-ab" value="Abnormal"><label for="fi-od-ab">Abnormal</label></div></div><input type="text" id="f-iris-desc-od" placeholder="details…" style="margin-top:6px"></div>
               <div class="bi-field"><label>Pupil</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="f-pupil-od" id="fp-od-n" value="Round"><label for="fp-od-n">Round</label></div><div class="radio-option"><input type="radio" name="f-pupil-od" id="fp-od-ab" value="Abnormal"><label for="fp-od-ab">Abnormal</label></div></div><input type="text" id="f-pupil-desc-od" placeholder="details…" style="margin-top:6px"></div>
-              <div class="bi-field"><label>Lens / IOL Status</label><select id="f-lens-status-od"><option value="">— Select —</option><option>Aphakic</option><option>IOL in situ — well positioned</option><option>IOL decentred</option><option>IOL tilted</option><option>IOL displaced</option><option>Pseudophakic — other</option></select><input type="text" id="f-lens-desc-od" placeholder="details…" style="margin-top:6px"></div>
+              <div class="bi-field">
+                <label>Lens Status</label>
+                <div class="bi-radio radio-group">
+                  <div class="radio-option"><input type="radio" name="f-lens-status-od" id="fls-od-cat" value="Cataract" onchange="onLensStatus('od','fup')"><label for="fls-od-cat">Cataract</label></div>
+                  <div class="radio-option"><input type="radio" name="f-lens-status-od" id="fls-od-clear" value="Clear lens" onchange="onLensStatus('od','fup')"><label for="fls-od-clear">Clear</label></div>
+                  <div class="radio-option"><input type="radio" name="f-lens-status-od" id="fls-od-aph" value="Aphakia" onchange="onLensStatus('od','fup')"><label for="fls-od-aph">Aphakia</label></div>
+                  <div class="radio-option"><input type="radio" name="f-lens-status-od" id="fls-od-pse" value="Pseudophakia" onchange="onLensStatus('od','fup')"><label for="fls-od-pse">Pseudophakia</label></div>
+                </div>
+              </div>
+              <div class="lens-status-section" id="fls-od-cat-section">
+                <div class="bi-field"><label>Lens Density</label><select id="f-lens-density-od"><option value="">— Select —</option><option>Average</option><option>Dense</option><option>Very Dense</option><option>Soft</option></select></div>
+                <div class="bi-field"><label>Cataract Location</label><select id="f-cat-loc-od"><option value="">— Select —</option><option>Total</option><option>Nuclear</option><option>Cortical</option><option>Posterior Subcapsular</option><option>Anterior Polar</option><option>Posterior Polar</option><option>Lamellar</option></select></div>
+              </div>
+              <div class="lens-status-section" id="fls-od-aph-section">
+                <div class="bi-field"><label>Posterior Capsule</label><select id="f-aph-pc-od"><option value="">— Select —</option><option>Absent</option><option>Clear and intact</option><option>Opacified and intact</option><option>Open</option></select></div>
+              </div>
+              <div class="lens-status-section" id="fls-od-pse-section">
+                <div class="bi-field"><label>IOL Location</label><select id="f-iol-loc-od"><option value="">— Select —</option><option>Bag</option><option>Sulcus</option><option>Anterior enclavation iris-claw</option><option>Posterior enclavation iris-claw</option><option>Scleral fixation with sutures</option><option>Scleral fixation with tunnels</option><option>Scleral fixation with Hoffman pockets</option><option>Scleral fixation with Yamane technique</option><option>Scleral fixation with flanged technique</option></select></div>
+                <div class="bi-field"><label>Posterior Capsule</label><select id="f-pse-pc-od"><option value="">— Select —</option><option>Absent</option><option>Clear and intact</option><option>Opacified and intact</option><option>Open</option></select></div>
+                <div class="bi-field"><label>Adequate Centration</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="f-centration-od" id="fcen-od-y" value="Yes" checked><label for="fcen-od-y">Yes</label></div><div class="radio-option"><input type="radio" name="f-centration-od" id="fcen-od-n" value="No"><label for="fcen-od-n">No</label></div></div></div>
+                <div class="bi-field"><label>Complications</label>
+                  <div class="iol-comps">
+                    <div class="iol-comp-option"><input type="checkbox" id="fic-od-optic" value="Optic capture"><label for="fic-od-optic">Optic capture</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="fic-od-decent" value="Decentration"><label for="fic-od-decent">Decentration</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="fic-od-tilt" value="Tilt"><label for="fic-od-tilt">Tilt</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="fic-od-hap" value="Cut haptic"><label for="fic-od-hap">Cut haptic</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="fic-od-antdis" value="Anterior dislocation"><label for="fic-od-antdis">Ant. dislocation</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="fic-od-postdis" value="Posterior dislocation"><label for="fic-od-postdis">Post. dislocation</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="fic-od-pit" value="Pitting"><label for="fic-od-pit">Pitting</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="fic-od-iris" value="Iris pigments"><label for="fic-od-iris">Iris pigments</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="fic-od-phim" value="Capsular phimosis"><label for="fic-od-phim">Caps. phimosis</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="fic-od-antmem" value="Anterior membrane"><label for="fic-od-antmem">Ant. membrane</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="fic-od-retmem" value="Retrolental membrane"><label for="fic-od-retmem">Retrolental membrane</label></div>
+                  </div>
+                  <input type="text" id="fic-od-other" placeholder="Other complications…" style="margin-top:6px">
+                </div>
+              </div>
               <div class="bi-field"><label>Opacification / PCO</label><input type="text" id="f-opacification-od" placeholder="describe if present"></div>
             </div></div>
             <div class="eye-col"><div class="eye-col-header os">OS</div><div class="eye-col-body">
@@ -677,7 +806,43 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
               <div class="bi-field"><label>CCT (µm)</label><input type="number" id="f-cct-os" placeholder="µm"></div>
               <div class="bi-field"><label>Iris</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="f-iris-os" id="fi-os-n" value="Normal"><label for="fi-os-n">Normal</label></div><div class="radio-option"><input type="radio" name="f-iris-os" id="fi-os-ab" value="Abnormal"><label for="fi-os-ab">Abnormal</label></div></div><input type="text" id="f-iris-desc-os" placeholder="details…" style="margin-top:6px"></div>
               <div class="bi-field"><label>Pupil</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="f-pupil-os" id="fp-os-n" value="Round"><label for="fp-os-n">Round</label></div><div class="radio-option"><input type="radio" name="f-pupil-os" id="fp-os-ab" value="Abnormal"><label for="fp-os-ab">Abnormal</label></div></div><input type="text" id="f-pupil-desc-os" placeholder="details…" style="margin-top:6px"></div>
-              <div class="bi-field"><label>Lens / IOL Status</label><select id="f-lens-status-os"><option value="">— Select —</option><option>Aphakic</option><option>IOL in situ — well positioned</option><option>IOL decentred</option><option>IOL tilted</option><option>IOL displaced</option><option>Pseudophakic — other</option></select><input type="text" id="f-lens-desc-os" placeholder="details…" style="margin-top:6px"></div>
+              <div class="bi-field">
+                <label>Lens Status</label>
+                <div class="bi-radio radio-group">
+                  <div class="radio-option"><input type="radio" name="f-lens-status-os" id="fls-os-cat" value="Cataract" onchange="onLensStatus('os','fup')"><label for="fls-os-cat">Cataract</label></div>
+                  <div class="radio-option"><input type="radio" name="f-lens-status-os" id="fls-os-clear" value="Clear lens" onchange="onLensStatus('os','fup')"><label for="fls-os-clear">Clear</label></div>
+                  <div class="radio-option"><input type="radio" name="f-lens-status-os" id="fls-os-aph" value="Aphakia" onchange="onLensStatus('os','fup')"><label for="fls-os-aph">Aphakia</label></div>
+                  <div class="radio-option"><input type="radio" name="f-lens-status-os" id="fls-os-pse" value="Pseudophakia" onchange="onLensStatus('os','fup')"><label for="fls-os-pse">Pseudophakia</label></div>
+                </div>
+              </div>
+              <div class="lens-status-section" id="fls-os-cat-section">
+                <div class="bi-field"><label>Lens Density</label><select id="f-lens-density-os"><option value="">— Select —</option><option>Average</option><option>Dense</option><option>Very Dense</option><option>Soft</option></select></div>
+                <div class="bi-field"><label>Cataract Location</label><select id="f-cat-loc-os"><option value="">— Select —</option><option>Total</option><option>Nuclear</option><option>Cortical</option><option>Posterior Subcapsular</option><option>Anterior Polar</option><option>Posterior Polar</option><option>Lamellar</option></select></div>
+              </div>
+              <div class="lens-status-section" id="fls-os-aph-section">
+                <div class="bi-field"><label>Posterior Capsule</label><select id="f-aph-pc-os"><option value="">— Select —</option><option>Absent</option><option>Clear and intact</option><option>Opacified and intact</option><option>Open</option></select></div>
+              </div>
+              <div class="lens-status-section" id="fls-os-pse-section">
+                <div class="bi-field"><label>IOL Location</label><select id="f-iol-loc-os"><option value="">— Select —</option><option>Bag</option><option>Sulcus</option><option>Anterior enclavation iris-claw</option><option>Posterior enclavation iris-claw</option><option>Scleral fixation with sutures</option><option>Scleral fixation with tunnels</option><option>Scleral fixation with Hoffman pockets</option><option>Scleral fixation with Yamane technique</option><option>Scleral fixation with flanged technique</option></select></div>
+                <div class="bi-field"><label>Posterior Capsule</label><select id="f-pse-pc-os"><option value="">— Select —</option><option>Absent</option><option>Clear and intact</option><option>Opacified and intact</option><option>Open</option></select></div>
+                <div class="bi-field"><label>Adequate Centration</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="f-centration-os" id="fcen-os-y" value="Yes" checked><label for="fcen-os-y">Yes</label></div><div class="radio-option"><input type="radio" name="f-centration-os" id="fcen-os-n" value="No"><label for="fcen-os-n">No</label></div></div></div>
+                <div class="bi-field"><label>Complications</label>
+                  <div class="iol-comps">
+                    <div class="iol-comp-option"><input type="checkbox" id="fic-os-optic" value="Optic capture"><label for="fic-os-optic">Optic capture</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="fic-os-decent" value="Decentration"><label for="fic-os-decent">Decentration</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="fic-os-tilt" value="Tilt"><label for="fic-os-tilt">Tilt</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="fic-os-hap" value="Cut haptic"><label for="fic-os-hap">Cut haptic</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="fic-os-antdis" value="Anterior dislocation"><label for="fic-os-antdis">Ant. dislocation</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="fic-os-postdis" value="Posterior dislocation"><label for="fic-os-postdis">Post. dislocation</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="fic-os-pit" value="Pitting"><label for="fic-os-pit">Pitting</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="fic-os-iris" value="Iris pigments"><label for="fic-os-iris">Iris pigments</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="fic-os-phim" value="Capsular phimosis"><label for="fic-os-phim">Caps. phimosis</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="fic-os-antmem" value="Anterior membrane"><label for="fic-os-antmem">Ant. membrane</label></div>
+                    <div class="iol-comp-option"><input type="checkbox" id="fic-os-retmem" value="Retrolental membrane"><label for="fic-os-retmem">Retrolental membrane</label></div>
+                  </div>
+                  <input type="text" id="fic-os-other" placeholder="Other complications…" style="margin-top:6px">
+                </div>
+              </div>
               <div class="bi-field"><label>Opacification / PCO</label><input type="text" id="f-opacification-os" placeholder="describe if present"></div>
             </div></div>
           </div>
@@ -781,6 +946,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   updateConnectionBadge();
   if(CONFIG.webAppUrl) loadAll();
   refreshExaminerSelects();
+  setTimeout(initDateDisplays, 100);
   const today=new Date().toISOString().split('T')[0];
   ['e-date','s-date','f-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today;});
 });
@@ -800,7 +966,7 @@ function showView(v){
   if(v==='patients')renderPatientsTable();
   if(v==='dashboard')renderDashboard();
   if(v==='new-patient')generatePID();
-  if(['new-examination','new-surgery','new-followup'].includes(v)){refreshExaminerSelects();resetFormulas();}
+  if(['new-examination','new-surgery','new-followup','new-patient'].includes(v)){refreshExaminerSelects();resetFormulas();setTimeout(initDateDisplays,50);}
   if(v==='new-followup')setTimeout(updatePostopBadge,100);
 }
 
@@ -976,12 +1142,16 @@ async function submitExamination(e){
     Synaechia_OD:r('e-syn-od'),Location_OD:g('e-syn-loc-od').value,
     Angle_OD:g('e-angle-od').value,AngleDesc_OD:g('e-angledesc-od').value,
     IOP_OD:g('e-iop-od').value,PupilBefore_OD:g('e-pupilbefore-od').value,
-    LensDensity_OD:g('e-lens-density-od').value,LensMorphology_OD:g('e-lens-morph-od').value,
-    CataractLocation_OD:g('e-cat-loc-od').value,
-    Subluxation_OD:r('e-sub-od'),SubluxationGrade_OD:g('e-sub-grade-od').value,
-    SubluxationDeg_OD:g('e-sub-deg-od').value,SubluxationLoc_OD:g('e-sub-loc-od').value,
-    Spherophakia_OD:g('e-sph-od').checked?'Yes':'No',Lenticonus_OD:g('e-lent-od').checked?'Yes':'No',
-    PHPV_OD:g('e-phpv-od').value,PHPVType_OD:g('e-phpv-type-od').value,
+    LensStatus_OD:r('e-lens-status-od'),
+    LensDensity_OD:g('e-lens-density-od')?.value||'',LensMorphology_OD:g('e-lens-morph-od')?.value||'',
+    CataractLocation_OD:g('e-cat-loc-od')?.value||'',
+    Subluxation_OD:r('e-sub-od'),SubluxationGrade_OD:g('e-sub-grade-od')?.value||'',
+    SubluxationDeg_OD:g('e-sub-deg-od')?.value||'',SubluxationLoc_OD:g('e-sub-loc-od')?.value||'',
+    Spherophakia_OD:g('e-sph-od')?.checked?'Yes':'No',Lenticonus_OD:g('e-lent-od')?.checked?'Yes':'No',
+    PHPV_OD:g('e-phpv-od')?.value||'',PHPVType_OD:g('e-phpv-type-od')?.value||'',
+    AphakiaPC_OD:g('e-aph-pc-od')?.value||'',
+    IOLLocation_OD:g('e-iol-loc-od')?.value||'',PseudophakiaPC_OD:g('e-pse-pc-od')?.value||'',
+    IOLCentration_OD:r('e-centration-od'),IOLComplications_OD:getIOLComps('ls','od'),
     Fundus_OD:r('e-fundus-od'),FundusAbnorm_OD:g('e-fundus-abn-od').value,
     CD_OD:g('e-cd-od').value,AxialLength_OD:g('e-axl-od').value,
     BioTech_OD:r('e-bio-tech-od'),K1_OD:g('e-k1-od').value,K2_OD:g('e-k2-od').value,Formulas_OD:getFormulasJSON('e','od'),
@@ -991,12 +1161,16 @@ async function submitExamination(e){
     Synaechia_OS:r('e-syn-os'),Location_OS:g('e-syn-loc-os').value,
     Angle_OS:g('e-angle-os').value,AngleDesc_OS:g('e-angledesc-os').value,
     IOP_OS:g('e-iop-os').value,PupilBefore_OS:g('e-pupilbefore-os').value,
-    LensDensity_OS:g('e-lens-density-os').value,LensMorphology_OS:g('e-lens-morph-os').value,
-    CataractLocation_OS:g('e-cat-loc-os').value,
-    Subluxation_OS:r('e-sub-os'),SubluxationGrade_OS:g('e-sub-grade-os').value,
-    SubluxationDeg_OS:g('e-sub-deg-os').value,SubluxationLoc_OS:g('e-sub-loc-os').value,
-    Spherophakia_OS:g('e-sph-os').checked?'Yes':'No',Lenticonus_OS:g('e-lent-os').checked?'Yes':'No',
-    PHPV_OS:g('e-phpv-os').value,PHPVType_OS:g('e-phpv-type-os').value,
+    LensStatus_OS:r('e-lens-status-os'),
+    LensDensity_OS:g('e-lens-density-os')?.value||'',LensMorphology_OS:g('e-lens-morph-os')?.value||'',
+    CataractLocation_OS:g('e-cat-loc-os')?.value||'',
+    Subluxation_OS:r('e-sub-os'),SubluxationGrade_OS:g('e-sub-grade-os')?.value||'',
+    SubluxationDeg_OS:g('e-sub-deg-os')?.value||'',SubluxationLoc_OS:g('e-sub-loc-os')?.value||'',
+    Spherophakia_OS:g('e-sph-os')?.checked?'Yes':'No',Lenticonus_OS:g('e-lent-os')?.checked?'Yes':'No',
+    PHPV_OS:g('e-phpv-os')?.value||'',PHPVType_OS:g('e-phpv-type-os')?.value||'',
+    AphakiaPC_OS:g('e-aph-pc-os')?.value||'',
+    IOLLocation_OS:g('e-iol-loc-os')?.value||'',PseudophakiaPC_OS:g('e-pse-pc-os')?.value||'',
+    IOLCentration_OS:r('e-centration-os'),IOLComplications_OS:getIOLComps('ls','os'),
     Fundus_OS:r('e-fundus-os'),FundusAbnorm_OS:g('e-fundus-abn-os').value,
     CD_OS:g('e-cd-os').value,AxialLength_OS:g('e-axl-os').value,
     BioTech_OS:r('e-bio-tech-os'),K1_OS:g('e-k1-os').value,K2_OS:g('e-k2-os').value,Formulas_OS:getFormulasJSON('e','os'),
@@ -1041,7 +1215,7 @@ async function submitFollowup(e){
     CCT_OD:g('f-cct-od').value,
     Iris_OD:r('f-iris-od'),IrisDesc_OD:g('f-iris-desc-od').value,
     Pupil_OD:r('f-pupil-od'),PupilDesc_OD:g('f-pupil-desc-od').value,
-    LensStatus_OD:g('f-lens-status-od').value,LensDesc_OD:g('f-lens-desc-od').value,
+    LensStatus_OD:r('f-lens-status-od'),LensDensity_OD:g('f-lens-density-od')?.value||'',CataractLoc_OD:g('f-cat-loc-od')?.value||'',AphakiaPC_OD:g('f-aph-pc-od')?.value||'',IOLLocation_OD:g('f-iol-loc-od')?.value||'',PseudophakiaPC_OD:g('f-pse-pc-od')?.value||'',IOLCentration_OD:r('f-centration-od'),IOLComplications_OD:getIOLComps('fls','od'),
     Opacification_OD:g('f-opacification-od').value,
     Fundus_OD:r('f-fundus-od'),FundusDesc_OD:g('f-fundus-desc-od').value,
     CD_OD:g('f-cd-od').value,Gonioscopy_OD:g('f-gonio-od').checked?'Yes':'No',
@@ -1053,7 +1227,7 @@ async function submitFollowup(e){
     CCT_OS:g('f-cct-os').value,
     Iris_OS:r('f-iris-os'),IrisDesc_OS:g('f-iris-desc-os').value,
     Pupil_OS:r('f-pupil-os'),PupilDesc_OS:g('f-pupil-desc-os').value,
-    LensStatus_OS:g('f-lens-status-os').value,LensDesc_OS:g('f-lens-desc-os').value,
+    LensStatus_OS:r('f-lens-status-os'),LensDensity_OS:g('f-lens-density-os')?.value||'',CataractLoc_OS:g('f-cat-loc-os')?.value||'',AphakiaPC_OS:g('f-aph-pc-os')?.value||'',IOLLocation_OS:g('f-iol-loc-os')?.value||'',PseudophakiaPC_OS:g('f-pse-pc-os')?.value||'',IOLCentration_OS:r('f-centration-os'),IOLComplications_OS:getIOLComps('fls','os'),
     Opacification_OS:g('f-opacification-os').value,
     Fundus_OS:r('f-fundus-os'),FundusDesc_OS:g('f-fundus-desc-os').value,
     CD_OS:g('f-cd-os').value,Gonioscopy_OS:g('f-gonio-os').checked?'Yes':'No',
@@ -1151,6 +1325,49 @@ function showToast(msg,type='success'){
   t.appendChild(el);setTimeout(()=>el.remove(),3500);
 }
 
+
+// ─── LENS STATUS TOGGLE ───
+function onLensStatus(eye, form){
+  const prefix = form === 'exam' ? 'ls' : 'fls';
+  const val = document.querySelector(`input[name="${form==='exam'?'e':'f'}-lens-status-${eye}"]:checked`)?.value || '';
+  ['cat','aph','pse'].forEach(s=>{
+    const el = document.getElementById(`${prefix}-${eye}-${s}-section`);
+    if(el) el.classList.toggle('visible', val.toLowerCase().startsWith(s==='cat'?'cat':s==='aph'?'aph':'pse'));
+  });
+}
+
+// ─── DATE FORMAT DD/MM/YYYY ───
+function formatDateDisplay(isoVal){
+  if(!isoVal) return '';
+  const [y,m,d] = isoVal.split('-');
+  return `${d}/${m}/${y}`;
+}
+function initDateDisplays(){
+  document.querySelectorAll('input[type=date]').forEach(inp=>{
+    // wrap in display div if not already
+    if(inp.parentElement.classList.contains('date-display')) return;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'date-display';
+    const display = document.createElement('div');
+    display.className = 'date-text';
+    display.textContent = inp.value ? formatDateDisplay(inp.value) : inp.placeholder || 'DD/MM/YYYY';
+    inp.parentNode.insertBefore(wrapper, inp);
+    wrapper.appendChild(display);
+    wrapper.appendChild(inp);
+    inp.addEventListener('change', ()=>{
+      display.textContent = inp.value ? formatDateDisplay(inp.value) : 'DD/MM/YYYY';
+    });
+  });
+}
+
+// ─── COLLECT IOL COMPLICATIONS ───
+function getIOLComps(prefix, eye){
+  const checked = [...document.querySelectorAll(`#${prefix}-${eye}-pse-section .iol-comp-option input:checked`)].map(c=>c.value);
+  const other = document.getElementById(`${prefix === 'ls' ? 'ic' : 'fic'}-${eye}-other`)?.value.trim();
+  if(other) checked.push(other);
+  return checked.join('; ');
+}
+
 // ─── EXAMINERS ───
 let EXAMINERS = JSON.parse(localStorage.getItem('pedicat_examiners') || 'null') ||
   ['Esraa Elmalah','Hatem Saeed','Mohamed Elsada','Lobna Khazbak','Hala Elhilaly','Resident'];
@@ -1180,6 +1397,7 @@ function handleExaminerChange(id){
   const trimmed = name.trim();
   if(!EXAMINERS.includes(trimmed)){ EXAMINERS.push(trimmed); saveExaminers(); }
   refreshExaminerSelects();
+  setTimeout(initDateDisplays, 100);
   document.getElementById(id).value = trimmed;
   showToast(trimmed + ' added ✓', 'success');
 }
