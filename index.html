@@ -230,6 +230,15 @@
   .postop-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:10.5px;font-family:'DM Mono',monospace;background:rgba(155,127,232,.12);color:var(--purple);border:1px solid rgba(155,127,232,.25);margin-left:8px;vertical-align:middle}
 
 
+
+  /* MORPHOLOGY MULTI-SELECT */
+  .morph-checks{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+  .morph-option{position:relative}
+  .morph-option input[type=checkbox]{position:absolute;opacity:0;width:0;height:0}
+  .morph-option label{display:block;padding:4px 10px;border:1px solid rgba(255,255,255,.08);border-radius:5px;cursor:pointer;font-size:11px;color:var(--text-faint);transition:all .15s;user-select:none}
+  .morph-option input[type=checkbox]:checked+label{border-color:var(--teal);background:var(--teal-glow);color:var(--teal)}
+  .morph-option label:hover{color:var(--text-dim)}
+
   /* LENS STATUS SECTIONS */
   .lens-status-section{display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border-dim)}
   .lens-status-section.visible{display:block}
@@ -493,17 +502,21 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
               </div>
               <!-- CATARACT section -->
               <div class="lens-status-section" id="ls-od-cat-section">
-                <div class="bi-field"><label>Lens Density</label><select id="e-lens-density-od"><option value="">— Select —</option><option>Average</option><option>Dense</option><option>Very Dense</option><option>Soft</option></select></div>
-                <div class="bi-field"><label>Lens Morphology</label><input type="text" id="e-lens-morph-od" placeholder="e.g. lamellar, polar"></div>
+                <div class="bi-field"><label>Lens Morphology</label><div id="e-morph-widget-od"></div></div>
                 <div class="bi-field"><label>Cataract Location</label><select id="e-cat-loc-od"><option value="">— Select —</option><option>Total</option><option>Nuclear</option><option>Cortical</option><option>Posterior Subcapsular</option><option>Anterior Polar</option><option>Posterior Polar</option><option>Lamellar</option></select></div>
-                <div class="bi-field"><label>Subluxation</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-sub-od" id="sub-od-n" value="Absent" checked><label for="sub-od-n">Absent</label></div><div class="radio-option"><input type="radio" name="e-sub-od" id="sub-od-y" value="Present"><label for="sub-od-y">Present</label></div></div></div>
-                <div class="bi-field"><label>Subluxation Grade</label><input type="text" id="e-sub-grade-od"></div>
-                <div class="bi-field"><label>Subluxation Degrees</label><input type="number" id="e-sub-deg-od" min="0" max="360" placeholder="°"></div>
-                <div class="bi-field"><label>Subluxation Location</label><input type="text" id="e-sub-loc-od" placeholder="e.g. superonasal"></div>
                 <div class="bi-field"><label>Spherophakia</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-sph-od"><label for="e-sph-od">Present</label></div></div></div>
                 <div class="bi-field"><label>Lenticonus</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-lent-od"><label for="e-lent-od">Present</label></div></div></div>
                 <div class="bi-field"><label>PHPV</label><select id="e-phpv-od"><option value="Absent">Absent</option><option value="Anterior">Anterior</option><option value="Posterior">Posterior</option><option value="Combined">Combined</option></select></div>
                 <div class="bi-field"><label>PHPV Type</label><input type="text" id="e-phpv-type-od"></div>
+              </div>
+              <!-- SUBLUXATION — shown for Cataract and Clear lens -->
+              <div class="lens-status-section" id="ls-od-sub-section">
+                <div class="bi-field"><label>Subluxation</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-sub-od" id="sub-od-n" value="No" checked onchange="toggleConditional('e-sub-od','Yes','e-sub-details-od')"><label for="sub-od-n">No</label></div><div class="radio-option"><input type="radio" name="e-sub-od" id="sub-od-y" value="Yes" onchange="toggleConditional('e-sub-od','Yes','e-sub-details-od')"><label for="sub-od-y">Yes</label></div></div></div>
+                <div class="bi-field cond-field disabled" id="e-sub-details-od">
+                  <div class="bi-field"><label>Subluxation Grade</label><input type="text" id="e-sub-grade-od"></div>
+                  <div class="bi-field"><label>Subluxation Degrees</label><input type="number" id="e-sub-deg-od" min="0" max="360" placeholder="°"></div>
+                  <div class="bi-field"><label>Subluxation Location</label><input type="text" id="e-sub-loc-od" placeholder="e.g. superonasal"></div>
+                </div>
               </div>
               <!-- APHAKIA section -->
               <div class="lens-status-section" id="ls-od-aph-section">
@@ -544,17 +557,21 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
               </div>
               <!-- CATARACT section -->
               <div class="lens-status-section" id="ls-os-cat-section">
-                <div class="bi-field"><label>Lens Density</label><select id="e-lens-density-os"><option value="">— Select —</option><option>Average</option><option>Dense</option><option>Very Dense</option><option>Soft</option></select></div>
-                <div class="bi-field"><label>Lens Morphology</label><input type="text" id="e-lens-morph-os" placeholder="e.g. lamellar, polar"></div>
+                <div class="bi-field"><label>Lens Morphology</label><div id="e-morph-widget-os"></div></div>
                 <div class="bi-field"><label>Cataract Location</label><select id="e-cat-loc-os"><option value="">— Select —</option><option>Total</option><option>Nuclear</option><option>Cortical</option><option>Posterior Subcapsular</option><option>Anterior Polar</option><option>Posterior Polar</option><option>Lamellar</option></select></div>
-                <div class="bi-field"><label>Subluxation</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-sub-os" id="sub-os-n" value="Absent" checked><label for="sub-os-n">Absent</label></div><div class="radio-option"><input type="radio" name="e-sub-os" id="sub-os-y" value="Present"><label for="sub-os-y">Present</label></div></div></div>
-                <div class="bi-field"><label>Subluxation Grade</label><input type="text" id="e-sub-grade-os"></div>
-                <div class="bi-field"><label>Subluxation Degrees</label><input type="number" id="e-sub-deg-os" min="0" max="360" placeholder="°"></div>
-                <div class="bi-field"><label>Subluxation Location</label><input type="text" id="e-sub-loc-os" placeholder="e.g. superonasal"></div>
                 <div class="bi-field"><label>Spherophakia</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-sph-os"><label for="e-sph-os">Present</label></div></div></div>
                 <div class="bi-field"><label>Lenticonus</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-lent-os"><label for="e-lent-os">Present</label></div></div></div>
                 <div class="bi-field"><label>PHPV</label><select id="e-phpv-os"><option value="Absent">Absent</option><option value="Anterior">Anterior</option><option value="Posterior">Posterior</option><option value="Combined">Combined</option></select></div>
                 <div class="bi-field"><label>PHPV Type</label><input type="text" id="e-phpv-type-os"></div>
+              </div>
+              <!-- SUBLUXATION — shown for Cataract and Clear lens -->
+              <div class="lens-status-section" id="ls-os-sub-section">
+                <div class="bi-field"><label>Subluxation</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-sub-os" id="sub-os-n" value="No" checked onchange="toggleConditional('e-sub-os','Yes','e-sub-details-os')"><label for="sub-os-n">No</label></div><div class="radio-option"><input type="radio" name="e-sub-os" id="sub-os-y" value="Yes" onchange="toggleConditional('e-sub-os','Yes','e-sub-details-os')"><label for="sub-os-y">Yes</label></div></div></div>
+                <div class="bi-field cond-field disabled" id="e-sub-details-os">
+                  <div class="bi-field"><label>Subluxation Grade</label><input type="text" id="e-sub-grade-os"></div>
+                  <div class="bi-field"><label>Subluxation Degrees</label><input type="number" id="e-sub-deg-os" min="0" max="360" placeholder="°"></div>
+                  <div class="bi-field"><label>Subluxation Location</label><input type="text" id="e-sub-loc-os" placeholder="e.g. superonasal"></div>
+                </div>
               </div>
               <!-- APHAKIA section -->
               <div class="lens-status-section" id="ls-os-aph-section">
@@ -771,7 +788,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
                 </div>
               </div>
               <div class="lens-status-section" id="fls-od-cat-section">
-                <div class="bi-field"><label>Lens Density</label><select id="f-lens-density-od"><option value="">— Select —</option><option>Average</option><option>Dense</option><option>Very Dense</option><option>Soft</option></select></div>
+                <div class="bi-field"><label>Lens Morphology</label><div id="f-morph-widget-od"></div></div>
                 <div class="bi-field"><label>Cataract Location</label><select id="f-cat-loc-od"><option value="">— Select —</option><option>Total</option><option>Nuclear</option><option>Cortical</option><option>Posterior Subcapsular</option><option>Anterior Polar</option><option>Posterior Polar</option><option>Lamellar</option></select></div>
               </div>
               <div class="lens-status-section" id="fls-od-aph-section">
@@ -816,7 +833,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
                 </div>
               </div>
               <div class="lens-status-section" id="fls-os-cat-section">
-                <div class="bi-field"><label>Lens Density</label><select id="f-lens-density-os"><option value="">— Select —</option><option>Average</option><option>Dense</option><option>Very Dense</option><option>Soft</option></select></div>
+                <div class="bi-field"><label>Lens Morphology</label><div id="f-morph-widget-os"></div></div>
                 <div class="bi-field"><label>Cataract Location</label><select id="f-cat-loc-os"><option value="">— Select —</option><option>Total</option><option>Nuclear</option><option>Cortical</option><option>Posterior Subcapsular</option><option>Anterior Polar</option><option>Posterior Polar</option><option>Lamellar</option></select></div>
               </div>
               <div class="lens-status-section" id="fls-os-aph-section">
@@ -966,7 +983,7 @@ function showView(v){
   if(v==='patients')renderPatientsTable();
   if(v==='dashboard')renderDashboard();
   if(v==='new-patient')generatePID();
-  if(['new-examination','new-surgery','new-followup','new-patient'].includes(v)){refreshExaminerSelects();resetFormulas();setTimeout(initDateDisplays,50);}
+  if(['new-examination','new-surgery','new-followup','new-patient'].includes(v)){refreshExaminerSelects();resetFormulas();setTimeout(()=>{initDateDisplays();initMorphWidgets();},50);}
   if(v==='new-followup')setTimeout(updatePostopBadge,100);
 }
 
@@ -1143,7 +1160,7 @@ async function submitExamination(e){
     Angle_OD:g('e-angle-od').value,AngleDesc_OD:g('e-angledesc-od').value,
     IOP_OD:g('e-iop-od').value,PupilBefore_OD:g('e-pupilbefore-od').value,
     LensStatus_OD:r('e-lens-status-od'),
-    LensDensity_OD:g('e-lens-density-od')?.value||'',LensMorphology_OD:g('e-lens-morph-od')?.value||'',
+    LensMorphology_OD:getMorphValues('od','exam'),
     CataractLocation_OD:g('e-cat-loc-od')?.value||'',
     Subluxation_OD:r('e-sub-od'),SubluxationGrade_OD:g('e-sub-grade-od')?.value||'',
     SubluxationDeg_OD:g('e-sub-deg-od')?.value||'',SubluxationLoc_OD:g('e-sub-loc-od')?.value||'',
@@ -1162,7 +1179,7 @@ async function submitExamination(e){
     Angle_OS:g('e-angle-os').value,AngleDesc_OS:g('e-angledesc-os').value,
     IOP_OS:g('e-iop-os').value,PupilBefore_OS:g('e-pupilbefore-os').value,
     LensStatus_OS:r('e-lens-status-os'),
-    LensDensity_OS:g('e-lens-density-os')?.value||'',LensMorphology_OS:g('e-lens-morph-os')?.value||'',
+    LensMorphology_OS:getMorphValues('os','exam'),
     CataractLocation_OS:g('e-cat-loc-os')?.value||'',
     Subluxation_OS:r('e-sub-os'),SubluxationGrade_OS:g('e-sub-grade-os')?.value||'',
     SubluxationDeg_OS:g('e-sub-deg-os')?.value||'',SubluxationLoc_OS:g('e-sub-loc-os')?.value||'',
@@ -1215,7 +1232,7 @@ async function submitFollowup(e){
     CCT_OD:g('f-cct-od').value,
     Iris_OD:r('f-iris-od'),IrisDesc_OD:g('f-iris-desc-od').value,
     Pupil_OD:r('f-pupil-od'),PupilDesc_OD:g('f-pupil-desc-od').value,
-    LensStatus_OD:r('f-lens-status-od'),LensDensity_OD:g('f-lens-density-od')?.value||'',CataractLoc_OD:g('f-cat-loc-od')?.value||'',AphakiaPC_OD:g('f-aph-pc-od')?.value||'',IOLLocation_OD:g('f-iol-loc-od')?.value||'',PseudophakiaPC_OD:g('f-pse-pc-od')?.value||'',IOLCentration_OD:r('f-centration-od'),IOLComplications_OD:getIOLComps('fls','od'),
+    LensStatus_OD:r('f-lens-status-od'),LensMorphology_OD:getMorphValues('od','fup'),CataractLoc_OD:g('f-cat-loc-od')?.value||'',Subluxation_OD:r('f-sub-od'),SubluxGrade_OD:g('f-sub-grade-od')?.value||'',SubluxDeg_OD:g('f-sub-deg-od')?.value||'',SubluxLoc_OD:g('f-sub-loc-od')?.value||'',AphakiaPC_OD:g('f-aph-pc-od')?.value||'',IOLLocation_OD:g('f-iol-loc-od')?.value||'',PseudophakiaPC_OD:g('f-pse-pc-od')?.value||'',IOLCentration_OD:r('f-centration-od'),IOLComplications_OD:getIOLComps('fls','od'),
     Opacification_OD:g('f-opacification-od').value,
     Fundus_OD:r('f-fundus-od'),FundusDesc_OD:g('f-fundus-desc-od').value,
     CD_OD:g('f-cd-od').value,Gonioscopy_OD:g('f-gonio-od').checked?'Yes':'No',
@@ -1227,7 +1244,7 @@ async function submitFollowup(e){
     CCT_OS:g('f-cct-os').value,
     Iris_OS:r('f-iris-os'),IrisDesc_OS:g('f-iris-desc-os').value,
     Pupil_OS:r('f-pupil-os'),PupilDesc_OS:g('f-pupil-desc-os').value,
-    LensStatus_OS:r('f-lens-status-os'),LensDensity_OS:g('f-lens-density-os')?.value||'',CataractLoc_OS:g('f-cat-loc-os')?.value||'',AphakiaPC_OS:g('f-aph-pc-os')?.value||'',IOLLocation_OS:g('f-iol-loc-os')?.value||'',PseudophakiaPC_OS:g('f-pse-pc-os')?.value||'',IOLCentration_OS:r('f-centration-os'),IOLComplications_OS:getIOLComps('fls','os'),
+    LensStatus_OS:r('f-lens-status-os'),LensMorphology_OS:getMorphValues('os','fup'),CataractLoc_OS:g('f-cat-loc-os')?.value||'',Subluxation_OS:r('f-sub-os'),SubluxGrade_OS:g('f-sub-grade-os')?.value||'',SubluxDeg_OS:g('f-sub-deg-os')?.value||'',SubluxLoc_OS:g('f-sub-loc-os')?.value||'',AphakiaPC_OS:g('f-aph-pc-os')?.value||'',IOLLocation_OS:g('f-iol-loc-os')?.value||'',PseudophakiaPC_OS:g('f-pse-pc-os')?.value||'',IOLCentration_OS:r('f-centration-os'),IOLComplications_OS:getIOLComps('fls','os'),
     Opacification_OS:g('f-opacification-os').value,
     Fundus_OS:r('f-fundus-os'),FundusDesc_OS:g('f-fundus-desc-os').value,
     CD_OS:g('f-cd-os').value,Gonioscopy_OS:g('f-gonio-os').checked?'Yes':'No',
@@ -1326,14 +1343,99 @@ function showToast(msg,type='success'){
 }
 
 
+
+// ─── LENS MORPHOLOGY MULTI-SELECT ───
+const MORPH_OPTIONS = ['Total','Nuclear','Cortical','Posterior Subcapsular','Anterior Polar','Posterior Polar','Lamellar'];
+let customMorphs = JSON.parse(localStorage.getItem('pedicat_morphs') || '[]');
+
+function buildMorphWidget(eye, form){
+  const prefix = form === 'exam' ? 'e' : 'f';
+  const id = `${prefix}-morph-widget-${eye}`;
+  const el = document.getElementById(id);
+  if(!el) return;
+  const allOpts = [...MORPH_OPTIONS, ...customMorphs];
+  el.innerHTML = `
+    <div class="morph-checks">${allOpts.map(o=>`
+      <div class="morph-option">
+        <input type="checkbox" id="${prefix}-mc-${eye}-${o.replace(/\s+/g,'-')}" value="${o}"
+          onchange="onMorphChange('${eye}','${form}','${o}')">
+        <label for="${prefix}-mc-${eye}-${o.replace(/\s+/g,'-')}">${o}</label>
+      </div>`).join('')}
+    </div>
+    <div style="display:flex;gap:6px;margin-top:6px">
+      <input type="text" id="${prefix}-morph-other-${eye}" placeholder="Other morphology…" style="flex:1;font-size:12px;padding:5px 9px">
+      <button type="button" class="add-formula-btn" style="margin-top:0;padding:5px 10px" onclick="addCustomMorph('${eye}','${form}')">＋</button>
+    </div>
+  `;
+}
+
+function onMorphChange(eye, form, val){
+  const prefix = form === 'exam' ? 'e' : 'f';
+  if(val === 'Total'){
+    // If Total selected, uncheck all others
+    const checked = document.getElementById(`${prefix}-mc-${eye}-Total`)?.checked;
+    if(checked){
+      [...MORPH_OPTIONS, ...customMorphs].filter(o=>o!=='Total').forEach(o=>{
+        const cb = document.getElementById(`${prefix}-mc-${eye}-${o.replace(/\s+/g,'-')}`);
+        if(cb) cb.checked = false;
+      });
+    }
+  } else {
+    // If any other selected, uncheck Total
+    const totalCb = document.getElementById(`${prefix}-mc-${eye}-Total`);
+    if(totalCb) totalCb.checked = false;
+  }
+}
+
+function addCustomMorph(eye, form){
+  const prefix = form === 'exam' ? 'e' : 'f';
+  const inp = document.getElementById(`${prefix}-morph-other-${eye}`);
+  const val = inp?.value.trim();
+  if(!val) return;
+  if(![...MORPH_OPTIONS,...customMorphs].includes(val)){
+    customMorphs.push(val);
+    localStorage.setItem('pedicat_morphs', JSON.stringify(customMorphs));
+  }
+  buildMorphWidget(eye, form);
+  // re-check the newly added option
+  const cb = document.getElementById(`${prefix}-mc-${eye}-${val.replace(/\s+/g,'-')}`);
+  if(cb) cb.checked = true;
+}
+
+function getMorphValues(eye, form){
+  const prefix = form === 'exam' ? 'e' : 'f';
+  const allOpts = [...MORPH_OPTIONS, ...customMorphs];
+  return allOpts.filter(o=>{
+    const cb = document.getElementById(`${prefix}-mc-${eye}-${o.replace(/\s+/g,'-')}`);
+    return cb && cb.checked;
+  }).join('; ');
+}
+
+function initMorphWidgets(){
+  ['od','os'].forEach(eye=>{
+    buildMorphWidget(eye,'exam');
+    buildMorphWidget(eye,'fup');
+  });
+}
+
 // ─── LENS STATUS TOGGLE ───
 function onLensStatus(eye, form){
   const prefix = form === 'exam' ? 'ls' : 'fls';
   const val = document.querySelector(`input[name="${form==='exam'?'e':'f'}-lens-status-${eye}"]:checked`)?.value || '';
-  ['cat','aph','pse'].forEach(s=>{
-    const el = document.getElementById(`${prefix}-${eye}-${s}-section`);
-    if(el) el.classList.toggle('visible', val.toLowerCase().startsWith(s==='cat'?'cat':s==='aph'?'aph':'pse'));
-  });
+  const isCat = val === 'Cataract';
+  const isClear = val === 'Clear lens';
+  const isAph = val === 'Aphakia';
+  const isPse = val === 'Pseudophakia';
+  const catEl = document.getElementById(`${prefix}-${eye}-cat-section`);
+  const aphEl = document.getElementById(`${prefix}-${eye}-aph-section`);
+  const pseEl = document.getElementById(`${prefix}-${eye}-pse-section`);
+  const subEl = document.getElementById(`${prefix}-${eye}-sub-section`);
+  if(catEl) catEl.classList.toggle('visible', isCat);
+  if(aphEl) aphEl.classList.toggle('visible', isAph);
+  if(pseEl) pseEl.classList.toggle('visible', isPse);
+  if(subEl) subEl.classList.toggle('visible', isCat || isClear);
+  // rebuild morph widget when cataract selected
+  if(isCat) buildMorphWidget(eye, form);
 }
 
 // ─── DATE FORMAT DD/MM/YYYY ───
@@ -1369,8 +1471,7 @@ function getIOLComps(prefix, eye){
 }
 
 // ─── EXAMINERS ───
-let EXAMINERS = JSON.parse(localStorage.getItem('pedicat_examiners') || 'null') ||
-  ['Esraa Elmalah','Hatem Saeed','Mohamed Elsada','Lobna Khazbak','Hala Elhilaly','Resident'];
+let EXAMINERS = JSON.parse(localStorage.getItem('pedicat_examiners') || 'null') || [];
 
 function saveExaminers(){ localStorage.setItem('pedicat_examiners', JSON.stringify(EXAMINERS)); }
 
