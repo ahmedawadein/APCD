@@ -1751,8 +1751,11 @@ document.addEventListener('click',function(e){
 function generatePID(){
   const now=new Date();
   const year=now.getFullYear();
-  const seq=String(DB.patients.length+1).padStart(4,'0');
-  const pid=`${year}${seq}`;
+  const month=String(now.getMonth()+1).padStart(2,'0');
+  const day=String(now.getDate()).padStart(2,'0');
+  const ms=String(now.getMilliseconds()).padStart(3,'0');
+  const rand=String(Math.floor(Math.random()*99)+1).padStart(2,'0');
+  const pid=`${year}${month}${day}${ms}${rand}`;
   const el=document.getElementById('p-pid');
   if(el) el.value=pid;
 }
