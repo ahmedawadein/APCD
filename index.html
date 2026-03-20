@@ -2002,7 +2002,10 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
       <div class="form-card" id="image-grid-card-main" style="display:none">
         <div class="form-card-title" style="display:flex;align-items:center;justify-content:space-between">
           <span>Uploaded Images</span>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('upload-zone-main').style.display='';document.getElementById('image-grid-card-main').style.display='none'">+ Add More</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="
+            document.getElementById('upload-zone-main').style.display='';
+            document.getElementById('image-grid-card-main').style.display='none'
+          ">+ Add More</button>
         </div>
         <div class="image-grid" id="image-grid-main"></div>
       </div>
@@ -2137,6 +2140,21 @@ function showView(v){
   if(v==='new-patient')generatePID();
   if(['new-examination','new-surgery','new-followup','new-patient'].includes(v)){refreshExaminerSelects();refreshIOLSelect();resetFormulas();setTimeout(()=>{initDateDisplays();initMorphWidgets();},50);}
   if(v==='new-followup')setTimeout(updatePostopBadge,100);
+  if(v==='upload-images') setTimeout(()=>{
+    const pid = ACTIVE_PATIENT?.PID;
+    if(!pid) return;
+    const imgs = getStoredImages(pid);
+    const gridCard = document.getElementById('image-grid-card-main');
+    const zone = document.getElementById('upload-zone-main');
+    if(imgs.length){
+      if(gridCard) gridCard.style.display = '';
+      if(zone) zone.style.display = 'none';
+      renderStoredImages(pid);
+    } else {
+      if(gridCard) gridCard.style.display = 'none';
+      if(zone) zone.style.display = '';
+    }
+  }, 50);
 }
 
 // ─── CONFIG ───
@@ -3314,6 +3332,23 @@ function pickerConfirmUpload(){
   _pickerPendingFiles = null;
 }
 
+// ─── IMAGE STORAGE (localStorage) ───
+// Images are stored locally as: pedicat_imgs_<pid> = [{name, desc, dataUrl, uploadedAt}]
+
+function getStoredImages(pid){
+  try { return JSON.parse(localStorage.getItem('pedicat_imgs_'+pid)||'[]'); } catch(e){ return []; }
+}
+function saveStoredImages(pid, images){
+  try { localStorage.setItem('pedicat_imgs_'+pid, JSON.stringify(images)); } catch(e){
+    console.warn('localStorage full — image thumbnails not cached');
+  }
+}
+function addStoredImage(pid, name, desc, dataUrl){
+  const imgs = getStoredImages(pid);
+  imgs.push({ name, desc, dataUrl, uploadedAt: new Date().toISOString() });
+  saveStoredImages(pid, imgs);
+}
+
 // ─── IMAGE UPLOAD ───
 let currentImagePID = null;
 
@@ -3340,33 +3375,42 @@ function openImagesTab(pid){
         </div>
       </div>
     </div>
-    <div id="image-grid-${pid}" style="margin-top:4px">
-      <div style="text-align:center;padding:24px;color:var(--text-faint);font-size:12.5px">
-        <span class="spinner"></span> Loading images…
-      </div>
-    </div>`;
-  loadPatientImages(pid);
+    <div id="image-grid-${pid}" class="image-grid" style="margin-top:4px"></div>`;
+  renderStoredImages(pid);
+}
+
+function renderStoredImages(pid){
+  const grid = document.getElementById('image-grid-'+pid) || document.getElementById('image-grid-main');
+  if(!grid) return;
+  const imgs = getStoredImages(pid);
+  if(!imgs.length){
+    grid.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-faint);font-size:12.5px;grid-column:1/-1">No images yet — tap above to upload</div>';
+    return;
+  }
+  grid.innerHTML = imgs.map((img,i)=>`
+    <div class="image-thumb">
+      <img src="${img.dataUrl}" onclick="openLightbox('${img.dataUrl}')" alt="${img.desc||img.name}">
+      <div class="image-thumb-label" title="${img.desc||img.name}">${img.desc||img.name}</div>
+      <button onclick="deleteStoredImage('${pid}',${i},event)" title="Delete" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>
+    </div>`).join('');
+}
+
+function deleteStoredImage(pid, index, event){
+  event.stopPropagation();
+  if(!confirm('Remove this image?')) return;
+  const imgs = getStoredImages(pid);
+  imgs.splice(index, 1);
+  saveStoredImages(pid, imgs);
+  renderStoredImages(pid);
+  // Also re-render main grid if visible
+  const mainGrid = document.getElementById('image-grid-main');
+  if(mainGrid && ACTIVE_PATIENT?.PID === pid) renderStoredImages(pid);
+  showToast('Image removed','success');
 }
 
 async function loadPatientImages(pid){
-  const grid = document.getElementById('image-grid-'+pid);
-  if(!grid) return;
-  try {
-    const res = await fetch(`${CONFIG.webAppUrl}?action=listImages&pid=${encodeURIComponent(pid)}`);
-    const data = await res.json();
-    const images = data.images || [];
-    if(!images.length){
-      grid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-faint);font-size:12.5px;grid-column:1/-1">No images yet — tap above to upload</div>';
-      return;
-    }
-    grid.innerHTML = images.map(img=>`
-      <div class="image-thumb">
-        <img src="${img.thumbnailUrl||img.url}" onclick="openLightbox('${img.url}')" alt="${img.name}">
-        <div class="image-thumb-label">${img.name}</div>
-      </div>`).join('');
-  } catch(e) {
-    grid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-faint);font-size:12.5px;grid-column:1/-1">Could not load images</div>';
-  }
+  // Now uses localStorage — no server fetch needed
+  renderStoredImages(pid);
 }
 
 function handleImageDrop(event, pid){
@@ -3378,7 +3422,6 @@ function handleImageDrop(event, pid){
   if(files.length){
     _pickerPendingFiles = files;
     _photoPickerZoneId = pid;
-    // Show the picker at step 2 for drag-drop too
     document.getElementById('picker-source-step').style.display = 'none';
     document.getElementById('picker-desc-step').classList.add('active');
     document.getElementById('picker-desc-input').value = '';
@@ -3401,7 +3444,6 @@ function handleImageDrop(event, pid){
 }
 
 function handleImageSelect(event, pid){
-  // Route through the new two-step picker description flow
   pickerFilesSelected(event, pid);
 }
 
@@ -3410,71 +3452,66 @@ async function uploadImages(files, pid, zoneId, description){
   const desc = (description || '').trim();
   const progress = document.getElementById('upload-progress-'+zid);
   const bar = document.getElementById('upload-bar-'+zid);
-  const statusEl = document.getElementById('upload-status');
 
-  // ── Show local previews immediately ──
-  const grid = document.getElementById('image-grid-'+zid) || document.getElementById('image-grid-main');
-  if(grid){
-    files.forEach(file => {
-      const localUrl = URL.createObjectURL(file);
-      const thumb = document.createElement('div');
-      thumb.className = 'image-thumb image-thumb-local';
-      const thumbLabel = desc || file.name;
-      thumb.innerHTML = `<img src="${localUrl}" onclick="openLightbox('${localUrl}')" alt="${thumbLabel}">
-        <div class="image-thumb-label" style="background:rgba(45,207,202,.25);color:var(--teal)">⏳ ${thumbLabel}</div>`;
-      grid.appendChild(thumb);
-    });
-    // Clear any "no images" placeholder divs
-    [...grid.childNodes].forEach(n => { if(n.nodeType===3 || (n.nodeName==='DIV' && n.querySelector && !n.querySelector('img'))) n.remove(); });
-  }
-
-  // ── Collapse upload zone, show grid card ──
+  // ── Show uploading state ──
   const zone = document.getElementById('upload-zone-'+zid);
-  if(zone) zone.style.display = 'none';
-  const gridCard = document.getElementById('image-grid-card-'+zid);
-  if(gridCard) gridCard.style.display = '';
-
-  if(statusEl) statusEl.textContent = 'Uploading '+files.length+' image'+(files.length!==1?'s':'')+'…';
+  if(zone){
+    const zoneText = zone.querySelector('.upload-zone-text');
+    const zoneIcon = zone.querySelector('.upload-zone-icon');
+    if(zoneText) zoneText.textContent = 'Uploading…';
+    if(zoneIcon) zoneIcon.textContent = '⏳';
+  }
   if(progress) progress.style.display = 'block';
+
   let done = 0;
   for(const file of files){
     try {
       const b64 = await fileToBase64(file);
-      // Use description as filename prefix if provided, otherwise just the file name
-      const storedName = desc ? desc + (files.length > 1 ? ' ('+(done+1)+')' : '') : file.name;
-      await fetch(CONFIG.webAppUrl, {
+      const dataUrl = 'data:'+file.type+';base64,'+b64;
+      const storedName = desc
+        ? desc + (files.length > 1 ? ' ('+(done+1)+')' : '')
+        : file.name.replace(/\.[^.]+$/,'');
+
+      // ── Save to localStorage immediately so it shows up everywhere ──
+      addStoredImage(pid, file.name, storedName, dataUrl);
+
+      done++;
+      if(bar) bar.style.width = Math.round(done/files.length*100)+'%';
+
+      // ── Refresh whichever grid is currently visible ──
+      renderStoredImages(pid);
+      // Also update main grid card if open
+      const mainGrid = document.getElementById('image-grid-main');
+      if(mainGrid) renderStoredImages(pid);
+
+      // ── Show/hide grid card for main upload view ──
+      const gridCard = document.getElementById('image-grid-card-'+zid);
+      if(gridCard) gridCard.style.display = '';
+      if(zone) zone.style.display = 'none';
+
+      // ── Push to Google Drive in background (fire-and-forget) ──
+      fetch(CONFIG.webAppUrl, {
         method:'POST',
         mode:'no-cors',
         body: JSON.stringify({
           action:'uploadImage',
-          pid: pid,
-          filename: storedName,
+          pid, filename: storedName,
           originalFilename: file.name,
           mimeType: file.type,
           data: b64
         })
-      });
-      done++;
-      if(bar) bar.style.width = Math.round(done/files.length*100)+'%';
-      // Update thumb label to confirmed state
-      if(grid){
-        const thumbs = grid.querySelectorAll('.image-thumb-local');
-        if(thumbs[done-1]){
-          const lbl = thumbs[done-1].querySelector('.image-thumb-label');
-          if(lbl){ lbl.textContent = desc || file.name; lbl.style.background=''; lbl.style.color=''; }
-          thumbs[done-1].classList.remove('image-thumb-local');
-        }
-      }
+      }).catch(()=>{});
+
     } catch(err) {
       console.error('Upload failed',err);
     }
   }
-  await new Promise(r=>setTimeout(r, 1500));
+
+  await new Promise(r=>setTimeout(r, 400));
   if(progress) progress.style.display = 'none';
   if(bar) bar.style.width = '0%';
-  const statusEl2 = document.getElementById('upload-status');
-  if(statusEl2) statusEl2.textContent = '';
-  // Re-show zone for modal (as compact "add more"), main view uses the Add More button
+
+  // ── Restore zone for modal (compact add-more) ──
   if(zone && zid !== 'main'){
     zone.style.display = '';
     const zoneIcon = zone.querySelector('.upload-zone-icon');
@@ -3484,8 +3521,8 @@ async function uploadImages(files, pid, zoneId, description){
     const zoneSub = zone.querySelector('.upload-zone-sub');
     if(zoneSub) zoneSub.textContent = 'JPG, PNG — multiple files supported';
   }
-  if(currentImagePID === pid) loadPatientImages(pid);
-  showToast(done+' image'+(done!==1?'s':'')+' uploaded ✓','success');
+
+  showToast(done+' photo'+(done!==1?'s':'')+' saved ✓', 'success');
 }
 
 function fileToBase64(file){
