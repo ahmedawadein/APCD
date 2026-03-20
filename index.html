@@ -299,6 +299,43 @@
     .eye-col:last-child .eye-col-body{border-left:3px solid rgba(100,160,255,.3)}
   }
 
+
+  /* HISTORY FORM */
+  .history-section{background:rgba(0,0,0,.15);border:1px solid var(--border-dim);border-radius:9px;padding:14px 16px;margin-bottom:10px}
+  .history-section-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:10px;opacity:.85}
+  .prev-surgery-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;background:rgba(0,0,0,.18);border:1px solid var(--border-dim);border-radius:7px;padding:8px 10px;margin-bottom:6px}
+  .prev-surgery-row select{background:var(--input-bg);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-main);font-family:'Lato',sans-serif;font-size:12.5px;padding:5px 9px;outline:none;appearance:none}
+  .prev-surgery-row select:focus{border-color:var(--teal)}
+  .systemic-item{display:flex;flex-direction:column;gap:6px;padding:10px 0;border-bottom:1px solid var(--border-dim)}
+  .systemic-item:last-child{border-bottom:none;padding-bottom:0}
+  .systemic-item-header{display:flex;align-items:center;gap:10px}
+  .systemic-item-header label{font-size:13.5px;font-family:'Lato',sans-serif;text-transform:none;letter-spacing:0;color:var(--text-main);opacity:1;cursor:pointer}
+  .systemic-detail{display:none;padding-left:2px}
+  .systemic-detail.visible{display:block}
+  .syndrome-checks{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  @media(max-width:640px){.prev-surgery-row{grid-template-columns:1fr 1fr 28px}}
+
+
+  /* SURGERY TYPE SELECTOR */
+  .surg-type-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:16px;backdrop-filter:blur(6px)}
+  .surg-type-label{font-family:'DM Serif Display',serif;font-size:16px;color:var(--text-main);margin-bottom:14px}
+  .surg-type-options{display:flex;gap:10px;flex-wrap:wrap}
+  .surg-type-option{position:relative}
+  .surg-type-option input[type=radio]{position:absolute;opacity:0;width:0;height:0}
+  .surg-type-option label{display:flex;align-items:center;gap:8px;padding:12px 20px;border:1px solid var(--border-dim);border-radius:10px;cursor:pointer;font-size:14px;font-family:'Lato',sans-serif;color:var(--text-dim);transition:all .18s;user-select:none;font-weight:700}
+  .surg-type-option input[type=radio]:checked+label{border-color:var(--teal);background:var(--teal-glow);color:var(--teal)}
+  .surg-type-option label:hover{border-color:var(--border);color:var(--text-main)}
+  .surg-type-option .surg-icon{font-size:20px}
+
+
+  /* SURGERY TYPE SWITCHER */
+  .surg-type-btn{flex:1;padding:11px 10px;border:1px solid var(--border-dim);background:transparent;color:var(--text-dim);font-family:'Lato',sans-serif;font-size:13.5px;font-weight:700;cursor:pointer;transition:all .18s;text-align:center}
+  .surg-type-btn:first-child{border-radius:9px 0 0 9px}
+  .surg-type-btn:last-child{border-radius:0 9px 9px 0;border-left:none}
+  .surg-type-btn.active-cataract{background:var(--teal-glow);color:var(--teal);border-color:var(--border)}
+  .surg-type-btn.active-other{background:rgba(176,158,245,.12);color:var(--purple);border-color:rgba(176,158,245,.3)}
+  .surg-type-btn:hover:not(.active-cataract):not(.active-other){background:rgba(255,255,255,.04);color:var(--text-main)}
+
   /* PATIENT SEARCH BAR */
   #patient-lookup-bar{background:rgba(13,27,42,.95);border-bottom:1px solid var(--border);padding:12px 30px;display:flex;align-items:center;gap:12px;position:sticky;top:58px;z-index:40;backdrop-filter:blur(8px)}
   #patient-lookup-bar.hidden{display:none!important}
@@ -481,6 +518,7 @@
     <div class="nav-item" onclick="showView('patients')" id="nav-patients"><span class="nav-icon">◈</span>Patients</div>
     <div class="nav-section-label" style="margin-top:6px">Data Entry</div>
     <div class="nav-item" onclick="showView('new-patient')" id="nav-new-patient"><span class="nav-icon">＋</span>New Patient</div>
+    <div class="nav-item" onclick="showView('new-history')" id="nav-new-history"><span class="nav-icon">♦</span>History</div>
     <div class="nav-item" onclick="showView('new-examination')" id="nav-new-examination"><span class="nav-icon">◉</span>Initial Exam</div>
     <div class="nav-item" onclick="showView('new-surgery')" id="nav-new-surgery"><span class="nav-icon">⊕</span>Surgery</div>
     <div class="nav-item" onclick="showView('new-followup')" id="nav-new-followup"><span class="nav-icon">◎</span>Follow-up Visit</div>
@@ -613,6 +651,190 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
         <div class="form-actions">
           <button type="button" class="btn btn-secondary" onclick="showView('patients')">Cancel</button>
           <button type="submit" class="btn btn-primary" id="patient-submit-btn">Save Patient</button>
+        </div>
+      </form>
+    </div>
+
+
+    <!-- ═══════════════════════════════ HISTORY ═══ -->
+    <div id="view-new-history" class="hidden">
+      <div class="section-header"><h2>History & Systemic Diseases</h2><p>Background history — linked to selected patient</p></div>
+      <form id="history-form" onsubmit="submitHistory(event)">
+
+        <div class="form-card">
+          <div class="form-card-title">Family & Social History</div>
+
+          <!-- Consanguinity -->
+          <div class="systemic-item">
+            <div class="systemic-item-header">
+              <div class="radio-group">
+                <div class="radio-option"><input type="radio" name="h-consang" id="hc-no" value="No" checked><label for="hc-no">No</label></div>
+                <div class="radio-option"><input type="radio" name="h-consang" id="hc-yes" value="Yes"><label for="hc-yes">Yes</label></div>
+              </div>
+              <label>Consanguinity</label>
+            </div>
+          </div>
+
+          <!-- Family History -->
+          <div class="systemic-item">
+            <div class="systemic-item-header">
+              <div class="radio-group">
+                <div class="radio-option"><input type="radio" name="h-fhx" id="hfhx-no" value="No" checked onchange="toggleSysDetail('h-fhx','Yes','hfhx-detail')"><label for="hfhx-no">No</label></div>
+                <div class="radio-option"><input type="radio" name="h-fhx" id="hfhx-yes" value="Yes" onchange="toggleSysDetail('h-fhx','Yes','hfhx-detail')"><label for="hfhx-yes">Yes</label></div>
+              </div>
+              <label>Family History of Cataract</label>
+            </div>
+            <div class="systemic-detail" id="hfhx-detail">
+              <input type="text" id="h-fhx-members" placeholder="Family members affected (e.g. mother, sibling)…">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">Trauma</div>
+
+          <!-- Blunt trauma -->
+          <div class="systemic-item">
+            <div class="systemic-item-header">
+              <div class="radio-group">
+                <div class="radio-option"><input type="radio" name="h-blunt" id="hbl-no" value="No" checked><label for="hbl-no">No</label></div>
+                <div class="radio-option"><input type="radio" name="h-blunt" id="hbl-yes" value="Yes"><label for="hbl-yes">Yes</label></div>
+              </div>
+              <label>Blunt Trauma</label>
+            </div>
+          </div>
+
+          <!-- Penetrating trauma -->
+          <div class="systemic-item">
+            <div class="systemic-item-header">
+              <div class="radio-group">
+                <div class="radio-option"><input type="radio" name="h-pen" id="hpen-no" value="No" checked><label for="hpen-no">No</label></div>
+                <div class="radio-option"><input type="radio" name="h-pen" id="hpen-yes" value="Yes"><label for="hpen-yes">Yes</label></div>
+              </div>
+              <label>Penetrating Trauma</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">Previous Ocular Surgeries</div>
+          <div id="prev-surgery-list" style="margin-bottom:8px"></div>
+          <button type="button" class="add-formula-btn" onclick="addPrevSurgery()">＋ Add surgery</button>
+          <div class="form-group" style="margin-top:12px"><label>Comments</label><textarea id="h-surg-comments" placeholder="Additional notes about previous surgeries…" style="min-height:70px"></textarea></div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">Systemic Diseases</div>
+
+          <!-- Subluxation syndromes -->
+          <div class="systemic-item">
+            <div class="systemic-item-header">
+              <div class="radio-group">
+                <div class="radio-option"><input type="radio" name="h-sublux-syn" id="hss-no" value="No" checked onchange="toggleSysDetail('h-sublux-syn','Yes','hss-detail')"><label for="hss-no">No</label></div>
+                <div class="radio-option"><input type="radio" name="h-sublux-syn" id="hss-yes" value="Yes" onchange="toggleSysDetail('h-sublux-syn','Yes','hss-detail')"><label for="hss-yes">Yes</label></div>
+              </div>
+              <label>Syndrome Associated with Subluxation</label>
+            </div>
+            <div class="systemic-detail" id="hss-detail">
+              <div class="syndrome-checks" id="hss-checks">
+                <div class="morph-option"><input type="checkbox" id="hss-marfan" value="Marfan syndrome"><label for="hss-marfan">Marfan syndrome</label></div>
+                <div class="morph-option"><input type="checkbox" id="hss-homo" value="Homocystinuria"><label for="hss-homo">Homocystinuria</label></div>
+                <div class="morph-option"><input type="checkbox" id="hss-wm" value="Weill-Marchesani syndrome"><label for="hss-wm">Weill-Marchesani syndrome</label></div>
+              </div>
+              <div style="display:flex;gap:6px;margin-top:6px">
+                <input type="text" id="hss-other-input" placeholder="Other syndrome…" style="flex:1;font-size:12.5px;padding:5px 9px">
+                <button type="button" class="add-formula-btn" style="margin-top:0;padding:5px 10px" onclick="addSubluxSyndrome()">＋</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Systemic disease items -->
+          <div class="systemic-item">
+            <div class="systemic-item-header">
+              <div class="radio-group">
+                <div class="radio-option"><input type="radio" name="h-cardiac" id="hcardiac-no" value="No" checked onchange="toggleSysDetail('h-cardiac','Yes','h-cardiac-detail')"><label for="hcardiac-no">No</label></div>
+                <div class="radio-option"><input type="radio" name="h-cardiac" id="hcardiac-yes" value="Yes" onchange="toggleSysDetail('h-cardiac','Yes','h-cardiac-detail')"><label for="hcardiac-yes">Yes</label></div>
+              </div>
+              <label>Cardiac Disease</label>
+            </div>
+            <div class="systemic-detail" id="h-cardiac-detail"><input type="text" id="h-cardiac-desc" placeholder="Details…"></div>
+          </div>
+
+          <div class="systemic-item">
+            <div class="systemic-item-header">
+              <div class="radio-group">
+                <div class="radio-option"><input type="radio" name="h-neuro" id="hneuro-no" value="No" checked onchange="toggleSysDetail('h-neuro','Yes','h-neuro-detail')"><label for="hneuro-no">No</label></div>
+                <div class="radio-option"><input type="radio" name="h-neuro" id="hneuro-yes" value="Yes" onchange="toggleSysDetail('h-neuro','Yes','h-neuro-detail')"><label for="hneuro-yes">Yes</label></div>
+              </div>
+              <label>Neurological Disease</label>
+            </div>
+            <div class="systemic-detail" id="h-neuro-detail"><input type="text" id="h-neuro-desc" placeholder="Details…"></div>
+          </div>
+
+          <div class="systemic-item">
+            <div class="systemic-item-header">
+              <div class="radio-group">
+                <div class="radio-option"><input type="radio" name="h-hepatic" id="hhep-no" value="No" checked onchange="toggleSysDetail('h-hepatic','Yes','h-hepatic-detail')"><label for="hhep-no">No</label></div>
+                <div class="radio-option"><input type="radio" name="h-hepatic" id="hhep-yes" value="Yes" onchange="toggleSysDetail('h-hepatic','Yes','h-hepatic-detail')"><label for="hhep-yes">Yes</label></div>
+              </div>
+              <label>Hepatic Disease</label>
+            </div>
+            <div class="systemic-detail" id="h-hepatic-detail"><input type="text" id="h-hepatic-desc" placeholder="Details…"></div>
+          </div>
+
+          <div class="systemic-item">
+            <div class="systemic-item-header">
+              <div class="radio-group">
+                <div class="radio-option"><input type="radio" name="h-renal" id="hrenal-no" value="No" checked onchange="toggleSysDetail('h-renal','Yes','h-renal-detail')"><label for="hrenal-no">No</label></div>
+                <div class="radio-option"><input type="radio" name="h-renal" id="hrenal-yes" value="Yes" onchange="toggleSysDetail('h-renal','Yes','h-renal-detail')"><label for="hrenal-yes">Yes</label></div>
+              </div>
+              <label>Renal Disease</label>
+            </div>
+            <div class="systemic-detail" id="h-renal-detail"><input type="text" id="h-renal-desc" placeholder="Details…"></div>
+          </div>
+
+          <div class="systemic-item">
+            <div class="systemic-item-header">
+              <div class="radio-group">
+                <div class="radio-option"><input type="radio" name="h-hema" id="hhema-no" value="No" checked onchange="toggleSysDetail('h-hema','Yes','h-hema-detail')"><label for="hhema-no">No</label></div>
+                <div class="radio-option"><input type="radio" name="h-hema" id="hhema-yes" value="Yes" onchange="toggleSysDetail('h-hema','Yes','h-hema-detail')"><label for="hhema-yes">Yes</label></div>
+              </div>
+              <label>Haematological Disease</label>
+            </div>
+            <div class="systemic-detail" id="h-hema-detail"><input type="text" id="h-hema-desc" placeholder="Details…"></div>
+          </div>
+
+          <div class="systemic-item">
+            <div class="systemic-item-header">
+              <div class="radio-group">
+                <div class="radio-option"><input type="radio" name="h-chest" id="hchest-no" value="No" checked onchange="toggleSysDetail('h-chest','Yes','h-chest-detail')"><label for="hchest-no">No</label></div>
+                <div class="radio-option"><input type="radio" name="h-chest" id="hchest-yes" value="Yes" onchange="toggleSysDetail('h-chest','Yes','h-chest-detail')"><label for="hchest-yes">Yes</label></div>
+              </div>
+              <label>Chest Disease</label>
+            </div>
+            <div class="systemic-detail" id="h-chest-detail"><input type="text" id="h-chest-desc" placeholder="Details…"></div>
+          </div>
+
+          <div class="systemic-item">
+            <div class="systemic-item-header">
+              <div class="radio-group">
+                <div class="radio-option"><input type="radio" name="h-other-sys" id="hosys-no" value="No" checked onchange="toggleSysDetail('h-other-sys','Yes','h-other-sys-detail')"><label for="hosys-no">No</label></div>
+                <div class="radio-option"><input type="radio" name="h-other-sys" id="hosys-yes" value="Yes" onchange="toggleSysDetail('h-other-sys','Yes','h-other-sys-detail')"><label for="hosys-yes">Yes</label></div>
+              </div>
+              <label>Other Systemic Disease</label>
+            </div>
+            <div class="systemic-detail" id="h-other-sys-detail"><input type="text" id="h-other-sys-desc" placeholder="Details…"></div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">Medications</div>
+          <div class="form-group"><label>Previous or Current Treatment</label><textarea id="h-medications" placeholder="List drugs currently used or previously used…" style="min-height:80px"></textarea></div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="showView('patients')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="history-submit-btn">Save History</button>
         </div>
       </form>
     </div>
@@ -1010,16 +1232,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
           </div>
         </div>
 
-        <div class="form-card">
-          <div class="form-card-title">Systemic & History</div>
-          <div class="form-grid cols-3">
-            <div class="form-group"><label>Syndrome</label><input type="text" id="e-syndrome" placeholder="e.g. Down, Marfan"></div>
-            <div class="form-group"><label>Investigations</label><input type="text" id="e-invest"></div>
-            <div class="form-group"><label>Consanguinity</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-consang"><label for="e-consang">Present</label></div></div></div>
-            <div class="form-group"><label>Family History</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-fhx"><label for="e-fhx">Present</label></div></div></div>
-            <div class="form-group span-2"><label>Family History Details</label><input type="text" id="e-fhx-desc"></div>
-          </div>
-        </div>
+
 
         <div class="form-card">
           <div class="form-card-title">Comments</div>
@@ -1037,6 +1250,24 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
         <!-- ═══════════════════════════════ SURGERY ═══ -->
     <div id="view-new-surgery" class="hidden">
       <div class="section-header"><h2>Operation Record</h2><p>Intraoperative details and technique</p></div>
+
+      <!-- SURGERY TYPE SELECTOR -->
+      <div class="surg-type-card">
+        <div class="surg-type-label">What type of surgery is this?</div>
+        <div class="surg-type-options">
+          <div class="surg-type-option">
+            <input type="radio" name="surg-category" id="sc-cataract" value="cataract" onchange="onSurgCategory('cataract')" checked>
+            <label for="sc-cataract"><span class="surg-icon">👁</span>Cataract Surgery</label>
+          </div>
+          <div class="surg-type-option">
+            <input type="radio" name="surg-category" id="sc-other" value="other" onchange="onSurgCategory('other')">
+            <label for="sc-other"><span class="surg-icon">⊕</span>Other Ocular Surgery</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- CATARACT FORM (default visible) -->
+      <div id="surg-cataract-form">
       <form id="surgery-form" onsubmit="submitSurgery(event)">
         <div class="form-card">
           <div class="form-card-title">Procedure Details</div>
@@ -1060,6 +1291,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
           </div>
         </div>
 
+        <div id="s-cataract-details">
         <div class="form-card">
           <div class="form-card-title">Capsule Management</div>
           <div class="form-grid cols-2">
@@ -1188,13 +1420,66 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
           <div class="form-card-title">Comments</div>
           <div class="form-group"><textarea id="s-comments" placeholder="Any additional notes about this operation…" style="min-height:90px"></textarea></div>
         </div>
+        </div><!-- /s-cataract-details -->
 
         <div class="form-actions">
           <button type="button" class="btn btn-secondary" onclick="showView('dashboard')">Cancel</button>
           <button type="submit" class="btn btn-primary" id="surgery-submit-btn">Save Operation</button>
         </div>
       </form>
-    </div>
+      </div><!-- /surg-cataract-form -->
+
+      <!-- NON-CATARACT FORM (hidden by default) -->
+      <div id="surg-other-form" style="display:none">
+        <form id="surgery-other-form" onsubmit="submitOtherSurgery(event)">
+          <div class="form-card">
+            <div class="form-card-title">Procedure Details</div>
+            <div class="form-grid cols-3">
+              <div class="form-group span-2"><label>Patient</label><input type="text" id="so-pid-display" readonly placeholder="Select patient using search bar above" style="background:rgba(28,184,176,.05);color:var(--teal);cursor:default"><input type="hidden" id="so-pid"></div>
+              <div class="form-group"><label>Date of Surgery *</label><input type="date" id="so-date" required></div>
+              <div class="form-group"><label>Eye *</label>
+                <div class="radio-group">
+                  <div class="radio-option"><input type="radio" name="so-eye" id="soe-od" value="OD"><label for="soe-od">OD</label></div>
+                  <div class="radio-option"><input type="radio" name="so-eye" id="soe-os" value="OS"><label for="soe-os">OS</label></div>
+                  <div class="radio-option"><input type="radio" name="so-eye" id="soe-ou" value="OU"><label for="soe-ou">OU</label></div>
+                </div>
+              </div>
+              <div class="form-group span-2"><label>Type of Surgery *</label>
+                <div class="examiner-wrap">
+                  <select id="so-type">
+                    <option value="">— Select —</option>
+                    <option>Trabeculotomy</option>
+                    <option>Trabeculectomy</option>
+                    <option>Glaucoma drainage device</option>
+                    <option>Nd:YAG laser capsulotomy</option>
+                    <option>Strabismus surgery</option>
+                    <option>Ptosis surgery</option>
+                    <option>Penetrating keratoplasty</option>
+                    <option>Retinal detachment surgery</option>
+                    <option>Intravitreal injection</option>
+                    <option value="__add__">＋ Add other…</option>
+                  </select>
+                  <button type="button" class="add-ex-btn" onclick="addOtherSurgType()">＋ New</button>
+                </div>
+              </div>
+              <div class="form-group span-2"><label>Examiner / Surgeon</label>
+                <div class="examiner-wrap"><select id="so-examiner" onchange="handleExaminerChange('so-examiner')"></select></div>
+              </div>
+              <div class="form-group"><label>Duration (min)</label><input type="number" id="so-duration" min="0" placeholder="minutes"></div>
+            </div>
+          </div>
+          <div class="form-card">
+            <div class="form-card-title">Details</div>
+            <div class="form-group"><textarea id="so-details" placeholder="Describe the procedure, findings, and outcome…" style="min-height:120px"></textarea></div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="showView('dashboard')">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="surgery-other-submit-btn">Save Surgery</button>
+          </div>
+        </form>
+      </div><!-- /surg-other-form -->
+
+    </div><!-- /view-new-surgery -->
 
     <!-- ═══════════════════════════════ FOLLOW-UP ═══ -->
     <div id="view-new-followup" class="hidden">
@@ -1574,18 +1859,20 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
       <button class="tab-btn" onclick="switchTab('tab-exams',this)">Examinations</button>
       <button class="tab-btn" onclick="switchTab('tab-ops',this)">Operations</button>
       <button class="tab-btn" onclick="switchTab('tab-fups',this)">Follow-ups</button>
+      <button class="tab-btn" onclick="switchTab('tab-hist',this)">History</button>
     </div>
     <div id="tab-demo" class="tab-panel active"></div>
     <div id="tab-exams" class="tab-panel"></div>
     <div id="tab-ops" class="tab-panel"></div>
     <div id="tab-fups" class="tab-panel"></div>
+    <div id="tab-hist" class="tab-panel"></div>
   </div>
 </div>
 
 <script>
 // ─── STATE ───
 let CONFIG={webAppUrl:'https://script.google.com/macros/s/AKfycbwBRx8ViEtjwVpZkjvZD8hhUDTnbncO96zsTGtT9dR9qyzQVJ5_lHe7U_ehrZTJ6VKOUA/exec'};
-let DB={patients:[],examinations:[],operations:[],followups:[]};
+let DB={patients:[],examinations:[],operations:[],followups:[],history:[]};
 
 // ─── INIT ───
 document.addEventListener('DOMContentLoaded',()=>{
@@ -1608,9 +1895,9 @@ function showView(v){
   document.getElementById('view-'+v).classList.remove('hidden');
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
   const n=document.getElementById('nav-'+v);if(n)n.classList.add('active');
-  const titles={dashboard:'Dashboard',patients:'Patients','new-patient':'New Patient','new-examination':'Initial Examination','new-surgery':'Operation Record','new-followup':'Follow-up Visit',setup:'Setup & Configuration'};
+  const titles={dashboard:'Dashboard',patients:'Patients','new-patient':'New Patient','new-history':'History & Systemic Diseases','new-examination':'Initial Examination','new-surgery':'Operation Record','new-followup':'Follow-up Visit',setup:'Setup & Configuration'};
   document.getElementById('topbar-title').textContent=titles[v]||'';
-  const dataEntryViews=['new-examination','new-surgery','new-followup'];
+  const dataEntryViews=['new-examination','new-surgery','new-followup','new-history'];
   const bar=document.getElementById('patient-lookup-bar');
   if(dataEntryViews.includes(v)){bar.classList.remove('hidden');fillActivePatientFields();}
   else{bar.classList.add('hidden');}
@@ -1646,8 +1933,8 @@ function updateConnectionBadge(){
 // ─── DATA ───
 async function loadAll(){
   if(!CONFIG.webAppUrl)return;
-  const[p,e,o,f]=await Promise.all([fetchSheet('Patients'),fetchSheet('Examinations'),fetchSheet('Operations'),fetchSheet('Followup')]);
-  DB.patients=p;DB.examinations=e;DB.operations=o;DB.followups=f;
+  const[p,e,o,f,h]=await Promise.all([fetchSheet('Patients'),fetchSheet('Examinations'),fetchSheet('Operations'),fetchSheet('Followup'),fetchSheet('History')]);
+  DB.patients=p;DB.examinations=e;DB.operations=o;DB.followups=f;DB.history=h;
   renderDashboard();
 }
 async function fetchSheet(name){
@@ -1772,7 +2059,7 @@ function openDetail(pid){
   document.getElementById('tab-ops').innerHTML=!ops.length?empty('No operations recorded')
     :`<div class="visit-timeline">${ops.map(o=>`<div class="visit-entry"><div class="visit-card">
       <div class="visit-date">${o.DateOfOp?new Date(o.DateOfOp).toLocaleDateString():'—'} · ${o.Eye||'—'}</div>
-      ${dr('Operation',o.OperationName)}${dr('Surgeon',o.Examiner)}
+      ${dr('Type',o.SurgeryCategory||'Cataract')}${dr('Operation',o.OperationName)}${dr('Surgeon',o.Examiner)}
       ${dr('Anterior Capsule',o.AnteriorCapsule)}${dr('Posterior Capsule',o.PosteriorCapsule)}
       ${dr('IOL',o.IOL==='Yes'?`${o.IOLType||''} ${o.IOLPower?o.IOLPower+'D':''} — ${o.IOLPlace||''}`:'Aphakic')}
       ${o.OtherComplications?dr('Complications',o.OtherComplications):''}
@@ -1786,6 +2073,23 @@ function openDetail(pid){
       ${dr('IOP',f.IOP?f.IOP+' mmHg':'—')}${dr('Lens Status',f.LensStatus)}${f.Comments?dr('Comments',f.Comments):''}
     </div></div>`).join('')}</div>`;
 
+  const hists=(DB.history||[]).filter(x=>String(x.PID)===String(pid));
+  document.getElementById('tab-hist').innerHTML=!hists.length?empty('No history recorded')
+    :`<div class="visit-timeline">${hists.map(h=>`<div class="visit-entry"><div class="visit-card">
+      <div class="visit-date">${h.EntryDate||''}</div>
+      ${dr('Consanguinity',h.Consanguinity)}${dr('Family History',h.FamilyHistory)}${h.FamilyHistoryMembers?dr('Family Members',h.FamilyHistoryMembers):''}
+      ${dr('Blunt Trauma',h.BluntTrauma)}${dr('Penetrating Trauma',h.PenetratingTrauma)}
+      ${h.PreviousSurgeries?dr('Previous Surgeries',h.PreviousSurgeries):''}
+      ${h.SubluxationSyndrome==='Yes'?dr('Subluxation Syndrome',h.SubluxSyndromeDetails||'Yes'):''}
+      ${h.CardiacDisease==='Yes'?dr('Cardiac',h.CardiacDetails):''}
+      ${h.NeurologicalDisease==='Yes'?dr('Neurological',h.NeurologicalDetails):''}
+      ${h.HepaticDisease==='Yes'?dr('Hepatic',h.HepaticDetails):''}
+      ${h.RenalDisease==='Yes'?dr('Renal',h.RenalDetails):''}
+      ${h.HaematologicalDisease==='Yes'?dr('Haematological',h.HaematologicalDetails):''}
+      ${h.ChestDisease==='Yes'?dr('Chest',h.ChestDetails):''}
+      ${h.OtherSystemicDisease==='Yes'?dr('Other Systemic',h.OtherSystemicDetails):''}
+      ${h.Medications?dr('Medications',h.Medications):''}
+    </div></div>`).join('')}</div>`;
   document.getElementById('detail-modal').classList.remove('hidden');
 }
 function dr(k,v){return v?`<div class="detail-row"><span class="detail-key">${k}</span><span class="detail-val">${v}</span></div>`:''}
@@ -1881,9 +2185,40 @@ async function submitSurgery(e){
   e.preventDefault();if(!CONFIG.webAppUrl){showToast('Configure Google Sheets first','error');showView('setup');return;}
   if(!ACTIVE_PATIENT){showToast('Please select a patient first using the search bar','error');return;}
   const btn=document.getElementById('surgery-submit-btn');
+
+  // OTHER surgery — simple record
+  if(currentSurgeryType === 'other'){
+    const eye=document.querySelector('input[name="s-eye"]:checked');
+    const otherSel = document.getElementById('s-other-optype');
+    const otherCustom = document.getElementById('s-other-optype-custom');
+    const opName = otherSel?.value === '__other__'
+      ? (otherCustom?.value.trim() || 'Other')
+      : (otherSel?.value || '');
+    if(!opName){showToast('Please select a surgery type','error');return;}
+    const row = {
+      ID:'OP'+Date.now(), PID:ACTIVE_PATIENT.PID,
+      DateOfOp:document.getElementById('s-date').value,
+      Eye:eye?eye.value:'',
+      SurgeryCategory:'Other',
+      OperationName:opName,
+      Examiner:document.getElementById('s-examiner-other')?.value||'',
+      Duration:document.getElementById('s-other-duration')?.value||'',
+      Comments:document.getElementById('s-other-details')?.value||'',
+      EntryDate:today()
+    };
+    DB.operations.push(row);
+    showToast('Surgery saved ✓','success');
+    document.getElementById('surgery-form').reset();
+    setSurgeryType('cataract');
+    showView('patients');
+    pushRow('Operations',row).catch(()=>{});
+    return;
+  }
+
+  // CATARACT surgery — full record
   const eye=document.querySelector('input[name="s-eye"]:checked');
   const iol=document.querySelector('input[name="iol-yn"]:checked');
-  const row={ID:'OP'+Date.now(),PID:document.getElementById('s-pid').value||ACTIVE_PATIENT?.PID||'',DateOfOp:document.getElementById('s-date').value,Eye:eye?eye.value:'',OperationName:document.getElementById('s-optype').value,ScleralPoints:(()=>{const el=document.querySelector('input[name="s-scleral-pts"]:checked');return el?el.value:'';})(),IOL:iol?iol.value:'',AnteriorCapsule:document.getElementById('s-ant-cap').value,PosteriorCapsule:document.getElementById('s-post-cap').value,CapsuleStain:document.getElementById('s-cap-stain').checked?'Yes':'No',Viscoelastic:document.getElementById('s-visco').value,AnteriorVitrectomy:document.getElementById('s-ant-vit').value,PeriphIridectomy:(()=>{const el=document.querySelector('input[name="s-periph-irid"]:checked');return el?el.value:'No';})(),SutureMainWound:(()=>{const el=document.querySelector('input[name="s-suture-main"]:checked');return el?el.value:'Yes';})(),SutureSidePorts:(()=>{const el=document.querySelector('input[name="s-suture-side"]:checked');return el?el.value:'Yes';})(),Membranectomy:document.getElementById('sp-memb').checked?'Yes':'No',Iridectomy:document.getElementById('sp-irid').checked?'Yes':'No',IrisInjury:document.getElementById('sp-iris-inj').checked?'Yes':'No',Sphincterinjury:document.getElementById('sp-sphinc').checked?'Yes':'No',Synechiolysis:document.getElementById('sp-syn').checked?'Yes':'No',IrisReconstruction:document.getElementById('sp-iris-rec').checked?'Yes':'No',IrisManipulations:document.getElementById('sp-iris-man').checked?'Yes':'No',Hyphaema:document.getElementById('sp-hyph').checked?'Yes':'No',DroppedCortex:document.getElementById('sp-drop-cortex').checked?'Yes':'No',DroppedIOL:document.getElementById('sp-drop-iol').checked?'Yes':'No',VitreousHaemorrhage:document.getElementById('sp-vit-haem').checked?'Yes':'No',OtherComplications:document.getElementById('s-complications').value,IOLType:document.getElementById('s-iol-type').value,
+  const row={ID:'OP'+Date.now(),PID:document.getElementById('s-pid').value||ACTIVE_PATIENT?.PID||'',DateOfOp:document.getElementById('s-date').value,Eye:eye?eye.value:'',SurgeryCategory:'Cataract',OperationName:document.getElementById('s-optype').value,ScleralPoints:(()=>{const el=document.querySelector('input[name="s-scleral-pts"]:checked');return el?el.value:'';})(),IOL:iol?iol.value:'',AnteriorCapsule:document.getElementById('s-ant-cap').value,PosteriorCapsule:document.getElementById('s-post-cap').value,CapsuleStain:document.getElementById('s-cap-stain').checked?'Yes':'No',Viscoelastic:document.getElementById('s-visco').value,AnteriorVitrectomy:document.getElementById('s-ant-vit').value,PeriphIridectomy:(()=>{const el=document.querySelector('input[name="s-periph-irid"]:checked');return el?el.value:'No';})(),SutureMainWound:(()=>{const el=document.querySelector('input[name="s-suture-main"]:checked');return el?el.value:'Yes';})(),SutureSidePorts:(()=>{const el=document.querySelector('input[name="s-suture-side"]:checked');return el?el.value:'Yes';})(),Membranectomy:document.getElementById('sp-memb').checked?'Yes':'No',Iridectomy:document.getElementById('sp-irid').checked?'Yes':'No',IrisInjury:document.getElementById('sp-iris-inj').checked?'Yes':'No',Sphincterinjury:document.getElementById('sp-sphinc').checked?'Yes':'No',Synechiolysis:document.getElementById('sp-syn').checked?'Yes':'No',IrisReconstruction:document.getElementById('sp-iris-rec').checked?'Yes':'No',IrisManipulations:document.getElementById('sp-iris-man').checked?'Yes':'No',Hyphaema:document.getElementById('sp-hyph').checked?'Yes':'No',DroppedCortex:document.getElementById('sp-drop-cortex').checked?'Yes':'No',DroppedIOL:document.getElementById('sp-drop-iol').checked?'Yes':'No',VitreousHaemorrhage:document.getElementById('sp-vit-haem').checked?'Yes':'No',OtherComplications:document.getElementById('s-complications').value,IOLType:document.getElementById('s-iol-type').value,
     IOLPlace:(()=>{const el=document.querySelector('input[name="s-iol-place"]:checked');return el?el.value:''})(),
     IOLPlaceDetails:(()=>{
       const place=document.querySelector('input[name="s-iol-place"]:checked')?.value||'';
@@ -2164,6 +2499,11 @@ function buildExaminerOptions(selected){
     '<option value="__add__">＋ Add new…</option>';
 }
 
+function refreshAllExaminerSelects(){
+  ['e-examiner','s-examiner','f-examiner','so-examiner'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;const v=el.value;el.innerHTML=buildExaminerOptions(v);
+  });
+}
 function refreshExaminerSelects(){
   ['e-examiner','s-examiner','f-examiner'].forEach(id=>{
     const el = document.getElementById(id);
@@ -2356,6 +2696,224 @@ function onIOLPlace(type){
     const el = document.getElementById('iol-sub-'+t);
     if(el) el.classList.toggle('visible', t===type);
   });
+}
+
+
+// ─── HISTORY FORM ───
+const PREV_SURG_OPTIONS = ['Repair of ruptured globe','Cataract surgery','Glaucoma surgery','Scleral buckle','Vitrectomy','Eye muscle surgery'];
+let customPrevSurgs = JSON.parse(localStorage.getItem('pedicat_prev_surgs') || '[]');
+let prevSurgeries = [];
+
+function addPrevSurgery(){
+  prevSurgeries.push({op:'', eye:''});
+  renderPrevSurgeries();
+}
+function removePrevSurgery(idx){
+  prevSurgeries.splice(idx,1);
+  renderPrevSurgeries();
+}
+function updatePrevSurgery(idx, field, val){
+  prevSurgeries[idx][field] = val;
+}
+function renderPrevSurgeries(){
+  const el = document.getElementById('prev-surgery-list');
+  if(!el) return;
+  const allOpts = [...PREV_SURG_OPTIONS, ...customPrevSurgs];
+  el.innerHTML = prevSurgeries.map((s,i)=>`
+    <div class="prev-surgery-row">
+      <select onchange="updatePrevSurgery(${i},'op',this.value)">
+        <option value="">— Select surgery —</option>
+        ${allOpts.map(o=>`<option value="${o}"${o===s.op?' selected':''}>${o}</option>`).join('')}
+        <option value="__add__">＋ Add other…</option>
+      </select>
+      <select onchange="updatePrevSurgery(${i},'eye',this.value)">
+        <option value="">Eye</option>
+        <option value="OD"${s.eye==='OD'?' selected':''}>OD</option>
+        <option value="OS"${s.eye==='OS'?' selected':''}>OS</option>
+        <option value="OU"${s.eye==='OU'?' selected':''}>OU</option>
+      </select>
+      <button type="button" class="rm-btn" onclick="removePrevSurgery(${i})">✕</button>
+    </div>`).join('');
+  // handle add-other
+  el.querySelectorAll('select').forEach((sel,i)=>{
+    if(i%2===0) sel.addEventListener('change',function(){
+      if(this.value==='__add__'){
+        const name=prompt('Enter surgery name:');
+        if(name&&name.trim()){
+          customPrevSurgs.push(name.trim());
+          localStorage.setItem('pedicat_prev_surgs',JSON.stringify(customPrevSurgs));
+          const idx=Math.floor(i/2);
+          prevSurgeries[idx].op=name.trim();
+          renderPrevSurgeries();
+        } else { this.value=''; }
+      }
+    });
+  });
+}
+
+function addSubluxSyndrome(){
+  const inp = document.getElementById('hss-other-input');
+  const val = inp?.value.trim();
+  if(!val) return;
+  const checks = document.getElementById('hss-checks');
+  if(!checks) return;
+  const id = 'hss-custom-'+Date.now();
+  const div = document.createElement('div');
+  div.className = 'morph-option';
+  div.innerHTML = `<input type="checkbox" id="${id}" value="${val}" checked><label for="${id}">${val}</label>`;
+  checks.appendChild(div);
+  inp.value = '';
+}
+
+function toggleSysDetail(name, showVal, detailId){
+  const checked = document.querySelector(`input[name="${name}"]:checked`);
+  const el = document.getElementById(detailId);
+  if(el) el.classList.toggle('visible', checked && checked.value === showVal);
+}
+
+function getPrevSurgeriesJSON(){
+  return prevSurgeries.filter(s=>s.op).map(s=>`${s.op} (${s.eye||'?'})`).join('; ');
+}
+
+function getSubluxSyndromes(){
+  const checks = document.getElementById('hss-checks');
+  if(!checks) return '';
+  return [...checks.querySelectorAll('input[type=checkbox]:checked')].map(c=>c.value).join(', ');
+}
+
+async function submitHistory(e){
+  e.preventDefault();
+  if(!CONFIG.webAppUrl){showToast('Configure Google Sheets first','error');showView('setup');return;}
+  if(!ACTIVE_PATIENT){showToast('Please select a patient first','error');return;}
+  const r = name => {const el=document.querySelector(`input[name="${name}"]:checked`);return el?el.value:'No';};
+  const g = id => document.getElementById(id);
+  const row = {
+    ID:'HX'+Date.now(), PID:ACTIVE_PATIENT.PID,
+    Consanguinity:r('h-consang'),
+    FamilyHistory:r('h-fhx'), FamilyHistoryMembers:g('h-fhx-members')?.value||'',
+    BluntTrauma:r('h-blunt'), PenetratingTrauma:r('h-pen'),
+    PreviousSurgeries:getPrevSurgeriesJSON(),
+    SurgeryComments:g('h-surg-comments')?.value||'',
+    SubluxationSyndrome:r('h-sublux-syn'), SubluxSyndromeDetails:getSubluxSyndromes(),
+    CardiacDisease:r('h-cardiac'), CardiacDetails:g('h-cardiac-desc')?.value||'',
+    NeurologicalDisease:r('h-neuro'), NeurologicalDetails:g('h-neuro-desc')?.value||'',
+    HepaticDisease:r('h-hepatic'), HepaticDetails:g('h-hepatic-desc')?.value||'',
+    RenalDisease:r('h-renal'), RenalDetails:g('h-renal-desc')?.value||'',
+    HaematologicalDisease:r('h-hema'), HaematologicalDetails:g('h-hema-desc')?.value||'',
+    ChestDisease:r('h-chest'), ChestDetails:g('h-chest-desc')?.value||'',
+    OtherSystemicDisease:r('h-other-sys'), OtherSystemicDetails:g('h-other-sys-desc')?.value||'',
+    Medications:g('h-medications')?.value||'',
+    EntryDate:today()
+  };
+  DB.history = DB.history || [];
+  DB.history.push(row);
+  showToast('History saved ✓','success');
+  document.getElementById('history-form').reset();
+  prevSurgeries = [];
+  renderPrevSurgeries();
+  showView('patients');
+  pushRow('History', row).catch(()=>{});
+}
+
+
+// ─── SURGERY CATEGORY TOGGLE ───
+function onSurgCategory(cat){
+  document.getElementById('surg-cataract-form').style.display = cat==='cataract' ? '' : 'none';
+  document.getElementById('surg-other-form').style.display   = cat==='other'    ? '' : 'none';
+  if(cat==='other'){
+    refreshExaminerSelects();
+    // sync patient display
+    const disp = document.getElementById('s-pid-display');
+    const so = document.getElementById('so-pid-display');
+    const soPid = document.getElementById('so-pid');
+    if(disp && so) so.value = disp.value;
+    if(ACTIVE_PATIENT && soPid) soPid.value = ACTIVE_PATIENT.PID;
+  }
+}
+
+// Custom other surgery types
+let CUSTOM_OTHER_SURGS = JSON.parse(localStorage.getItem('pedicat_other_surgs') || '[]');
+const BASE_OTHER_SURGS = ['Trabeculotomy','Trabeculectomy','Glaucoma drainage device','Nd:YAG laser capsulotomy','Strabismus surgery','Ptosis surgery','Penetrating keratoplasty','Retinal detachment surgery','Intravitreal injection'];
+
+function addOtherSurgType(){
+  const name = prompt('Enter surgery type:');
+  if(!name || !name.trim()) return;
+  const trimmed = name.trim();
+  if(![...BASE_OTHER_SURGS,...CUSTOM_OTHER_SURGS].includes(trimmed)){
+    CUSTOM_OTHER_SURGS.push(trimmed);
+    localStorage.setItem('pedicat_other_surgs', JSON.stringify(CUSTOM_OTHER_SURGS));
+  }
+  const sel = document.getElementById('so-type');
+  if(!sel) return;
+  const opt = document.createElement('option');
+  opt.value = trimmed; opt.textContent = trimmed;
+  sel.insertBefore(opt, sel.lastElementChild); // before the + Add other
+  sel.value = trimmed;
+  showToast(trimmed + ' added ✓', 'success');
+}
+
+async function submitOtherSurgery(e){
+  e.preventDefault();
+  if(!CONFIG.webAppUrl){showToast('Configure Google Sheets first','error');showView('setup');return;}
+  if(!ACTIVE_PATIENT){showToast('Please select a patient first','error');return;}
+  const eye = document.querySelector('input[name="so-eye"]:checked');
+  const row = {
+    ID:'OS'+Date.now(),
+    PID:ACTIVE_PATIENT.PID,
+    SurgeryCategory:'Other',
+    DateOfOp:document.getElementById('so-date').value,
+    Eye:eye?eye.value:'',
+    OperationName:document.getElementById('so-type').value,
+    Examiner:document.getElementById('so-examiner').value,
+    Duration:document.getElementById('so-duration').value,
+    Details:document.getElementById('so-details').value,
+    EntryDate:today()
+  };
+  DB.operations.push(row);
+  showToast('Surgery saved ✓','success');
+  document.getElementById('surgery-other-form').reset();
+  // reset to cataract tab
+  document.getElementById('sc-cataract').checked = true;
+  onSurgCategory('cataract');
+  showView('patients');
+  pushRow('Operations', row).catch(()=>{});
+}
+
+
+// ─── SURGERY TYPE SWITCHER ───
+let currentSurgeryType = 'cataract';
+
+function setSurgeryType(type){
+  currentSurgeryType = type;
+  const isCat = type === 'cataract';
+  // buttons
+  document.getElementById('btn-cat').className = 'surg-type-btn' + (isCat ? ' active-cataract' : '');
+  document.getElementById('btn-other').className = 'surg-type-btn' + (!isCat ? ' active-other' : '');
+  // show/hide rows
+  document.getElementById('s-cataract-type-row').style.display = isCat ? '' : 'none';
+  document.getElementById('s-other-type-row').style.display = isCat ? 'none' : '';
+  document.getElementById('s-cataract-details').style.display = isCat ? '' : 'none';
+  // refresh examiner selects
+  if(!isCat) refreshOtherExaminerSelect();
+}
+
+function refreshOtherExaminerSelect(){
+  const el = document.getElementById('s-examiner-other');
+  if(!el) return;
+  const prev = el.value;
+  el.innerHTML = buildExaminerOptions(prev);
+}
+
+function handleOtherOptypeChange(){
+  const sel = document.getElementById('s-other-optype');
+  const custom = document.getElementById('s-other-optype-custom');
+  if(!sel || !custom) return;
+  if(sel.value === '__other__'){
+    custom.style.display = '';
+    custom.focus();
+  } else {
+    custom.style.display = 'none';
+  }
 }
 
 // ─── MOBILE SIDEBAR ───
