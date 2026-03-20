@@ -801,7 +801,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
               </div>
               <!-- PSEUDOPHAKIA section -->
               <div class="lens-status-section" id="ls-od-pse-section">
-                <div class="bi-field"><label>IOL Location</label><select id="e-iol-loc-od"><option value="">— Select —</option><option>Bag</option><option>Sulcus</option><option>Anterior enclavation iris-claw</option><option>Posterior enclavation iris-claw</option><option>Scleral fixation with sutures</option><option>Scleral fixation with tunnels</option><option>Scleral fixation with Hoffman pockets</option><option>Scleral fixation with Yamane technique</option><option>Scleral fixation with flanged technique</option></select></div>
+                <div class="bi-field"><label>IOL Location</label><select id="e-iol-loc-od"><option value="">— Select —</option><option>Bag</option><option>Sulcus</option><option>Iris-claw — anterior enclavation</option><option>Iris-claw — retropupillary enclavation</option><option>Scleral fixation — sutures</option><option>Scleral fixation — scleral tunnel</option><option>Scleral fixation — flanging</option><option>Scleral fixation — Yamane technique</option><option>ACIOL</option></select></div>
                 <div class="bi-field"><label>Posterior Capsule</label><select id="e-pse-pc-od"><option value="">— Select —</option><option>Absent</option><option>Clear and intact</option><option>Opacified and intact</option><option>Open</option></select></div>
                 <div class="bi-field"><label>Adequate Centration</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-centration-od" id="cen-od-y" value="Yes" checked><label for="cen-od-y">Yes</label></div><div class="radio-option"><input type="radio" name="e-centration-od" id="cen-od-n" value="No"><label for="cen-od-n">No</label></div></div></div>
                 <div class="bi-field"><label>Complications</label>
@@ -904,7 +904,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
               </div>
               <!-- PSEUDOPHAKIA section -->
               <div class="lens-status-section" id="ls-os-pse-section">
-                <div class="bi-field"><label>IOL Location</label><select id="e-iol-loc-os"><option value="">— Select —</option><option>Bag</option><option>Sulcus</option><option>Anterior enclavation iris-claw</option><option>Posterior enclavation iris-claw</option><option>Scleral fixation with sutures</option><option>Scleral fixation with tunnels</option><option>Scleral fixation with Hoffman pockets</option><option>Scleral fixation with Yamane technique</option><option>Scleral fixation with flanged technique</option></select></div>
+                <div class="bi-field"><label>IOL Location</label><select id="e-iol-loc-os"><option value="">— Select —</option><option>Bag</option><option>Sulcus</option><option>Iris-claw — anterior enclavation</option><option>Iris-claw — retropupillary enclavation</option><option>Scleral fixation — sutures</option><option>Scleral fixation — scleral tunnel</option><option>Scleral fixation — flanging</option><option>Scleral fixation — Yamane technique</option><option>ACIOL</option></select></div>
                 <div class="bi-field"><label>Posterior Capsule</label><select id="e-pse-pc-os"><option value="">— Select —</option><option>Absent</option><option>Clear and intact</option><option>Opacified and intact</option><option>Open</option></select></div>
                 <div class="bi-field"><label>Adequate Centration</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-centration-os" id="cen-os-y" value="Yes" checked><label for="cen-os-y">Yes</label></div><div class="radio-option"><input type="radio" name="e-centration-os" id="cen-os-n" value="No"><label for="cen-os-n">No</label></div></div></div>
                 <div class="bi-field"><label>Complications</label>
@@ -1004,7 +1004,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
             <div class="form-group span-2"><label>Patient</label><input type="text" id="s-pid-display" readonly placeholder="Select patient using search bar above" style="background:rgba(28,184,176,.05);color:var(--teal);cursor:default"><input type="hidden" id="s-pid"></div>
             <div class="form-group"><label>Date of Operation *</label><input type="date" id="s-date" required></div>
             <div class="form-group"><label>Eye *</label><div class="radio-group"><div class="radio-option"><input type="radio" name="s-eye" id="se-od" value="OD"><label for="se-od">OD</label></div><div class="radio-option"><input type="radio" name="s-eye" id="se-os" value="OS"><label for="se-os">OS</label></div></div></div>
-            <div class="form-group span-2"><label>Operation Type *</label><select id="s-optype" onchange="onOptypeChange()"><option value="">— Select —</option>
+            <div class="form-group span-2"><label>Operation Type *</label><select id="s-optype"><option value="">— Select —</option>
 <option>Anterior Lensectomy</option>
 <option>Posterior Lensectomy</option>
 <option>Irrigation/Aspiration</option>
@@ -1012,19 +1012,9 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
 <option>IOL Explantation</option>
 <option>IOL Exchange</option>
 <option>IOL Repositioning</option>
-<option>Secondary Implantation with Scleral Fixation</option>
-<option>Scleral Fixation — Flanged Technique</option>
-<option>Scleral Fixation — Hoffman Pockets</option>
-<option>Scleral Fixation — Yamane Technique</option>
 <option>Membranectomy</option>
 <option>Other</option>
-</select>
-<div id="scleral-points-wrap" style="display:none;margin-top:8px">
-  <div class="radio-group">
-    <div class="radio-option"><input type="radio" name="s-scleral-pts" id="sp-1pt" value="1-point"><label for="sp-1pt">1-point fixation</label></div>
-    <div class="radio-option"><input type="radio" name="s-scleral-pts" id="sp-2pt" value="2-point"><label for="sp-2pt">2-point fixation</label></div>
-  </div>
-</div></div>
+</select></div>
             <div class="form-group span-2"><label>Examiner / Surgeon</label><div class="examiner-wrap"><select id="s-examiner" onchange="handleExaminerChange('s-examiner')"></select></div></div>
             <div class="form-group"><label>Duration (min)</label><input type="number" id="s-duration" min="0" placeholder="minutes"></div>
           </div>
@@ -1105,7 +1095,49 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
 <option>Tecnis 1-piece</option>
 <option>Tecnis 3-piece</option>
 <option>Scleral fixation lens</option><option value="__add__">＋ Add new IOL…</option></select></div>
-            <div class="form-group"><label>IOL Placement</label><select id="s-iol-place"><option value="">— Select —</option><option>Bag</option><option>Sulcus</option><option>Iris Support Anterior</option><option>Iris Support Posterior</option><option>Scleral Fixation one-point</option><option>Scleral Fixation two-point</option><option>Scleral Fixation Tunnel</option><option>Unspecified</option></select></div>
+            <div class="form-group span-full" id="iol-placement-group">
+              <label>IOL Placement</label>
+              <div class="radio-group" style="margin-top:6px">
+                <div class="radio-option"><input type="radio" name="s-iol-place" id="ip-bag" value="Bag" onchange="onIOLPlace('bag')"><label for="ip-bag">Bag</label></div>
+                <div class="radio-option"><input type="radio" name="s-iol-place" id="ip-sulc" value="Sulcus" onchange="onIOLPlace('sulcus')"><label for="ip-sulc">Sulcus</label></div>
+                <div class="radio-option"><input type="radio" name="s-iol-place" id="ip-iris" value="Iris-claw" onchange="onIOLPlace('iris')"><label for="ip-iris">Iris-claw</label></div>
+                <div class="radio-option"><input type="radio" name="s-iol-place" id="ip-scler" value="Scleral fixation" onchange="onIOLPlace('scleral')"><label for="ip-scler">Scleral fixation</label></div>
+                <div class="radio-option"><input type="radio" name="s-iol-place" id="ip-ac" value="ACIOL" onchange="onIOLPlace('ac')"><label for="ip-ac">ACIOL</label></div>
+              </div>
+              <!-- BAG sub-options -->
+              <div id="iol-sub-bag" class="lens-status-section" style="padding:10px 0 0 2px">
+                <div class="flag-group">
+                  <div class="flag-option"><input type="checkbox" id="ip-ant-cap" value="Anterior capture"><label for="ip-ant-cap">Anterior Capture</label></div>
+                  <div class="flag-option"><input type="checkbox" id="ip-post-cap" value="Posterior capture"><label for="ip-post-cap">Posterior Capture</label></div>
+                </div>
+              </div>
+              <!-- SULCUS sub-options -->
+              <div id="iol-sub-sulcus" class="lens-status-section" style="padding:10px 0 0 2px">
+                <div class="flag-group">
+                  <div class="flag-option"><input type="checkbox" id="ip-optic-cap" value="Optic capture"><label for="ip-optic-cap">Optic Capture</label></div>
+                </div>
+              </div>
+              <!-- IRIS-CLAW sub-options -->
+              <div id="iol-sub-iris" class="lens-status-section" style="padding:10px 0 0 2px">
+                <div class="radio-group">
+                  <div class="radio-option"><input type="radio" name="s-iris-encl" id="ie-ant" value="Anterior enclavation"><label for="ie-ant">Anterior enclavation</label></div>
+                  <div class="radio-option"><input type="radio" name="s-iris-encl" id="ie-retro" value="Retropupillary enclavation"><label for="ie-retro">Retropupillary enclavation</label></div>
+                </div>
+              </div>
+              <!-- SCLERAL sub-options -->
+              <div id="iol-sub-scleral" class="lens-status-section" style="padding:10px 0 0 2px">
+                <div class="radio-group" style="margin-bottom:8px">
+                  <div class="radio-option"><input type="radio" name="s-scler-tech" id="st-sut" value="Sutures"><label for="st-sut">Sutures</label></div>
+                  <div class="radio-option"><input type="radio" name="s-scler-tech" id="st-tun" value="Scleral tunnel"><label for="st-tun">Scleral tunnel</label></div>
+                  <div class="radio-option"><input type="radio" name="s-scler-tech" id="st-fla" value="Flanging"><label for="st-fla">Flanging</label></div>
+                  <div class="radio-option"><input type="radio" name="s-scler-tech" id="st-yam" value="Yamane technique"><label for="st-yam">Yamane technique</label></div>
+                </div>
+                <div class="radio-group">
+                  <div class="radio-option"><input type="radio" name="s-scler-pts" id="scp-1" value="1-point"><label for="scp-1">1-point</label></div>
+                  <div class="radio-option"><input type="radio" name="s-scler-pts" id="scp-2" value="2-point"><label for="scp-2">2-point</label></div>
+                </div>
+              </div>
+            </div>
             <div class="form-group"><label>IOL Power (D)</label><input type="number" id="s-iol-power" step="0.5" placeholder="diopters"></div>
             <div class="form-group"><label>Target Refraction (D)</label><input type="number" id="s-target-ref" step="0.25" placeholder="diopters"></div>
             <div class="form-group"><label>Orientation</label><select id="s-orientation"><option value="">— Select —</option><option>Horizontal</option><option>Vertical</option><option>Oblique</option></select></div>
@@ -1257,7 +1289,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
                 <div class="bi-field"><label>Posterior Capsule</label><select id="f-aph-pc-od"><option value="">— Select —</option><option>Absent</option><option>Clear and intact</option><option>Opacified and intact</option><option>Open</option></select></div>
               </div>
               <div class="lens-status-section" id="fls-od-pse-section">
-                <div class="bi-field"><label>IOL Location</label><select id="f-iol-loc-od"><option value="">— Select —</option><option>Bag</option><option>Sulcus</option><option>Anterior enclavation iris-claw</option><option>Posterior enclavation iris-claw</option><option>Scleral fixation with sutures</option><option>Scleral fixation with tunnels</option><option>Scleral fixation with Hoffman pockets</option><option>Scleral fixation with Yamane technique</option><option>Scleral fixation with flanged technique</option></select></div>
+                <div class="bi-field"><label>IOL Location</label><select id="f-iol-loc-od"><option value="">— Select —</option><option>Bag</option><option>Sulcus</option><option>Iris-claw — anterior enclavation</option><option>Iris-claw — retropupillary enclavation</option><option>Scleral fixation — sutures</option><option>Scleral fixation — scleral tunnel</option><option>Scleral fixation — flanging</option><option>Scleral fixation — Yamane technique</option><option>ACIOL</option></select></div>
                 <div class="bi-field"><label>Posterior Capsule</label><select id="f-pse-pc-od"><option value="">— Select —</option><option>Absent</option><option>Clear and intact</option><option>Opacified and intact</option><option>Open</option></select></div>
                 <div class="bi-field"><label>Adequate Centration</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="f-centration-od" id="fcen-od-y" value="Yes" checked><label for="fcen-od-y">Yes</label></div><div class="radio-option"><input type="radio" name="f-centration-od" id="fcen-od-n" value="No"><label for="fcen-od-n">No</label></div></div></div>
                 <div class="bi-field"><label>Complications</label>
@@ -1354,7 +1386,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
                 <div class="bi-field"><label>Posterior Capsule</label><select id="f-aph-pc-os"><option value="">— Select —</option><option>Absent</option><option>Clear and intact</option><option>Opacified and intact</option><option>Open</option></select></div>
               </div>
               <div class="lens-status-section" id="fls-os-pse-section">
-                <div class="bi-field"><label>IOL Location</label><select id="f-iol-loc-os"><option value="">— Select —</option><option>Bag</option><option>Sulcus</option><option>Anterior enclavation iris-claw</option><option>Posterior enclavation iris-claw</option><option>Scleral fixation with sutures</option><option>Scleral fixation with tunnels</option><option>Scleral fixation with Hoffman pockets</option><option>Scleral fixation with Yamane technique</option><option>Scleral fixation with flanged technique</option></select></div>
+                <div class="bi-field"><label>IOL Location</label><select id="f-iol-loc-os"><option value="">— Select —</option><option>Bag</option><option>Sulcus</option><option>Iris-claw — anterior enclavation</option><option>Iris-claw — retropupillary enclavation</option><option>Scleral fixation — sutures</option><option>Scleral fixation — scleral tunnel</option><option>Scleral fixation — flanging</option><option>Scleral fixation — Yamane technique</option><option>ACIOL</option></select></div>
                 <div class="bi-field"><label>Posterior Capsule</label><select id="f-pse-pc-os"><option value="">— Select —</option><option>Absent</option><option>Clear and intact</option><option>Opacified and intact</option><option>Open</option></select></div>
                 <div class="bi-field"><label>Adequate Centration</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="f-centration-os" id="fcen-os-y" value="Yes" checked><label for="fcen-os-y">Yes</label></div><div class="radio-option"><input type="radio" name="f-centration-os" id="fcen-os-n" value="No"><label for="fcen-os-n">No</label></div></div></div>
                 <div class="bi-field"><label>Complications</label>
@@ -1769,7 +1801,16 @@ async function submitSurgery(e){
   const btn=document.getElementById('surgery-submit-btn');
   const eye=document.querySelector('input[name="s-eye"]:checked');
   const iol=document.querySelector('input[name="iol-yn"]:checked');
-  const row={ID:'OP'+Date.now(),PID:document.getElementById('s-pid').value||ACTIVE_PATIENT?.PID||'',DateOfOp:document.getElementById('s-date').value,Eye:eye?eye.value:'',OperationName:document.getElementById('s-optype').value,ScleralPoints:(()=>{const el=document.querySelector('input[name="s-scleral-pts"]:checked');return el?el.value:'';})(),IOL:iol?iol.value:'',AnteriorCapsule:document.getElementById('s-ant-cap').value,PosteriorCapsule:document.getElementById('s-post-cap').value,CapsuleStain:document.getElementById('s-cap-stain').checked?'Yes':'No',Viscoelastic:document.getElementById('s-visco').value,AnteriorVitrectomy:document.getElementById('s-ant-vit').value,PeriphIridectomy:(()=>{const el=document.querySelector('input[name="s-periph-irid"]:checked');return el?el.value:'No';})(),SutureMainWound:(()=>{const el=document.querySelector('input[name="s-suture-main"]:checked');return el?el.value:'Yes';})(),SutureSidePorts:(()=>{const el=document.querySelector('input[name="s-suture-side"]:checked');return el?el.value:'Yes';})(),Membranectomy:document.getElementById('sp-memb').checked?'Yes':'No',Iridectomy:document.getElementById('sp-irid').checked?'Yes':'No',IrisInjury:document.getElementById('sp-iris-inj').checked?'Yes':'No',Sphincterinjury:document.getElementById('sp-sphinc').checked?'Yes':'No',Synechiolysis:document.getElementById('sp-syn').checked?'Yes':'No',IrisReconstruction:document.getElementById('sp-iris-rec').checked?'Yes':'No',IrisManipulations:document.getElementById('sp-iris-man').checked?'Yes':'No',Hyphaema:document.getElementById('sp-hyph').checked?'Yes':'No',DroppedCortex:document.getElementById('sp-drop-cortex').checked?'Yes':'No',DroppedIOL:document.getElementById('sp-drop-iol').checked?'Yes':'No',VitreousHaemorrhage:document.getElementById('sp-vit-haem').checked?'Yes':'No',OtherComplications:document.getElementById('s-complications').value,IOLType:document.getElementById('s-iol-type').value,IOLPlace:document.getElementById('s-iol-place').value,IOLPower:document.getElementById('s-iol-power').value,TargetRefraction:document.getElementById('s-target-ref').value,Orientation:document.getElementById('s-orientation').value,Steroids:document.getElementById('s-steroids').checked?'Yes':'No',Atropine:document.getElementById('s-atropine').checked?'Yes':'No',Route:document.getElementById('s-route').value,Medications:document.getElementById('s-meds').value,Examiner:document.getElementById('s-examiner').value,Duration:document.getElementById('s-duration').value,Comments:document.getElementById('s-comments').value,EntryDate:today()};
+  const row={ID:'OP'+Date.now(),PID:document.getElementById('s-pid').value||ACTIVE_PATIENT?.PID||'',DateOfOp:document.getElementById('s-date').value,Eye:eye?eye.value:'',OperationName:document.getElementById('s-optype').value,ScleralPoints:(()=>{const el=document.querySelector('input[name="s-scleral-pts"]:checked');return el?el.value:'';})(),IOL:iol?iol.value:'',AnteriorCapsule:document.getElementById('s-ant-cap').value,PosteriorCapsule:document.getElementById('s-post-cap').value,CapsuleStain:document.getElementById('s-cap-stain').checked?'Yes':'No',Viscoelastic:document.getElementById('s-visco').value,AnteriorVitrectomy:document.getElementById('s-ant-vit').value,PeriphIridectomy:(()=>{const el=document.querySelector('input[name="s-periph-irid"]:checked');return el?el.value:'No';})(),SutureMainWound:(()=>{const el=document.querySelector('input[name="s-suture-main"]:checked');return el?el.value:'Yes';})(),SutureSidePorts:(()=>{const el=document.querySelector('input[name="s-suture-side"]:checked');return el?el.value:'Yes';})(),Membranectomy:document.getElementById('sp-memb').checked?'Yes':'No',Iridectomy:document.getElementById('sp-irid').checked?'Yes':'No',IrisInjury:document.getElementById('sp-iris-inj').checked?'Yes':'No',Sphincterinjury:document.getElementById('sp-sphinc').checked?'Yes':'No',Synechiolysis:document.getElementById('sp-syn').checked?'Yes':'No',IrisReconstruction:document.getElementById('sp-iris-rec').checked?'Yes':'No',IrisManipulations:document.getElementById('sp-iris-man').checked?'Yes':'No',Hyphaema:document.getElementById('sp-hyph').checked?'Yes':'No',DroppedCortex:document.getElementById('sp-drop-cortex').checked?'Yes':'No',DroppedIOL:document.getElementById('sp-drop-iol').checked?'Yes':'No',VitreousHaemorrhage:document.getElementById('sp-vit-haem').checked?'Yes':'No',OtherComplications:document.getElementById('s-complications').value,IOLType:document.getElementById('s-iol-type').value,
+    IOLPlace:(()=>{const el=document.querySelector('input[name="s-iol-place"]:checked');return el?el.value:''})(),
+    IOLPlaceDetails:(()=>{
+      const place=document.querySelector('input[name="s-iol-place"]:checked')?.value||'';
+      if(place==='Bag'){const caps=[]; if(document.getElementById('ip-ant-cap')?.checked)caps.push('Anterior capture'); if(document.getElementById('ip-post-cap')?.checked)caps.push('Posterior capture'); return caps.join(', ');}
+      if(place==='Sulcus'){return document.getElementById('ip-optic-cap')?.checked?'Optic capture':'';}
+      if(place==='Iris-claw'){const el=document.querySelector('input[name="s-iris-encl"]:checked');return el?el.value:'';}
+      if(place==='Scleral fixation'){const tech=document.querySelector('input[name="s-scler-tech"]:checked')?.value||''; const pts=document.querySelector('input[name="s-scler-pts"]:checked')?.value||''; return [tech,pts].filter(Boolean).join(' — ');}
+      return '';
+    })(),IOLPower:document.getElementById('s-iol-power').value,TargetRefraction:document.getElementById('s-target-ref').value,Orientation:document.getElementById('s-orientation').value,Steroids:document.getElementById('s-steroids').checked?'Yes':'No',Atropine:document.getElementById('s-atropine').checked?'Yes':'No',Route:document.getElementById('s-route').value,Medications:document.getElementById('s-meds').value,Examiner:document.getElementById('s-examiner').value,Duration:document.getElementById('s-duration').value,Comments:document.getElementById('s-comments').value,EntryDate:today()};
   DB.operations.push(row);
   showToast('Operation saved ✓','success');
   document.getElementById('surgery-form').reset();
@@ -2226,6 +2267,15 @@ function onOptypeChange(){
   const isScleral = val.toLowerCase().includes('scleral');
   const wrap = document.getElementById('scleral-points-wrap');
   if(wrap) wrap.style.display = isScleral ? 'block' : 'none';
+}
+
+
+// ─── IOL PLACEMENT TOGGLE ───
+function onIOLPlace(type){
+  ['bag','sulcus','iris','scleral'].forEach(t=>{
+    const el = document.getElementById('iol-sub-'+t);
+    if(el) el.classList.toggle('visible', t===type);
+  });
 }
 
 // ─── MOBILE SIDEBAR ───
