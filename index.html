@@ -2046,17 +2046,17 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
     </div>
     <div class="tab-bar">
       <button class="tab-btn active" onclick="switchTab('tab-demo',this)">Demographics</button>
+      <button class="tab-btn" onclick="switchTab('tab-hist',this)">History</button>
       <button class="tab-btn" onclick="switchTab('tab-exams',this)">Examinations</button>
       <button class="tab-btn" onclick="switchTab('tab-ops',this)">Operations</button>
       <button class="tab-btn" onclick="switchTab('tab-fups',this)">Follow-ups</button>
-      <button class="tab-btn" onclick="switchTab('tab-hist',this)">History</button>
       <button class="tab-btn" onclick="switchTab('tab-images',this)">Images</button>
     </div>
     <div id="tab-demo" class="tab-panel active"></div>
+    <div id="tab-hist" class="tab-panel"></div>
     <div id="tab-exams" class="tab-panel"></div>
     <div id="tab-ops" class="tab-panel"></div>
     <div id="tab-fups" class="tab-panel"></div>
-    <div id="tab-hist" class="tab-panel"></div>
     <div id="tab-images" class="tab-panel"></div>
   </div>
 </div>
@@ -3289,22 +3289,18 @@ function openImagesTab(pid){
   currentImagePID = pid;
   const tab = document.getElementById('tab-images');
   if(!tab) return;
-  tab.innerHTML = `
-    <div style="margin-bottom:12px">
-      <div class="upload-zone" id="upload-zone-${pid}"
-        onclick="document.getElementById('img-file-${pid}').click()"
-        ondragover="event.preventDefault();this.classList.add('drag-over')"
-        ondragleave="this.classList.remove('drag-over')"
-        ondrop="handleImageDrop(event,'${pid}')">
-        <input type="file" id="img-file-${pid}" accept="image/*" multiple style="display:none"
-          onchange="onFilesChosen(event,'${pid}')">
-        <div class="upload-zone-icon">📷</div>
-        <div class="upload-zone-text">Tap to upload a photo</div>
-        <div class="upload-zone-sub">Choose from gallery, camera or hard disc</div>
-      </div>
-    </div>
-    <div class="image-grid" id="image-grid-${pid}"></div>`;
-  renderImages(pid);
+  const imgs = getStoredImages(pid);
+  if(!imgs.length){
+    tab.innerHTML = '<div class="empty-state" style="padding:30px"><div class="empty-icon">🖼️</div><h3>No images</h3><p>Upload photos from the Upload Images section in the sidebar.</p></div>';
+    return;
+  }
+  tab.innerHTML = `<div class="image-grid" style="margin-top:4px">${
+    imgs.map(img => `
+      <div class="image-thumb">
+        <img src="${img.dataUrl}" onclick="openLightbox('${img.dataUrl}')" alt="${img.desc||img.name}">
+        <div class="image-thumb-label" title="${img.desc||img.name}">${img.desc||img.name}</div>
+      </div>`).join('')
+  }</div>`;
 }
 
 function renderImages(pid){
