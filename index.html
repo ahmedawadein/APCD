@@ -691,7 +691,6 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
               <!-- CATARACT section -->
               <div class="lens-status-section" id="ls-od-cat-section">
                 <div class="bi-field"><label>Lens Morphology</label><div id="e-morph-widget-od"></div></div>
-                <div class="bi-field"><label>Cataract Location</label><select id="e-cat-loc-od"><option value="">— Select —</option><option>Total</option><option>Nuclear</option><option>Cortical</option><option>Posterior Subcapsular</option><option>Anterior Polar</option><option>Posterior Polar</option><option>Lamellar</option></select></div>
               </div>
               <!-- SUBLUXATION — shown for Cataract and Clear lens -->
               <div class="lens-status-section" id="ls-od-sub-section">
@@ -795,7 +794,6 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
               <!-- CATARACT section -->
               <div class="lens-status-section" id="ls-os-cat-section">
                 <div class="bi-field"><label>Lens Morphology</label><div id="e-morph-widget-os"></div></div>
-                <div class="bi-field"><label>Cataract Location</label><select id="e-cat-loc-os"><option value="">— Select —</option><option>Total</option><option>Nuclear</option><option>Cortical</option><option>Posterior Subcapsular</option><option>Anterior Polar</option><option>Posterior Polar</option><option>Lamellar</option></select></div>
               </div>
               <!-- SUBLUXATION — shown for Cataract and Clear lens -->
               <div class="lens-status-section" id="ls-os-sub-section">
@@ -940,7 +938,11 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
             <div class="form-group"><label>Family History</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-fhx"><label for="e-fhx">Present</label></div></div></div>
             <div class="form-group span-2"><label>Family History Details</label><input type="text" id="e-fhx-desc"></div>
           </div>
-          <div class="form-group span-full" style="margin-top:12px"><label>Comments</label><textarea id="e-comments"></textarea></div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">Comments</div>
+          <div class="form-group"><textarea id="e-comments" placeholder="Any additional clinical notes…" style="min-height:90px"></textarea></div>
         </div>
 
         <div class="form-actions">
@@ -1000,7 +1002,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
             <div class="flag-option"><input type="checkbox" id="sp-drop-iol"><label for="sp-drop-iol">Dropped IOL</label></div>
             <div class="flag-option"><input type="checkbox" id="sp-vit-haem"><label for="sp-vit-haem">Vitreous Haemorrhage</label></div>
           </div>
-          <div class="form-group" style="margin-top:12px"><label>Other Complications / Notes</label><textarea id="s-complications"></textarea></div>
+          <div class="form-group" style="margin-top:12px"><label>Other Complications</label><textarea id="s-complications" placeholder="Any additional intraoperative complications…"></textarea></div>
         </div>
 
         <div class="form-card">
@@ -1013,6 +1015,11 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
             <div class="form-group"><label>Target Refraction (D)</label><input type="number" id="s-target-ref" step="0.25" placeholder="diopters"></div>
             <div class="form-group"><label>Orientation</label><select id="s-orientation"><option value="">— Select —</option><option>Horizontal</option><option>Vertical</option><option>Oblique</option></select></div>
           </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">Comments</div>
+          <div class="form-group"><textarea id="s-comments" placeholder="Any additional notes about this operation…" style="min-height:90px"></textarea></div>
         </div>
 
         <div class="form-actions">
@@ -1097,7 +1104,6 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
               </div>
               <div class="lens-status-section" id="fls-od-cat-section">
                 <div class="bi-field"><label>Lens Morphology</label><div id="f-morph-widget-od"></div></div>
-                <div class="bi-field"><label>Cataract Location</label><select id="f-cat-loc-od"><option value="">— Select —</option><option>Total</option><option>Nuclear</option><option>Cortical</option><option>Posterior Subcapsular</option><option>Anterior Polar</option><option>Posterior Polar</option><option>Lamellar</option></select></div>
               </div>
               <!-- SHARED: shown for Cataract and Clear lens -->
               <div class="lens-status-section" id="fls-od-shared-section">
@@ -1195,7 +1201,6 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
               </div>
               <div class="lens-status-section" id="fls-os-cat-section">
                 <div class="bi-field"><label>Lens Morphology</label><div id="f-morph-widget-os"></div></div>
-                <div class="bi-field"><label>Cataract Location</label><select id="f-cat-loc-os"><option value="">— Select —</option><option>Total</option><option>Nuclear</option><option>Cortical</option><option>Posterior Subcapsular</option><option>Anterior Polar</option><option>Posterior Polar</option><option>Lamellar</option></select></div>
               </div>
               <!-- SHARED: shown for Cataract and Clear lens -->
               <div class="lens-status-section" id="fls-os-shared-section">
@@ -1325,7 +1330,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
 
         <div class="form-card">
           <div class="form-card-title">Comments</div>
-          <div class="form-group"><textarea id="f-comments" placeholder="Additional clinical notes for this visit…"></textarea></div>
+          <div class="form-group"><textarea id="f-comments" placeholder="Any additional clinical notes for this visit…" style="min-height:90px"></textarea></div>
         </div>
 
         <div class="form-actions">
@@ -1616,7 +1621,6 @@ async function submitExamination(e){
     IOP_OD:g('e-iop-od').value,PupilBefore_OD:g('e-pupilbefore-od').value,
     LensStatus_OD:r('e-lens-status-od'),
     LensMorphology_OD:getMorphValues('od','exam'),
-    CataractLocation_OD:g('e-cat-loc-od')?.value||'',
     Subluxation_OD:r('e-sub-od'),SubluxationGrade_OD:g('e-sub-grade-od')?.value||'',
     SubluxationDeg_OD:g('e-sub-deg-od')?.value||'',SubluxationLoc_OD:g('e-sub-loc-od')?.value||'',
     Spherophakia_OD:r('e-sph-od'),SpherophakiaDetails_OD:g('e-sph-od-details-text')?.value||'',
@@ -1638,7 +1642,6 @@ async function submitExamination(e){
     IOP_OS:g('e-iop-os').value,PupilBefore_OS:g('e-pupilbefore-os').value,
     LensStatus_OS:r('e-lens-status-os'),
     LensMorphology_OS:getMorphValues('os','exam'),
-    CataractLocation_OS:g('e-cat-loc-os')?.value||'',
     Subluxation_OS:r('e-sub-os'),SubluxationGrade_OS:g('e-sub-grade-os')?.value||'',
     SubluxationDeg_OS:g('e-sub-deg-os')?.value||'',SubluxationLoc_OS:g('e-sub-loc-os')?.value||'',
     Spherophakia_OS:r('e-sph-os'),SpherophakiaDetails_OS:g('e-sph-os-details-text')?.value||'',
@@ -1671,7 +1674,7 @@ async function submitSurgery(e){
   const btn=document.getElementById('surgery-submit-btn');
   const eye=document.querySelector('input[name="s-eye"]:checked');
   const iol=document.querySelector('input[name="iol-yn"]:checked');
-  const row={ID:'OP'+Date.now(),PID:document.getElementById('s-pid').value||ACTIVE_PATIENT?.PID||'',DateOfOp:document.getElementById('s-date').value,Eye:eye?eye.value:'',OperationName:document.getElementById('s-optype').value,IOL:iol?iol.value:'',AnteriorCapsule:document.getElementById('s-ant-cap').value,PosteriorCapsule:document.getElementById('s-post-cap').value,CapsuleStain:document.getElementById('s-cap-stain').checked?'Yes':'No',Viscoelastic:document.getElementById('s-visco').value,AnteriorVitrectomy:document.getElementById('s-ant-vit').value,Membranectomy:document.getElementById('sp-memb').checked?'Yes':'No',Iridectomy:document.getElementById('sp-irid').checked?'Yes':'No',IrisInjury:document.getElementById('sp-iris-inj').checked?'Yes':'No',Sphincterinjury:document.getElementById('sp-sphinc').checked?'Yes':'No',Synechiolysis:document.getElementById('sp-syn').checked?'Yes':'No',IrisReconstruction:document.getElementById('sp-iris-rec').checked?'Yes':'No',IrisManipulations:document.getElementById('sp-iris-man').checked?'Yes':'No',Hyphaema:document.getElementById('sp-hyph').checked?'Yes':'No',DroppedCortex:document.getElementById('sp-drop-cortex').checked?'Yes':'No',DroppedIOL:document.getElementById('sp-drop-iol').checked?'Yes':'No',VitreousHaemorrhage:document.getElementById('sp-vit-haem').checked?'Yes':'No',OtherComplications:document.getElementById('s-complications').value,IOLType:document.getElementById('s-iol-type').value,IOLPlace:document.getElementById('s-iol-place').value,IOLPower:document.getElementById('s-iol-power').value,TargetRefraction:document.getElementById('s-target-ref').value,Orientation:document.getElementById('s-orientation').value,Steroids:document.getElementById('s-steroids').checked?'Yes':'No',Atropine:document.getElementById('s-atropine').checked?'Yes':'No',Route:document.getElementById('s-route').value,Medications:document.getElementById('s-meds').value,Examiner:document.getElementById('s-examiner').value,Duration:document.getElementById('s-duration').value,EntryDate:today()};
+  const row={ID:'OP'+Date.now(),PID:document.getElementById('s-pid').value||ACTIVE_PATIENT?.PID||'',DateOfOp:document.getElementById('s-date').value,Eye:eye?eye.value:'',OperationName:document.getElementById('s-optype').value,IOL:iol?iol.value:'',AnteriorCapsule:document.getElementById('s-ant-cap').value,PosteriorCapsule:document.getElementById('s-post-cap').value,CapsuleStain:document.getElementById('s-cap-stain').checked?'Yes':'No',Viscoelastic:document.getElementById('s-visco').value,AnteriorVitrectomy:document.getElementById('s-ant-vit').value,Membranectomy:document.getElementById('sp-memb').checked?'Yes':'No',Iridectomy:document.getElementById('sp-irid').checked?'Yes':'No',IrisInjury:document.getElementById('sp-iris-inj').checked?'Yes':'No',Sphincterinjury:document.getElementById('sp-sphinc').checked?'Yes':'No',Synechiolysis:document.getElementById('sp-syn').checked?'Yes':'No',IrisReconstruction:document.getElementById('sp-iris-rec').checked?'Yes':'No',IrisManipulations:document.getElementById('sp-iris-man').checked?'Yes':'No',Hyphaema:document.getElementById('sp-hyph').checked?'Yes':'No',DroppedCortex:document.getElementById('sp-drop-cortex').checked?'Yes':'No',DroppedIOL:document.getElementById('sp-drop-iol').checked?'Yes':'No',VitreousHaemorrhage:document.getElementById('sp-vit-haem').checked?'Yes':'No',OtherComplications:document.getElementById('s-complications').value,IOLType:document.getElementById('s-iol-type').value,IOLPlace:document.getElementById('s-iol-place').value,IOLPower:document.getElementById('s-iol-power').value,TargetRefraction:document.getElementById('s-target-ref').value,Orientation:document.getElementById('s-orientation').value,Steroids:document.getElementById('s-steroids').checked?'Yes':'No',Atropine:document.getElementById('s-atropine').checked?'Yes':'No',Route:document.getElementById('s-route').value,Medications:document.getElementById('s-meds').value,Examiner:document.getElementById('s-examiner').value,Duration:document.getElementById('s-duration').value,Comments:document.getElementById('s-comments').value,EntryDate:today()};
   DB.operations.push(row);
   showToast('Operation saved ✓','success');
   document.getElementById('surgery-form').reset();
@@ -1697,7 +1700,7 @@ async function submitFollowup(e){
     CCT_OD:g('f-cct-od').value,
     Iris_OD:r('f-iris-od'),IrisDesc_OD:g('f-iris-desc-od').value,
     Pupil_OD:r('f-pupil-od'),PupilDesc_OD:g('f-pupil-desc-od').value,
-    LensStatus_OD:r('f-lens-status-od'),LensMorphology_OD:getMorphValues('od','fup'),CataractLoc_OD:g('f-cat-loc-od')?.value||'',Subluxation_OD:r('f-sub-od'),SubluxGrade_OD:g('f-sub-grade-od')?.value||'',SubluxDeg_OD:g('f-sub-deg-od')?.value||'',SubluxLoc_OD:g('f-sub-loc-od')?.value||'',
+    LensStatus_OD:r('f-lens-status-od'),LensMorphology_OD:getMorphValues('od','fup'),Subluxation_OD:r('f-sub-od'),SubluxGrade_OD:g('f-sub-grade-od')?.value||'',SubluxDeg_OD:g('f-sub-deg-od')?.value||'',SubluxLoc_OD:g('f-sub-loc-od')?.value||'',
     Spherophakia_OD:r('f-sph-od'),AntLenticonus_OD:r('f-ant-lent-od'),PostLenticonus_OD:r('f-post-lent-od'),PHPV_OD:r('f-phpv-od'),PPCD_OD:r('f-ppcd-od'),
     AphakiaPC_OD:g('f-aph-pc-od')?.value||'',IOLLocation_OD:g('f-iol-loc-od')?.value||'',PseudophakiaPC_OD:g('f-pse-pc-od')?.value||'',IOLCentration_OD:r('f-centration-od'),IOLComplications_OD:getIOLComps('fls','od'),
     Opacification_OD:g('f-opacification-od').value,
@@ -1711,7 +1714,7 @@ async function submitFollowup(e){
     CCT_OS:g('f-cct-os').value,
     Iris_OS:r('f-iris-os'),IrisDesc_OS:g('f-iris-desc-os').value,
     Pupil_OS:r('f-pupil-os'),PupilDesc_OS:g('f-pupil-desc-os').value,
-    LensStatus_OS:r('f-lens-status-os'),LensMorphology_OS:getMorphValues('os','fup'),CataractLoc_OS:g('f-cat-loc-os')?.value||'',Subluxation_OS:r('f-sub-os'),SubluxGrade_OS:g('f-sub-grade-os')?.value||'',SubluxDeg_OS:g('f-sub-deg-os')?.value||'',SubluxLoc_OS:g('f-sub-loc-os')?.value||'',
+    LensStatus_OS:r('f-lens-status-os'),LensMorphology_OS:getMorphValues('os','fup'),Subluxation_OS:r('f-sub-os'),SubluxGrade_OS:g('f-sub-grade-os')?.value||'',SubluxDeg_OS:g('f-sub-deg-os')?.value||'',SubluxLoc_OS:g('f-sub-loc-os')?.value||'',
     Spherophakia_OS:r('f-sph-os'),AntLenticonus_OS:r('f-ant-lent-os'),PostLenticonus_OS:r('f-post-lent-os'),PHPV_OS:r('f-phpv-os'),PPCD_OS:r('f-ppcd-os'),
     AphakiaPC_OS:g('f-aph-pc-os')?.value||'',IOLLocation_OS:g('f-iol-loc-os')?.value||'',PseudophakiaPC_OS:g('f-pse-pc-os')?.value||'',IOLCentration_OS:r('f-centration-os'),IOLComplications_OS:getIOLComps('fls','os'),
     Opacification_OS:g('f-opacification-os').value,
