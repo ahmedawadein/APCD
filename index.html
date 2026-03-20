@@ -504,18 +504,67 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
               <div class="lens-status-section" id="ls-od-cat-section">
                 <div class="bi-field"><label>Lens Morphology</label><div id="e-morph-widget-od"></div></div>
                 <div class="bi-field"><label>Cataract Location</label><select id="e-cat-loc-od"><option value="">— Select —</option><option>Total</option><option>Nuclear</option><option>Cortical</option><option>Posterior Subcapsular</option><option>Anterior Polar</option><option>Posterior Polar</option><option>Lamellar</option></select></div>
-                <div class="bi-field"><label>Spherophakia</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-sph-od"><label for="e-sph-od">Present</label></div></div></div>
-                <div class="bi-field"><label>Lenticonus</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-lent-od"><label for="e-lent-od">Present</label></div></div></div>
-                <div class="bi-field"><label>PHPV</label><select id="e-phpv-od"><option value="Absent">Absent</option><option value="Anterior">Anterior</option><option value="Posterior">Posterior</option><option value="Combined">Combined</option></select></div>
-                <div class="bi-field"><label>PHPV Type</label><input type="text" id="e-phpv-type-od"></div>
               </div>
               <!-- SUBLUXATION — shown for Cataract and Clear lens -->
               <div class="lens-status-section" id="ls-od-sub-section">
                 <div class="bi-field"><label>Subluxation</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-sub-od" id="sub-od-n" value="No" checked onchange="toggleConditional('e-sub-od','Yes','e-sub-details-od')"><label for="sub-od-n">No</label></div><div class="radio-option"><input type="radio" name="e-sub-od" id="sub-od-y" value="Yes" onchange="toggleConditional('e-sub-od','Yes','e-sub-details-od')"><label for="sub-od-y">Yes</label></div></div></div>
                 <div class="bi-field cond-field disabled" id="e-sub-details-od">
-                  <div class="bi-field"><label>Subluxation Grade</label><input type="text" id="e-sub-grade-od"></div>
+                  <div class="bi-field"><label>Subluxation Grade</label><select id="e-sub-grade-od"><option value="">— Select —</option><option>Subtle</option><option>Mild (&lt;90 degrees)</option><option>Moderate (90–180 degrees)</option><option>Severe (&gt;180 degrees)</option></select></div>
                   <div class="bi-field"><label>Subluxation Degrees</label><input type="number" id="e-sub-deg-od" min="0" max="360" placeholder="°"></div>
                   <div class="bi-field"><label>Subluxation Location</label><input type="text" id="e-sub-loc-od" placeholder="e.g. superonasal"></div>
+                </div>
+              </div>
+              <!-- SHARED: shown for Cataract and Clear lens -->
+              <div class="lens-status-section" id="els-od-shared-section">
+                <div class="bi-field">
+                  <label>Spherophakia</label>
+                  <div class="bi-radio radio-group">
+                    <div class="radio-option"><input type="radio" name="e-sph-od" id="e-sph-od-ab" value="Absent" checked onchange="toggleConditional('e-sph-od','Present','e-sph-od-details')"><label for="e-sph-od-ab">Absent</label></div>
+                    <div class="radio-option"><input type="radio" name="e-sph-od" id="e-sph-od-pr" value="Present" onchange="toggleConditional('e-sph-od','Present','e-sph-od-details')"><label for="e-sph-od-pr">Present</label></div>
+                  </div>
+                  <div class="bi-field cond-field disabled" id="e-sph-od-details">
+                    <input type="text" id="e-sph-od-detail-text" placeholder="Details (optional)…" style="margin-top:4px">
+                  </div>
+                </div>
+                <div class="bi-field">
+                  <label>Anterior Lenticonus</label>
+                  <div class="bi-radio radio-group">
+                    <div class="radio-option"><input type="radio" name="e-ant-lent-od" id="e-ant-lent-od-ab" value="Absent" checked onchange="toggleConditional('e-ant-lent-od','Present','e-ant-lent-od-details')"><label for="e-ant-lent-od-ab">Absent</label></div>
+                    <div class="radio-option"><input type="radio" name="e-ant-lent-od" id="e-ant-lent-od-pr" value="Present" onchange="toggleConditional('e-ant-lent-od','Present','e-ant-lent-od-details')"><label for="e-ant-lent-od-pr">Present</label></div>
+                  </div>
+                  <div class="bi-field cond-field disabled" id="e-ant-lent-od-details">
+                    <input type="text" id="e-ant-lent-od-detail-text" placeholder="Details (optional)…" style="margin-top:4px">
+                  </div>
+                </div>
+                <div class="bi-field">
+                  <label>Posterior Lenticonus</label>
+                  <div class="bi-radio radio-group">
+                    <div class="radio-option"><input type="radio" name="e-post-lent-od" id="e-post-lent-od-ab" value="Absent" checked onchange="toggleConditional('e-post-lent-od','Present','e-post-lent-od-details')"><label for="e-post-lent-od-ab">Absent</label></div>
+                    <div class="radio-option"><input type="radio" name="e-post-lent-od" id="e-post-lent-od-pr" value="Present" onchange="toggleConditional('e-post-lent-od','Present','e-post-lent-od-details')"><label for="e-post-lent-od-pr">Present</label></div>
+                  </div>
+                  <div class="bi-field cond-field disabled" id="e-post-lent-od-details">
+                    <input type="text" id="e-post-lent-od-detail-text" placeholder="Details (optional)…" style="margin-top:4px">
+                  </div>
+                </div>
+                <div class="bi-field">
+                  <label>PHPV</label>
+                  <div class="bi-radio radio-group">
+                    <div class="radio-option"><input type="radio" name="e-phpv-od" id="e-phpv-od-ab" value="Absent" checked onchange="toggleConditional('e-phpv-od','Present','e-phpv-od-details')"><label for="e-phpv-od-ab">Absent</label></div>
+                    <div class="radio-option"><input type="radio" name="e-phpv-od" id="e-phpv-od-pr" value="Present" onchange="toggleConditional('e-phpv-od','Present','e-phpv-od-details')"><label for="e-phpv-od-pr">Present</label></div>
+                  </div>
+                  <div class="bi-field cond-field disabled" id="e-phpv-od-details">
+                    <input type="text" id="e-phpv-od-detail-text" placeholder="Details (optional)…" style="margin-top:4px">
+                  </div>
+                </div>
+                <div class="bi-field">
+                  <label>Pre-existing Posterior Capsular Defect</label>
+                  <div class="bi-radio radio-group">
+                    <div class="radio-option"><input type="radio" name="e-ppcd-od" id="e-ppcd-od-ab" value="Absent" checked onchange="toggleConditional('e-ppcd-od','Present','e-ppcd-od-details')"><label for="e-ppcd-od-ab">Absent</label></div>
+                    <div class="radio-option"><input type="radio" name="e-ppcd-od" id="e-ppcd-od-pr" value="Present" onchange="toggleConditional('e-ppcd-od','Present','e-ppcd-od-details')"><label for="e-ppcd-od-pr">Present</label></div>
+                  </div>
+                  <div class="bi-field cond-field disabled" id="e-ppcd-od-details">
+                    <input type="text" id="e-ppcd-od-detail-text" placeholder="Details (optional)…" style="margin-top:4px">
+                  </div>
                 </div>
               </div>
               <!-- APHAKIA section -->
@@ -559,18 +608,67 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
               <div class="lens-status-section" id="ls-os-cat-section">
                 <div class="bi-field"><label>Lens Morphology</label><div id="e-morph-widget-os"></div></div>
                 <div class="bi-field"><label>Cataract Location</label><select id="e-cat-loc-os"><option value="">— Select —</option><option>Total</option><option>Nuclear</option><option>Cortical</option><option>Posterior Subcapsular</option><option>Anterior Polar</option><option>Posterior Polar</option><option>Lamellar</option></select></div>
-                <div class="bi-field"><label>Spherophakia</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-sph-os"><label for="e-sph-os">Present</label></div></div></div>
-                <div class="bi-field"><label>Lenticonus</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-lent-os"><label for="e-lent-os">Present</label></div></div></div>
-                <div class="bi-field"><label>PHPV</label><select id="e-phpv-os"><option value="Absent">Absent</option><option value="Anterior">Anterior</option><option value="Posterior">Posterior</option><option value="Combined">Combined</option></select></div>
-                <div class="bi-field"><label>PHPV Type</label><input type="text" id="e-phpv-type-os"></div>
               </div>
               <!-- SUBLUXATION — shown for Cataract and Clear lens -->
               <div class="lens-status-section" id="ls-os-sub-section">
                 <div class="bi-field"><label>Subluxation</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-sub-os" id="sub-os-n" value="No" checked onchange="toggleConditional('e-sub-os','Yes','e-sub-details-os')"><label for="sub-os-n">No</label></div><div class="radio-option"><input type="radio" name="e-sub-os" id="sub-os-y" value="Yes" onchange="toggleConditional('e-sub-os','Yes','e-sub-details-os')"><label for="sub-os-y">Yes</label></div></div></div>
                 <div class="bi-field cond-field disabled" id="e-sub-details-os">
-                  <div class="bi-field"><label>Subluxation Grade</label><input type="text" id="e-sub-grade-os"></div>
+                  <div class="bi-field"><label>Subluxation Grade</label><select id="e-sub-grade-os"><option value="">— Select —</option><option>Subtle</option><option>Mild (&lt;90 degrees)</option><option>Moderate (90–180 degrees)</option><option>Severe (&gt;180 degrees)</option></select></div>
                   <div class="bi-field"><label>Subluxation Degrees</label><input type="number" id="e-sub-deg-os" min="0" max="360" placeholder="°"></div>
                   <div class="bi-field"><label>Subluxation Location</label><input type="text" id="e-sub-loc-os" placeholder="e.g. superonasal"></div>
+                </div>
+              </div>
+              <!-- SHARED: shown for Cataract and Clear lens -->
+              <div class="lens-status-section" id="els-os-shared-section">
+                <div class="bi-field">
+                  <label>Spherophakia</label>
+                  <div class="bi-radio radio-group">
+                    <div class="radio-option"><input type="radio" name="e-sph-os" id="e-sph-os-ab" value="Absent" checked onchange="toggleConditional('e-sph-os','Present','e-sph-os-details')"><label for="e-sph-os-ab">Absent</label></div>
+                    <div class="radio-option"><input type="radio" name="e-sph-os" id="e-sph-os-pr" value="Present" onchange="toggleConditional('e-sph-os','Present','e-sph-os-details')"><label for="e-sph-os-pr">Present</label></div>
+                  </div>
+                  <div class="bi-field cond-field disabled" id="e-sph-os-details">
+                    <input type="text" id="e-sph-os-detail-text" placeholder="Details (optional)…" style="margin-top:4px">
+                  </div>
+                </div>
+                <div class="bi-field">
+                  <label>Anterior Lenticonus</label>
+                  <div class="bi-radio radio-group">
+                    <div class="radio-option"><input type="radio" name="e-ant-lent-os" id="e-ant-lent-os-ab" value="Absent" checked onchange="toggleConditional('e-ant-lent-os','Present','e-ant-lent-os-details')"><label for="e-ant-lent-os-ab">Absent</label></div>
+                    <div class="radio-option"><input type="radio" name="e-ant-lent-os" id="e-ant-lent-os-pr" value="Present" onchange="toggleConditional('e-ant-lent-os','Present','e-ant-lent-os-details')"><label for="e-ant-lent-os-pr">Present</label></div>
+                  </div>
+                  <div class="bi-field cond-field disabled" id="e-ant-lent-os-details">
+                    <input type="text" id="e-ant-lent-os-detail-text" placeholder="Details (optional)…" style="margin-top:4px">
+                  </div>
+                </div>
+                <div class="bi-field">
+                  <label>Posterior Lenticonus</label>
+                  <div class="bi-radio radio-group">
+                    <div class="radio-option"><input type="radio" name="e-post-lent-os" id="e-post-lent-os-ab" value="Absent" checked onchange="toggleConditional('e-post-lent-os','Present','e-post-lent-os-details')"><label for="e-post-lent-os-ab">Absent</label></div>
+                    <div class="radio-option"><input type="radio" name="e-post-lent-os" id="e-post-lent-os-pr" value="Present" onchange="toggleConditional('e-post-lent-os','Present','e-post-lent-os-details')"><label for="e-post-lent-os-pr">Present</label></div>
+                  </div>
+                  <div class="bi-field cond-field disabled" id="e-post-lent-os-details">
+                    <input type="text" id="e-post-lent-os-detail-text" placeholder="Details (optional)…" style="margin-top:4px">
+                  </div>
+                </div>
+                <div class="bi-field">
+                  <label>PHPV</label>
+                  <div class="bi-radio radio-group">
+                    <div class="radio-option"><input type="radio" name="e-phpv-os" id="e-phpv-os-ab" value="Absent" checked onchange="toggleConditional('e-phpv-os','Present','e-phpv-os-details')"><label for="e-phpv-os-ab">Absent</label></div>
+                    <div class="radio-option"><input type="radio" name="e-phpv-os" id="e-phpv-os-pr" value="Present" onchange="toggleConditional('e-phpv-os','Present','e-phpv-os-details')"><label for="e-phpv-os-pr">Present</label></div>
+                  </div>
+                  <div class="bi-field cond-field disabled" id="e-phpv-os-details">
+                    <input type="text" id="e-phpv-os-detail-text" placeholder="Details (optional)…" style="margin-top:4px">
+                  </div>
+                </div>
+                <div class="bi-field">
+                  <label>Pre-existing Posterior Capsular Defect</label>
+                  <div class="bi-radio radio-group">
+                    <div class="radio-option"><input type="radio" name="e-ppcd-os" id="e-ppcd-os-ab" value="Absent" checked onchange="toggleConditional('e-ppcd-os','Present','e-ppcd-os-details')"><label for="e-ppcd-os-ab">Absent</label></div>
+                    <div class="radio-option"><input type="radio" name="e-ppcd-os" id="e-ppcd-os-pr" value="Present" onchange="toggleConditional('e-ppcd-os','Present','e-ppcd-os-details')"><label for="e-ppcd-os-pr">Present</label></div>
+                  </div>
+                  <div class="bi-field cond-field disabled" id="e-ppcd-os-details">
+                    <input type="text" id="e-ppcd-os-detail-text" placeholder="Details (optional)…" style="margin-top:4px">
+                  </div>
                 </div>
               </div>
               <!-- APHAKIA section -->
@@ -791,6 +889,59 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
                 <div class="bi-field"><label>Lens Morphology</label><div id="f-morph-widget-od"></div></div>
                 <div class="bi-field"><label>Cataract Location</label><select id="f-cat-loc-od"><option value="">— Select —</option><option>Total</option><option>Nuclear</option><option>Cortical</option><option>Posterior Subcapsular</option><option>Anterior Polar</option><option>Posterior Polar</option><option>Lamellar</option></select></div>
               </div>
+              <!-- SHARED: shown for Cataract and Clear lens -->
+              <div class="lens-status-section" id="fls-od-shared-section">
+                <div class="bi-field">
+                  <label>Spherophakia</label>
+                  <div class="bi-radio radio-group">
+                    <div class="radio-option"><input type="radio" name="f-sph-od" id="f-sph-od-ab" value="Absent" checked onchange="toggleConditional('f-sph-od','Present','f-sph-od-details')"><label for="f-sph-od-ab">Absent</label></div>
+                    <div class="radio-option"><input type="radio" name="f-sph-od" id="f-sph-od-pr" value="Present" onchange="toggleConditional('f-sph-od','Present','f-sph-od-details')"><label for="f-sph-od-pr">Present</label></div>
+                  </div>
+                  <div class="bi-field cond-field disabled" id="f-sph-od-details">
+                    <input type="text" id="f-sph-od-detail-text" placeholder="Details (optional)…" style="margin-top:4px">
+                  </div>
+                </div>
+                <div class="bi-field">
+                  <label>Anterior Lenticonus</label>
+                  <div class="bi-radio radio-group">
+                    <div class="radio-option"><input type="radio" name="f-ant-lent-od" id="f-ant-lent-od-ab" value="Absent" checked onchange="toggleConditional('f-ant-lent-od','Present','f-ant-lent-od-details')"><label for="f-ant-lent-od-ab">Absent</label></div>
+                    <div class="radio-option"><input type="radio" name="f-ant-lent-od" id="f-ant-lent-od-pr" value="Present" onchange="toggleConditional('f-ant-lent-od','Present','f-ant-lent-od-details')"><label for="f-ant-lent-od-pr">Present</label></div>
+                  </div>
+                  <div class="bi-field cond-field disabled" id="f-ant-lent-od-details">
+                    <input type="text" id="f-ant-lent-od-detail-text" placeholder="Details (optional)…" style="margin-top:4px">
+                  </div>
+                </div>
+                <div class="bi-field">
+                  <label>Posterior Lenticonus</label>
+                  <div class="bi-radio radio-group">
+                    <div class="radio-option"><input type="radio" name="f-post-lent-od" id="f-post-lent-od-ab" value="Absent" checked onchange="toggleConditional('f-post-lent-od','Present','f-post-lent-od-details')"><label for="f-post-lent-od-ab">Absent</label></div>
+                    <div class="radio-option"><input type="radio" name="f-post-lent-od" id="f-post-lent-od-pr" value="Present" onchange="toggleConditional('f-post-lent-od','Present','f-post-lent-od-details')"><label for="f-post-lent-od-pr">Present</label></div>
+                  </div>
+                  <div class="bi-field cond-field disabled" id="f-post-lent-od-details">
+                    <input type="text" id="f-post-lent-od-detail-text" placeholder="Details (optional)…" style="margin-top:4px">
+                  </div>
+                </div>
+                <div class="bi-field">
+                  <label>PHPV</label>
+                  <div class="bi-radio radio-group">
+                    <div class="radio-option"><input type="radio" name="f-phpv-od" id="f-phpv-od-ab" value="Absent" checked onchange="toggleConditional('f-phpv-od','Present','f-phpv-od-details')"><label for="f-phpv-od-ab">Absent</label></div>
+                    <div class="radio-option"><input type="radio" name="f-phpv-od" id="f-phpv-od-pr" value="Present" onchange="toggleConditional('f-phpv-od','Present','f-phpv-od-details')"><label for="f-phpv-od-pr">Present</label></div>
+                  </div>
+                  <div class="bi-field cond-field disabled" id="f-phpv-od-details">
+                    <input type="text" id="f-phpv-od-detail-text" placeholder="Details (optional)…" style="margin-top:4px">
+                  </div>
+                </div>
+                <div class="bi-field">
+                  <label>Pre-existing Posterior Capsular Defect</label>
+                  <div class="bi-radio radio-group">
+                    <div class="radio-option"><input type="radio" name="f-ppcd-od" id="f-ppcd-od-ab" value="Absent" checked onchange="toggleConditional('f-ppcd-od','Present','f-ppcd-od-details')"><label for="f-ppcd-od-ab">Absent</label></div>
+                    <div class="radio-option"><input type="radio" name="f-ppcd-od" id="f-ppcd-od-pr" value="Present" onchange="toggleConditional('f-ppcd-od','Present','f-ppcd-od-details')"><label for="f-ppcd-od-pr">Present</label></div>
+                  </div>
+                  <div class="bi-field cond-field disabled" id="f-ppcd-od-details">
+                    <input type="text" id="f-ppcd-od-detail-text" placeholder="Details (optional)…" style="margin-top:4px">
+                  </div>
+                </div>
+              </div>
               <div class="lens-status-section" id="fls-od-aph-section">
                 <div class="bi-field"><label>Posterior Capsule</label><select id="f-aph-pc-od"><option value="">— Select —</option><option>Absent</option><option>Clear and intact</option><option>Opacified and intact</option><option>Open</option></select></div>
               </div>
@@ -835,6 +986,59 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
               <div class="lens-status-section" id="fls-os-cat-section">
                 <div class="bi-field"><label>Lens Morphology</label><div id="f-morph-widget-os"></div></div>
                 <div class="bi-field"><label>Cataract Location</label><select id="f-cat-loc-os"><option value="">— Select —</option><option>Total</option><option>Nuclear</option><option>Cortical</option><option>Posterior Subcapsular</option><option>Anterior Polar</option><option>Posterior Polar</option><option>Lamellar</option></select></div>
+              </div>
+              <!-- SHARED: shown for Cataract and Clear lens -->
+              <div class="lens-status-section" id="fls-os-shared-section">
+                <div class="bi-field">
+                  <label>Spherophakia</label>
+                  <div class="bi-radio radio-group">
+                    <div class="radio-option"><input type="radio" name="f-sph-os" id="f-sph-os-ab" value="Absent" checked onchange="toggleConditional('f-sph-os','Present','f-sph-os-details')"><label for="f-sph-os-ab">Absent</label></div>
+                    <div class="radio-option"><input type="radio" name="f-sph-os" id="f-sph-os-pr" value="Present" onchange="toggleConditional('f-sph-os','Present','f-sph-os-details')"><label for="f-sph-os-pr">Present</label></div>
+                  </div>
+                  <div class="bi-field cond-field disabled" id="f-sph-os-details">
+                    <input type="text" id="f-sph-os-detail-text" placeholder="Details (optional)…" style="margin-top:4px">
+                  </div>
+                </div>
+                <div class="bi-field">
+                  <label>Anterior Lenticonus</label>
+                  <div class="bi-radio radio-group">
+                    <div class="radio-option"><input type="radio" name="f-ant-lent-os" id="f-ant-lent-os-ab" value="Absent" checked onchange="toggleConditional('f-ant-lent-os','Present','f-ant-lent-os-details')"><label for="f-ant-lent-os-ab">Absent</label></div>
+                    <div class="radio-option"><input type="radio" name="f-ant-lent-os" id="f-ant-lent-os-pr" value="Present" onchange="toggleConditional('f-ant-lent-os','Present','f-ant-lent-os-details')"><label for="f-ant-lent-os-pr">Present</label></div>
+                  </div>
+                  <div class="bi-field cond-field disabled" id="f-ant-lent-os-details">
+                    <input type="text" id="f-ant-lent-os-detail-text" placeholder="Details (optional)…" style="margin-top:4px">
+                  </div>
+                </div>
+                <div class="bi-field">
+                  <label>Posterior Lenticonus</label>
+                  <div class="bi-radio radio-group">
+                    <div class="radio-option"><input type="radio" name="f-post-lent-os" id="f-post-lent-os-ab" value="Absent" checked onchange="toggleConditional('f-post-lent-os','Present','f-post-lent-os-details')"><label for="f-post-lent-os-ab">Absent</label></div>
+                    <div class="radio-option"><input type="radio" name="f-post-lent-os" id="f-post-lent-os-pr" value="Present" onchange="toggleConditional('f-post-lent-os','Present','f-post-lent-os-details')"><label for="f-post-lent-os-pr">Present</label></div>
+                  </div>
+                  <div class="bi-field cond-field disabled" id="f-post-lent-os-details">
+                    <input type="text" id="f-post-lent-os-detail-text" placeholder="Details (optional)…" style="margin-top:4px">
+                  </div>
+                </div>
+                <div class="bi-field">
+                  <label>PHPV</label>
+                  <div class="bi-radio radio-group">
+                    <div class="radio-option"><input type="radio" name="f-phpv-os" id="f-phpv-os-ab" value="Absent" checked onchange="toggleConditional('f-phpv-os','Present','f-phpv-os-details')"><label for="f-phpv-os-ab">Absent</label></div>
+                    <div class="radio-option"><input type="radio" name="f-phpv-os" id="f-phpv-os-pr" value="Present" onchange="toggleConditional('f-phpv-os','Present','f-phpv-os-details')"><label for="f-phpv-os-pr">Present</label></div>
+                  </div>
+                  <div class="bi-field cond-field disabled" id="f-phpv-os-details">
+                    <input type="text" id="f-phpv-os-detail-text" placeholder="Details (optional)…" style="margin-top:4px">
+                  </div>
+                </div>
+                <div class="bi-field">
+                  <label>Pre-existing Posterior Capsular Defect</label>
+                  <div class="bi-radio radio-group">
+                    <div class="radio-option"><input type="radio" name="f-ppcd-os" id="f-ppcd-os-ab" value="Absent" checked onchange="toggleConditional('f-ppcd-os','Present','f-ppcd-os-details')"><label for="f-ppcd-os-ab">Absent</label></div>
+                    <div class="radio-option"><input type="radio" name="f-ppcd-os" id="f-ppcd-os-pr" value="Present" onchange="toggleConditional('f-ppcd-os','Present','f-ppcd-os-details')"><label for="f-ppcd-os-pr">Present</label></div>
+                  </div>
+                  <div class="bi-field cond-field disabled" id="f-ppcd-os-details">
+                    <input type="text" id="f-ppcd-os-detail-text" placeholder="Details (optional)…" style="margin-top:4px">
+                  </div>
+                </div>
               </div>
               <div class="lens-status-section" id="fls-os-aph-section">
                 <div class="bi-field"><label>Posterior Capsule</label><select id="f-aph-pc-os"><option value="">— Select —</option><option>Absent</option><option>Clear and intact</option><option>Opacified and intact</option><option>Open</option></select></div>
@@ -1164,8 +1368,11 @@ async function submitExamination(e){
     CataractLocation_OD:g('e-cat-loc-od')?.value||'',
     Subluxation_OD:r('e-sub-od'),SubluxationGrade_OD:g('e-sub-grade-od')?.value||'',
     SubluxationDeg_OD:g('e-sub-deg-od')?.value||'',SubluxationLoc_OD:g('e-sub-loc-od')?.value||'',
-    Spherophakia_OD:g('e-sph-od')?.checked?'Yes':'No',Lenticonus_OD:g('e-lent-od')?.checked?'Yes':'No',
-    PHPV_OD:g('e-phpv-od')?.value||'',PHPVType_OD:g('e-phpv-type-od')?.value||'',
+    Spherophakia_OD:r('e-sph-od'),SpherophakiaDetails_OD:g('e-sph-od-details-text')?.value||'',
+    AntLenticonus_OD:r('e-ant-lent-od'),AntLenticonusDetails_OD:g('e-ant-lent-od-details-text')?.value||'',
+    PostLenticonus_OD:r('e-post-lent-od'),PostLenticonusDetails_OD:g('e-post-lent-od-details-text')?.value||'',
+    PHPV_OD:r('e-phpv-od'),PHPVDetails_OD:g('e-phpv-od-details-text')?.value||'',
+    PPCD_OD:r('e-ppcd-od'),PPCDDetails_OD:g('e-ppcd-od-details-text')?.value||'',
     AphakiaPC_OD:g('e-aph-pc-od')?.value||'',
     IOLLocation_OD:g('e-iol-loc-od')?.value||'',PseudophakiaPC_OD:g('e-pse-pc-od')?.value||'',
     IOLCentration_OD:r('e-centration-od'),IOLComplications_OD:getIOLComps('ls','od'),
@@ -1183,8 +1390,11 @@ async function submitExamination(e){
     CataractLocation_OS:g('e-cat-loc-os')?.value||'',
     Subluxation_OS:r('e-sub-os'),SubluxationGrade_OS:g('e-sub-grade-os')?.value||'',
     SubluxationDeg_OS:g('e-sub-deg-os')?.value||'',SubluxationLoc_OS:g('e-sub-loc-os')?.value||'',
-    Spherophakia_OS:g('e-sph-os')?.checked?'Yes':'No',Lenticonus_OS:g('e-lent-os')?.checked?'Yes':'No',
-    PHPV_OS:g('e-phpv-os')?.value||'',PHPVType_OS:g('e-phpv-type-os')?.value||'',
+    Spherophakia_OS:r('e-sph-os'),SpherophakiaDetails_OS:g('e-sph-os-details-text')?.value||'',
+    AntLenticonus_OS:r('e-ant-lent-os'),AntLenticonusDetails_OS:g('e-ant-lent-os-details-text')?.value||'',
+    PostLenticonus_OS:r('e-post-lent-os'),PostLenticonusDetails_OS:g('e-post-lent-os-details-text')?.value||'',
+    PHPV_OS:r('e-phpv-os'),PHPVDetails_OS:g('e-phpv-os-details-text')?.value||'',
+    PPCD_OS:r('e-ppcd-os'),PPCDDetails_OS:g('e-ppcd-os-details-text')?.value||'',
     AphakiaPC_OS:g('e-aph-pc-os')?.value||'',
     IOLLocation_OS:g('e-iol-loc-os')?.value||'',PseudophakiaPC_OS:g('e-pse-pc-os')?.value||'',
     IOLCentration_OS:r('e-centration-os'),IOLComplications_OS:getIOLComps('ls','os'),
@@ -1232,7 +1442,9 @@ async function submitFollowup(e){
     CCT_OD:g('f-cct-od').value,
     Iris_OD:r('f-iris-od'),IrisDesc_OD:g('f-iris-desc-od').value,
     Pupil_OD:r('f-pupil-od'),PupilDesc_OD:g('f-pupil-desc-od').value,
-    LensStatus_OD:r('f-lens-status-od'),LensMorphology_OD:getMorphValues('od','fup'),CataractLoc_OD:g('f-cat-loc-od')?.value||'',Subluxation_OD:r('f-sub-od'),SubluxGrade_OD:g('f-sub-grade-od')?.value||'',SubluxDeg_OD:g('f-sub-deg-od')?.value||'',SubluxLoc_OD:g('f-sub-loc-od')?.value||'',AphakiaPC_OD:g('f-aph-pc-od')?.value||'',IOLLocation_OD:g('f-iol-loc-od')?.value||'',PseudophakiaPC_OD:g('f-pse-pc-od')?.value||'',IOLCentration_OD:r('f-centration-od'),IOLComplications_OD:getIOLComps('fls','od'),
+    LensStatus_OD:r('f-lens-status-od'),LensMorphology_OD:getMorphValues('od','fup'),CataractLoc_OD:g('f-cat-loc-od')?.value||'',Subluxation_OD:r('f-sub-od'),SubluxGrade_OD:g('f-sub-grade-od')?.value||'',SubluxDeg_OD:g('f-sub-deg-od')?.value||'',SubluxLoc_OD:g('f-sub-loc-od')?.value||'',
+    Spherophakia_OD:r('f-sph-od'),AntLenticonus_OD:r('f-ant-lent-od'),PostLenticonus_OD:r('f-post-lent-od'),PHPV_OD:r('f-phpv-od'),PPCD_OD:r('f-ppcd-od'),
+    AphakiaPC_OD:g('f-aph-pc-od')?.value||'',IOLLocation_OD:g('f-iol-loc-od')?.value||'',PseudophakiaPC_OD:g('f-pse-pc-od')?.value||'',IOLCentration_OD:r('f-centration-od'),IOLComplications_OD:getIOLComps('fls','od'),
     Opacification_OD:g('f-opacification-od').value,
     Fundus_OD:r('f-fundus-od'),FundusDesc_OD:g('f-fundus-desc-od').value,
     CD_OD:g('f-cd-od').value,Gonioscopy_OD:g('f-gonio-od').checked?'Yes':'No',
@@ -1244,7 +1456,9 @@ async function submitFollowup(e){
     CCT_OS:g('f-cct-os').value,
     Iris_OS:r('f-iris-os'),IrisDesc_OS:g('f-iris-desc-os').value,
     Pupil_OS:r('f-pupil-os'),PupilDesc_OS:g('f-pupil-desc-os').value,
-    LensStatus_OS:r('f-lens-status-os'),LensMorphology_OS:getMorphValues('os','fup'),CataractLoc_OS:g('f-cat-loc-os')?.value||'',Subluxation_OS:r('f-sub-os'),SubluxGrade_OS:g('f-sub-grade-os')?.value||'',SubluxDeg_OS:g('f-sub-deg-os')?.value||'',SubluxLoc_OS:g('f-sub-loc-os')?.value||'',AphakiaPC_OS:g('f-aph-pc-os')?.value||'',IOLLocation_OS:g('f-iol-loc-os')?.value||'',PseudophakiaPC_OS:g('f-pse-pc-os')?.value||'',IOLCentration_OS:r('f-centration-os'),IOLComplications_OS:getIOLComps('fls','os'),
+    LensStatus_OS:r('f-lens-status-os'),LensMorphology_OS:getMorphValues('os','fup'),CataractLoc_OS:g('f-cat-loc-os')?.value||'',Subluxation_OS:r('f-sub-os'),SubluxGrade_OS:g('f-sub-grade-os')?.value||'',SubluxDeg_OS:g('f-sub-deg-os')?.value||'',SubluxLoc_OS:g('f-sub-loc-os')?.value||'',
+    Spherophakia_OS:r('f-sph-os'),AntLenticonus_OS:r('f-ant-lent-os'),PostLenticonus_OS:r('f-post-lent-os'),PHPV_OS:r('f-phpv-os'),PPCD_OS:r('f-ppcd-os'),
+    AphakiaPC_OS:g('f-aph-pc-os')?.value||'',IOLLocation_OS:g('f-iol-loc-os')?.value||'',PseudophakiaPC_OS:g('f-pse-pc-os')?.value||'',IOLCentration_OS:r('f-centration-os'),IOLComplications_OS:getIOLComps('fls','os'),
     Opacification_OS:g('f-opacification-os').value,
     Fundus_OS:r('f-fundus-os'),FundusDesc_OS:g('f-fundus-desc-os').value,
     CD_OS:g('f-cd-os').value,Gonioscopy_OS:g('f-gonio-os').checked?'Yes':'No',
@@ -1430,10 +1644,13 @@ function onLensStatus(eye, form){
   const aphEl = document.getElementById(`${prefix}-${eye}-aph-section`);
   const pseEl = document.getElementById(`${prefix}-${eye}-pse-section`);
   const subEl = document.getElementById(`${prefix}-${eye}-sub-section`);
+  const sharedId = (form==='exam'?'e':'f')+'ls-'+eye+'-shared-section';
+  const sharedEl = document.getElementById(sharedId);
   if(catEl) catEl.classList.toggle('visible', isCat);
   if(aphEl) aphEl.classList.toggle('visible', isAph);
   if(pseEl) pseEl.classList.toggle('visible', isPse);
   if(subEl) subEl.classList.toggle('visible', isCat || isClear);
+  if(sharedEl) sharedEl.classList.toggle('visible', isCat || isClear);
   // rebuild morph widget when cataract selected
   if(isCat) buildMorphWidget(eye, form);
 }
