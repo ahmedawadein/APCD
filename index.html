@@ -1284,6 +1284,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
 <option>IOL Exchange</option>
 <option>IOL Repositioning</option>
 <option>Membranectomy</option>
+<option>Removal of sutures</option>
 <option>Other</option>
 </select></div>
             <div class="form-group span-2"><label>Examiner / Surgeon</label><div class="examiner-wrap"><select id="s-examiner" onchange="handleExaminerChange('s-examiner')"></select></div></div>
@@ -1829,25 +1830,53 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
 
         <div class="form-card">
           <div class="form-card-title">Complications</div>
-          <p style="font-size:12.5px;color:var(--text-dim);margin-bottom:12px">Select all that apply</p>
-          <div class="checkbox-group" style="gap:7px">
-            <div class="checkbox-option"><input type="checkbox" id="fc-hyph" value="Hyphaema"><label for="fc-hyph">Hyphaema</label></div>
-            <div class="checkbox-option"><input type="checkbox" id="fc-acr" value="Anterior chamber reaction"><label for="fc-acr">Anterior chamber reaction</label></div>
-            <div class="checkbox-option"><input type="checkbox" id="fc-phim" value="Capsular phimosis"><label for="fc-phim">Capsular phimosis</label></div>
-            <div class="checkbox-option"><input type="checkbox" id="fc-vao" value="Visual axis opacification"><label for="fc-vao">Visual axis opacification</label></div>
-            <div class="checkbox-option"><input type="checkbox" id="fc-amb" value="Amblyopia"><label for="fc-amb">Amblyopia</label></div>
-            <div class="checkbox-option"><input type="checkbox" id="fc-rd" value="Retinal detachment"><label for="fc-rd">Retinal detachment</label></div>
-            <div class="checkbox-option"><input type="checkbox" id="fc-endo" value="Endophthalmitis"><label for="fc-endo">Endophthalmitis</label></div>
-            <div class="checkbox-option"><input type="checkbox" id="fc-disencl" value="Disenclavation of IOL"><label for="fc-disencl">Disenclavation of IOL</label></div>
-            <div class="checkbox-option"><input type="checkbox" id="fc-disp" value="Displacement / dislocation of IOL"><label for="fc-disp">Displacement / dislocation of IOL</label></div>
-            <div class="checkbox-option"><input type="checkbox" id="fc-glauc" value="Glaucoma"><label for="fc-glauc">Glaucoma</label></div>
-          </div>
-          <div id="fc-custom-comps" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:6px"></div>
-          <div style="display:flex;gap:6px;margin-top:8px">
-            <input type="text" id="fc-other-input" placeholder="Other complication…" style="flex:1;font-size:13px;padding:7px 11px">
-            <button type="button" class="add-formula-btn" style="margin-top:0;padding:6px 12px" onclick="addFupComplication()">＋ Add</button>
+          <div class="bilateral-grid">
+            <div class="eye-col"><div class="eye-col-header od">OD — Right Eye</div><div class="eye-col-body">
+              <div class="checkbox-group" style="gap:6px;flex-direction:column">
+              <div class="iol-comp-option"><input type="checkbox" id="fc-od-hyph" value="Hyphaema"><label for="fc-od-hyph">Hyphaema</label></div>
+              <div class="iol-comp-option"><input type="checkbox" id="fc-od-acr" value="Anterior chamber reaction"><label for="fc-od-acr">Anterior chamber reaction</label></div>
+              <div class="iol-comp-option"><input type="checkbox" id="fc-od-phim" value="Capsular phimosis"><label for="fc-od-phim">Capsular phimosis</label></div>
+              <div class="iol-comp-option"><input type="checkbox" id="fc-od-vao" value="Visual axis opacification"><label for="fc-od-vao">Visual axis opacification</label></div>
+              <div class="iol-comp-option"><input type="checkbox" id="fc-od-amb" value="Amblyopia"><label for="fc-od-amb">Amblyopia</label></div>
+              <div class="iol-comp-option"><input type="checkbox" id="fc-od-rd" value="Retinal detachment"><label for="fc-od-rd">Retinal detachment</label></div>
+              <div class="iol-comp-option"><input type="checkbox" id="fc-od-endo" value="Endophthalmitis"><label for="fc-od-endo">Endophthalmitis</label></div>
+              <div class="iol-comp-option"><input type="checkbox" id="fc-od-disencl" value="Disenclavation of IOL"><label for="fc-od-disencl">Disenclavation of IOL</label></div>
+              <div class="iol-comp-option"><input type="checkbox" id="fc-od-disp" value="Displacement / dislocation of IOL"><label for="fc-od-disp">Displacement / dislocation of IOL</label></div>
+              <div class="iol-comp-option"><input type="checkbox" id="fc-od-glauc" value="Glaucoma"><label for="fc-od-glauc">Glaucoma</label></div>
+              <div class="iol-comp-option"><input type="checkbox" id="fc-od-loose-sut" value="Loose sutures"><label for="fc-od-loose-sut">Loose sutures</label></div>
+              <div class="iol-comp-option"><input type="checkbox" id="fc-od-cut-sut" value="Cut sutures"><label for="fc-od-cut-sut">Cut sutures</label></div>
+              </div>
+              <div id="fc-custom-comps-od" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
+              <div style="display:flex;gap:6px;margin-top:7px">
+                <input type="text" id="fc-other-input-od" placeholder="Other…" style="flex:1;font-size:12.5px;padding:6px 10px">
+                <button type="button" class="add-formula-btn" style="margin-top:0;padding:5px 10px;font-size:12px" onclick="addFupComplication('od')">＋</button>
+              </div>
+            </div></div>
+            <div class="eye-col"><div class="eye-col-header os">OS — Left Eye</div><div class="eye-col-body">
+              <div class="checkbox-group" style="gap:6px;flex-direction:column">
+              <div class="iol-comp-option"><input type="checkbox" id="fc-os-hyph" value="Hyphaema"><label for="fc-os-hyph">Hyphaema</label></div>
+              <div class="iol-comp-option"><input type="checkbox" id="fc-os-acr" value="Anterior chamber reaction"><label for="fc-os-acr">Anterior chamber reaction</label></div>
+              <div class="iol-comp-option"><input type="checkbox" id="fc-os-phim" value="Capsular phimosis"><label for="fc-os-phim">Capsular phimosis</label></div>
+              <div class="iol-comp-option"><input type="checkbox" id="fc-os-vao" value="Visual axis opacification"><label for="fc-os-vao">Visual axis opacification</label></div>
+              <div class="iol-comp-option"><input type="checkbox" id="fc-os-amb" value="Amblyopia"><label for="fc-os-amb">Amblyopia</label></div>
+              <div class="iol-comp-option"><input type="checkbox" id="fc-os-rd" value="Retinal detachment"><label for="fc-os-rd">Retinal detachment</label></div>
+              <div class="iol-comp-option"><input type="checkbox" id="fc-os-endo" value="Endophthalmitis"><label for="fc-os-endo">Endophthalmitis</label></div>
+              <div class="iol-comp-option"><input type="checkbox" id="fc-os-disencl" value="Disenclavation of IOL"><label for="fc-os-disencl">Disenclavation of IOL</label></div>
+              <div class="iol-comp-option"><input type="checkbox" id="fc-os-disp" value="Displacement / dislocation of IOL"><label for="fc-os-disp">Displacement / dislocation of IOL</label></div>
+              <div class="iol-comp-option"><input type="checkbox" id="fc-os-glauc" value="Glaucoma"><label for="fc-os-glauc">Glaucoma</label></div>
+              <div class="iol-comp-option"><input type="checkbox" id="fc-os-loose-sut" value="Loose sutures"><label for="fc-os-loose-sut">Loose sutures</label></div>
+              <div class="iol-comp-option"><input type="checkbox" id="fc-os-cut-sut" value="Cut sutures"><label for="fc-os-cut-sut">Cut sutures</label></div>
+              </div>
+              <div id="fc-custom-comps-os" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
+              <div style="display:flex;gap:6px;margin-top:7px">
+                <input type="text" id="fc-other-input-os" placeholder="Other…" style="flex:1;font-size:12.5px;padding:6px 10px">
+                <button type="button" class="add-formula-btn" style="margin-top:0;padding:5px 10px;font-size:12px" onclick="addFupComplication('os')">＋</button>
+              </div>
+            </div></div>
           </div>
         </div>
+
+
 
         <div class="form-card">
           <div class="form-card-title">Comments</div>
@@ -2299,13 +2328,14 @@ async function submitFollowup(e){
     CD_OS:g('f-cd-os').value,Gonioscopy_OS:r('f-gonio-os'),AngleOS:r('f-angle-os'),GonioDesc_OS:g('f-gonio-desc-os')?.value||'',
     AxialLength_OD:g('f-axl-od').value,K1_OD:g('f-k1-od').value,K2_OD:g('f-k2-od').value,Formulas_OD:getFormulasJSON('f','od'),
     AxialLength_OS:g('f-axl-os').value,K1_OS:g('f-k1-os').value,K2_OS:g('f-k2-os').value,Formulas_OS:getFormulasJSON('f','os'),
-    Complications:getFupComplications(),
+    Complications_OD:getFupComplications('od'),
+    Complications_OS:getFupComplications('os'),
     Comments:g('f-comments').value,EntryDate:today()
   };
   DB.followups.push(row);
   showToast('Follow-up saved ✓','success');
   document.getElementById('followup-form').reset();
-  customFupComps=[];const cc=document.getElementById('fc-custom-comps');if(cc)cc.innerHTML='';
+  customFupComps={od:[],os:[]};['od','os'].forEach(e=>{const cc=document.getElementById('fc-custom-comps-'+e);if(cc)cc.innerHTML='';});
   showView('patients');
   pushRow('Followup',row).catch(()=>{});
 }
@@ -2945,26 +2975,29 @@ function handleOtherOptypeChange(){
 
 
 // ─── FOLLOWUP CUSTOM COMPLICATIONS ───
-let customFupComps = [];
-function addFupComplication(){
-  const inp = document.getElementById('fc-other-input');
+let customFupComps = {od:[], os:[]};
+
+function addFupComplication(eye){
+  const inp = document.getElementById('fc-other-input-'+eye);
   const val = inp?.value.trim();
   if(!val) return;
-  customFupComps.push(val);
-  const container = document.getElementById('fc-custom-comps');
+  customFupComps[eye].push(val);
+  const container = document.getElementById('fc-custom-comps-'+eye);
   if(container){
-    const id = 'fc-custom-'+Date.now();
+    const id = 'fc-custom-'+eye+'-'+Date.now();
     const div = document.createElement('div');
-    div.className = 'checkbox-option';
+    div.className = 'iol-comp-option';
     div.innerHTML = `<input type="checkbox" id="${id}" value="${val}" checked><label for="${id}">${val}</label>`;
     container.appendChild(div);
   }
   inp.value = '';
 }
-function getFupComplications(){
-  const fixed = ['fc-hyph','fc-acr','fc-phim','fc-vao','fc-amb','fc-rd','fc-endo','fc-disencl','fc-disp','fc-glauc'];
-  const checked = fixed.filter(id=>document.getElementById(id)?.checked).map(id=>document.getElementById(id).value);
-  const custom = [...document.querySelectorAll('#fc-custom-comps input[type=checkbox]:checked')].map(c=>c.value);
+
+function getFupComplications(eye){
+  const IDS = ['hyph','acr','phim','vao','amb','rd','endo','disencl','disp','glauc','loose-sut','cut-sut'];
+  const checked = IDS.filter(i=>document.getElementById('fc-'+eye+'-'+i)?.checked)
+                     .map(i=>document.getElementById('fc-'+eye+'-'+i).value);
+  const custom = [...document.querySelectorAll('#fc-custom-comps-'+eye+' input[type=checkbox]:checked')].map(c=>c.value);
   return [...checked,...custom].join('; ');
 }
 
