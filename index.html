@@ -438,7 +438,7 @@
     <div class="nav-item" onclick="showView('patients')" id="nav-patients"><span class="nav-icon">◈</span>Patients</div>
     <div class="nav-section-label" style="margin-top:6px">Data Entry</div>
     <div class="nav-item" onclick="showView('new-patient')" id="nav-new-patient"><span class="nav-icon">＋</span>New Patient</div>
-    <div class="nav-item" onclick="showView('new-examination')" id="nav-new-examination"><span class="nav-icon">◉</span>Examination</div>
+    <div class="nav-item" onclick="showView('new-examination')" id="nav-new-examination"><span class="nav-icon">◉</span>Initial Exam</div>
     <div class="nav-item" onclick="showView('new-surgery')" id="nav-new-surgery"><span class="nav-icon">⊕</span>Surgery</div>
     <div class="nav-item" onclick="showView('new-followup')" id="nav-new-followup"><span class="nav-icon">◎</span>Follow-up Visit</div>
     <div class="nav-section-label" style="margin-top:6px">System</div>
@@ -576,7 +576,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
 
     <!-- ═══════════════════════════════ EXAMINATION ═══ -->
     <div id="view-new-examination" class="hidden">
-      <div class="section-header"><h2>Preoperative Examination</h2><p>Initial and preoperative clinical findings — both eyes in one submission</p></div>
+      <div class="section-header"><h2>Initial Examination</h2><p>Baseline clinical findings — both eyes in one submission</p></div>
       <form id="exam-form" onsubmit="submitExamination(event)">
         <div class="form-card">
           <div class="form-card-title">Examination Info</div>
@@ -584,6 +584,46 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
             <div class="form-group span-2"><label>Patient</label><input type="text" id="e-pid-display" readonly placeholder="Select patient using search bar above" style="background:rgba(28,184,176,.05);color:var(--teal);cursor:default"><input type="hidden" id="e-pid"></div>
             <div class="form-group"><label>Date of Exam *</label><input type="date" id="e-date" required></div>
             <div class="form-group span-2"><label>Examiner</label><div class="examiner-wrap"><select id="e-examiner" onchange="handleExaminerChange('e-examiner')"></select></div></div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">Visual Acuity & Refraction</div>
+          <div class="bilateral-grid">
+            <div class="eye-col"><div class="eye-col-header od">OD — Right Eye</div><div class="eye-col-body">
+              <div class="bi-field"><label>Visual Acuity</label><select id="e-va-od"><option value="">— Select —</option><option>Cannot be measured</option><option>Cannot Fix or Follow</option><option>Central Steady Maintained</option><option>Uncentral Unsteady Unmaintained</option><option>Central Steady Unmaintained</option><option>Central Unsteady Unmaintained</option><option>NOPL</option><option>PLBP</option><option>PLGP</option><option>HMBP</option><option>HMGP</option><option>cf 20 cm</option><option>cf 30 cm</option><option>cf 40 cm</option><option>cf 50 cm</option><option>cf 60 cm</option><option>cf 70 cm</option><option>cf 80 cm</option><option>cf 90 cm</option><option>1/60</option><option>2/60</option><option>3/60</option><option>4/60</option><option>5/60</option><option>0.1</option><option>0.16</option><option>0.2</option><option>0.25</option><option>0.3</option><option>0.4</option><option>0.5</option><option>0.6</option><option>0.63</option><option>0.7</option><option>0.8</option><option>0.9</option><option>1.0</option></select></div>
+              <div class="bi-field" style="margin-top:4px">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                  <label style="margin:0">Refraction</label>
+                  <label style="display:flex;align-items:center;gap:5px;text-transform:none;letter-spacing:0;font-size:11.5px;cursor:pointer;opacity:1">
+                    <input type="checkbox" id="e-irr-od" onchange="toggleIrrefractable('e','od')" style="width:14px;height:14px;accent-color:var(--amber)">
+                    Irrefractable
+                  </label>
+                </div>
+                <div id="e-refraction-od">
+                  <div class="bi-field" style="margin-bottom:6px"><label>Sphere (D)</label><input type="number" id="e-sph-od" step="0.25" placeholder="e.g. -2.50"></div>
+                  <div class="bi-field" style="margin-bottom:6px"><label>Cylinder (D)</label><input type="number" id="e-cyl-od" step="0.25" placeholder="e.g. -0.75"></div>
+                  <div class="bi-field"><label>Axis (°)</label><input type="number" id="e-axis-od" min="0" max="180" placeholder="0–180"></div>
+                </div>
+              </div>
+            </div></div>
+            <div class="eye-col"><div class="eye-col-header os">OS — Left Eye</div><div class="eye-col-body">
+              <div class="bi-field"><label>Visual Acuity</label><select id="e-va-os"><option value="">— Select —</option><option>Cannot be measured</option><option>Cannot Fix or Follow</option><option>Central Steady Maintained</option><option>Uncentral Unsteady Unmaintained</option><option>Central Steady Unmaintained</option><option>Central Unsteady Unmaintained</option><option>NOPL</option><option>PLBP</option><option>PLGP</option><option>HMBP</option><option>HMGP</option><option>cf 20 cm</option><option>cf 30 cm</option><option>cf 40 cm</option><option>cf 50 cm</option><option>cf 60 cm</option><option>cf 70 cm</option><option>cf 80 cm</option><option>cf 90 cm</option><option>1/60</option><option>2/60</option><option>3/60</option><option>4/60</option><option>5/60</option><option>0.1</option><option>0.16</option><option>0.2</option><option>0.25</option><option>0.3</option><option>0.4</option><option>0.5</option><option>0.6</option><option>0.63</option><option>0.7</option><option>0.8</option><option>0.9</option><option>1.0</option></select></div>
+              <div class="bi-field" style="margin-top:4px">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                  <label style="margin:0">Refraction</label>
+                  <label style="display:flex;align-items:center;gap:5px;text-transform:none;letter-spacing:0;font-size:11.5px;cursor:pointer;opacity:1">
+                    <input type="checkbox" id="e-irr-os" onchange="toggleIrrefractable('e','os')" style="width:14px;height:14px;accent-color:var(--amber)">
+                    Irrefractable
+                  </label>
+                </div>
+                <div id="e-refraction-os">
+                  <div class="bi-field" style="margin-bottom:6px"><label>Sphere (D)</label><input type="number" id="e-sph-os" step="0.25" placeholder="e.g. -2.50"></div>
+                  <div class="bi-field" style="margin-bottom:6px"><label>Cylinder (D)</label><input type="number" id="e-cyl-os" step="0.25" placeholder="e.g. -0.75"></div>
+                  <div class="bi-field"><label>Axis (°)</label><input type="number" id="e-axis-os" min="0" max="180" placeholder="0–180"></div>
+                </div>
+              </div>
+            </div></div>
           </div>
         </div>
 
@@ -998,16 +1038,38 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
           <div class="bilateral-grid">
             <div class="eye-col"><div class="eye-col-header od">OD — Right Eye</div><div class="eye-col-body">
               <div class="bi-field"><label>Visual Acuity</label><select id="f-va-od"><option value="">— Select —</option><option>Cannot be measured</option><option>Cannot Fix or Follow</option><option>Central Steady Maintained</option><option>Uncentral Unsteady Unmaintained</option><option>Central Steady Unmaintained</option><option>Central Unsteady Unmaintained</option><option>NOPL</option><option>PLBP</option><option>PLGP</option><option>HMBP</option><option>HMGP</option><option>cf 20 cm</option><option>cf 30 cm</option><option>cf 40 cm</option><option>cf 50 cm</option><option>cf 60 cm</option><option>cf 70 cm</option><option>cf 80 cm</option><option>cf 90 cm</option><option>1/60</option><option>2/60</option><option>3/60</option><option>4/60</option><option>5/60</option><option>0.1</option><option>0.16</option><option>0.2</option><option>0.25</option><option>0.3</option><option>0.4</option><option>0.5</option><option>0.6</option><option>0.63</option><option>0.7</option><option>0.8</option><option>0.9</option><option>1.0</option></select></div>
-              <div class="bi-field"><label>Sphere (D)</label><input type="number" id="f-sph-od" step="0.25" placeholder="e.g. -2.50"></div>
-              <div class="bi-field"><label>Cylinder (D)</label><input type="number" id="f-cyl-od" step="0.25" placeholder="e.g. -0.75"></div>
-              <div class="bi-field"><label>Axis (°)</label><input type="number" id="f-axis-od" min="0" max="180" placeholder="0–180"></div>
+              <div class="bi-field" style="margin-top:4px">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                  <label style="margin:0">Refraction</label>
+                  <label style="display:flex;align-items:center;gap:5px;text-transform:none;letter-spacing:0;font-size:11.5px;cursor:pointer;opacity:1">
+                    <input type="checkbox" id="f-irr-od" onchange="toggleIrrefractable('f','od')" style="width:14px;height:14px;accent-color:var(--amber)">
+                    Irrefractable
+                  </label>
+                </div>
+                <div id="f-refraction-od">
+                  <div class="bi-field" style="margin-bottom:6px"><label>Sphere (D)</label><input type="number" id="f-sph-od" step="0.25" placeholder="e.g. -2.50"></div>
+                  <div class="bi-field" style="margin-bottom:6px"><label>Cylinder (D)</label><input type="number" id="f-cyl-od" step="0.25" placeholder="e.g. -0.75"></div>
+                  <div class="bi-field"><label>Axis (°)</label><input type="number" id="f-axis-od" min="0" max="180" placeholder="0–180"></div>
+                </div>
+              </div>
               <div class="bi-field"><label>IOP (mmHg)</label><input type="number" id="f-iop-od" min="0" max="80" placeholder="mmHg"></div>
             </div></div>
             <div class="eye-col"><div class="eye-col-header os">OS — Left Eye</div><div class="eye-col-body">
               <div class="bi-field"><label>Visual Acuity</label><select id="f-va-os"><option value="">— Select —</option><option>Cannot be measured</option><option>Cannot Fix or Follow</option><option>Central Steady Maintained</option><option>Uncentral Unsteady Unmaintained</option><option>Central Steady Unmaintained</option><option>Central Unsteady Unmaintained</option><option>NOPL</option><option>PLBP</option><option>PLGP</option><option>HMBP</option><option>HMGP</option><option>cf 20 cm</option><option>cf 30 cm</option><option>cf 40 cm</option><option>cf 50 cm</option><option>cf 60 cm</option><option>cf 70 cm</option><option>cf 80 cm</option><option>cf 90 cm</option><option>1/60</option><option>2/60</option><option>3/60</option><option>4/60</option><option>5/60</option><option>0.1</option><option>0.16</option><option>0.2</option><option>0.25</option><option>0.3</option><option>0.4</option><option>0.5</option><option>0.6</option><option>0.63</option><option>0.7</option><option>0.8</option><option>0.9</option><option>1.0</option></select></div>
-              <div class="bi-field"><label>Sphere (D)</label><input type="number" id="f-sph-os" step="0.25" placeholder="e.g. -2.50"></div>
-              <div class="bi-field"><label>Cylinder (D)</label><input type="number" id="f-cyl-os" step="0.25" placeholder="e.g. -0.75"></div>
-              <div class="bi-field"><label>Axis (°)</label><input type="number" id="f-axis-os" min="0" max="180" placeholder="0–180"></div>
+              <div class="bi-field" style="margin-top:4px">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                  <label style="margin:0">Refraction</label>
+                  <label style="display:flex;align-items:center;gap:5px;text-transform:none;letter-spacing:0;font-size:11.5px;cursor:pointer;opacity:1">
+                    <input type="checkbox" id="f-irr-os" onchange="toggleIrrefractable('f','os')" style="width:14px;height:14px;accent-color:var(--amber)">
+                    Irrefractable
+                  </label>
+                </div>
+                <div id="f-refraction-os">
+                  <div class="bi-field" style="margin-bottom:6px"><label>Sphere (D)</label><input type="number" id="f-sph-os" step="0.25" placeholder="e.g. -2.50"></div>
+                  <div class="bi-field" style="margin-bottom:6px"><label>Cylinder (D)</label><input type="number" id="f-cyl-os" step="0.25" placeholder="e.g. -0.75"></div>
+                  <div class="bi-field"><label>Axis (°)</label><input type="number" id="f-axis-os" min="0" max="180" placeholder="0–180"></div>
+                </div>
+              </div>
               <div class="bi-field"><label>IOP (mmHg)</label><input type="number" id="f-iop-os" min="0" max="80" placeholder="mmHg"></div>
             </div></div>
           </div>
@@ -1324,7 +1386,7 @@ function showView(v){
   document.getElementById('view-'+v).classList.remove('hidden');
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
   const n=document.getElementById('nav-'+v);if(n)n.classList.add('active');
-  const titles={dashboard:'Dashboard',patients:'Patients','new-patient':'New Patient','new-examination':'Preoperative Examination','new-surgery':'Operation Record','new-followup':'Follow-up Visit',setup:'Setup & Configuration'};
+  const titles={dashboard:'Dashboard',patients:'Patients','new-patient':'New Patient','new-examination':'Initial Examination','new-surgery':'Operation Record','new-followup':'Follow-up Visit',setup:'Setup & Configuration'};
   document.getElementById('topbar-title').textContent=titles[v]||'';
   const dataEntryViews=['new-examination','new-surgery','new-followup'];
   const bar=document.getElementById('patient-lookup-bar');
@@ -1503,6 +1565,8 @@ async function submitExamination(e){
   const row={
     ID:'EX'+Date.now(),PID:ACTIVE_PATIENT.PID,DateOfExam:g('e-date').value,
     Examiner:g('e-examiner').value,
+    VA_OD:g('e-va-od').value,Irrefractable_OD:g('e-irr-od')?.checked?'Yes':'No',Sphere_OD:g('e-sph-od')?.value||'',Cylinder_OD:g('e-cyl-od')?.value||'',Axis_OD:g('e-axis-od')?.value||'',
+    VA_OS:g('e-va-os').value,Irrefractable_OS:g('e-irr-os')?.checked?'Yes':'No',Sphere_OS:g('e-sph-os')?.value||'',Cylinder_OS:g('e-cyl-os')?.value||'',Axis_OS:g('e-axis-os')?.value||'',
     CorneaOpacity_OD:r('e-cornea-od'),LocationCornea_OD:g('e-cornea-loc-od').value,Density_OD:g('e-cornea-density-od').value,
     CorneaDiamH_OD:g('e-cornea-diamh-od').value,CorneaDiamV_OD:g('e-cornea-diamv-od').value,
     CCT_OD:g('e-cct-od').value,PupilDiam_OD:g('e-pupil-diam-od').value,
@@ -1581,7 +1645,7 @@ async function submitFollowup(e){
     ID:'FU'+Date.now(),PID:ACTIVE_PATIENT.PID,DateOfExam:g('f-date').value,
     VisitType:calcPostopLabel(DB.operations.filter(o=>String(o.PID)===String(ACTIVE_PATIENT.PID)).sort((a,b)=>new Date(b.DateOfOp)-new Date(a.DateOfOp))[0]?.DateOfOp, g('f-date').value),
     Examiner:g('f-examiner').value,
-    VA_OD:g('f-va-od').value,Sphere_OD:g('f-sph-od').value,Cylinder_OD:g('f-cyl-od').value,
+    VA_OD:g('f-va-od').value,Irrefractable_OD:g('f-irr-od')?.checked?'Yes':'No',Sphere_OD:g('f-sph-od').value,Cylinder_OD:g('f-cyl-od').value,
     Axis_OD:g('f-axis-od').value,IOP_OD:g('f-iop-od').value,
     Cornea_OD:r('f-cornea-od'),CorneaDesc_OD:g('f-cornea-desc-od').value,
     AC_OD:r('f-ac-od'),ACDesc_OD:g('f-ac-desc-od').value,
@@ -1595,7 +1659,7 @@ async function submitFollowup(e){
     Fundus_OD:r('f-fundus-od'),FundusDesc_OD:g('f-fundus-desc-od').value,
     CD_OD:g('f-cd-od').value,Gonioscopy_OD:g('f-gonio-od').checked?'Yes':'No',
     GonioDesc_OD:g('f-gonio-desc-od').value,
-    VA_OS:g('f-va-os').value,Sphere_OS:g('f-sph-os').value,Cylinder_OS:g('f-cyl-os').value,
+    VA_OS:g('f-va-os').value,Irrefractable_OS:g('f-irr-os')?.checked?'Yes':'No',Sphere_OS:g('f-sph-os').value,Cylinder_OS:g('f-cyl-os').value,
     Axis_OS:g('f-axis-os').value,IOP_OS:g('f-iop-os').value,
     Cornea_OS:r('f-cornea-os'),CorneaDesc_OS:g('f-cornea-desc-os').value,
     AC_OS:r('f-ac-os'),ACDesc_OS:g('f-ac-desc-os').value,
@@ -1893,6 +1957,26 @@ function updatePostopBadge(){
   const label = calcPostopLabel(ops[0].DateOfOp, fDate);
   badge.textContent = label;
   badge.style.display = label ? 'inline-flex' : 'none';
+}
+
+
+// ─── IRREFRACTABLE TOGGLE ───
+function toggleIrrefractable(prefix, eye){
+  const cb = document.getElementById(`${prefix}-irr-${eye}`);
+  const wrap = document.getElementById(`${prefix}-refraction-${eye}`);
+  if(!wrap) return;
+  const disabled = cb && cb.checked;
+  wrap.style.opacity = disabled ? '0.3' : '1';
+  wrap.style.pointerEvents = disabled ? 'none' : '';
+  // clear values when irrefractable
+  if(disabled){
+    const sph = document.getElementById(`${prefix}-sph-${eye}`);
+    const cyl = document.getElementById(`${prefix}-cyl-${eye}`);
+    const axis = document.getElementById(`${prefix}-axis-${eye}`);
+    if(sph) sph.value = '';
+    if(cyl) cyl.value = '';
+    if(axis) axis.value = '';
+  }
 }
 
 // ─── BIOMETRY FORMULA ROWS ───
