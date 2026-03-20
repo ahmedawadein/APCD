@@ -3340,12 +3340,16 @@ function getStoredImages(pid){
 }
 function saveStoredImages(pid, images){
   try { localStorage.setItem('pedicat_imgs_'+pid, JSON.stringify(images)); } catch(e){
-    console.warn('localStorage full — image thumbnails not cached');
+    // If quota exceeded, try saving without full-res copies
+    try {
+      const slim = images.map(i=>({...i, fullDataUrl: undefined}));
+      localStorage.setItem('pedicat_imgs_'+pid, JSON.stringify(slim));
+    } catch(e2){ console.warn('localStorage full — could not cache images'); }
   }
 }
-function addStoredImage(pid, name, desc, dataUrl){
+function addStoredImage(pid, name, desc, thumbDataUrl, fullDataUrl){
   const imgs = getStoredImages(pid);
-  imgs.push({ name, desc, dataUrl, uploadedAt: new Date().toISOString() });
+  imgs.push({ name, desc, dataUrl: thumbDataUrl, fullDataUrl: fullDataUrl||thumbDataUrl, uploadedAt: new Date().toISOString() });
   saveStoredImages(pid, imgs);
 }
 
@@ -3389,7 +3393,7 @@ function renderStoredImages(pid){
   }
   grid.innerHTML = imgs.map((img,i)=>`
     <div class="image-thumb">
-      <img src="${img.dataUrl}" onclick="openLightbox('${img.dataUrl}')" alt="${img.desc||img.name}">
+      <img src="${img.dataUrl}" onclick="openLightbox('${img.fullDataUrl||img.dataUrl}')" alt="${img.desc||img.name}">
       <div class="image-thumb-label" title="${img.desc||img.name}">${img.desc||img.name}</div>
       <button onclick="deleteStoredImage('${pid}',${i},event)" title="Delete" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>
     </div>`).join('');
@@ -3452,77 +3456,96 @@ async function uploadImages(files, pid, zoneId, description){
   const desc = (description || '').trim();
   const progress = document.getElementById('upload-progress-'+zid);
   const bar = document.getElementById('upload-bar-'+zid);
-
-  // ── Show uploading state ──
   const zone = document.getElementById('upload-zone-'+zid);
+
+  // ── Show uploading state on zone ──
   if(zone){
-    const zoneText = zone.querySelector('.upload-zone-text');
-    const zoneIcon = zone.querySelector('.upload-zone-icon');
-    if(zoneText) zoneText.textContent = 'Uploading…';
-    if(zoneIcon) zoneIcon.textContent = '⏳';
+    zone.querySelector('.upload-zone-text').textContent = 'Saving…';
+    zone.querySelector('.upload-zone-icon').textContent = '⏳';
   }
   if(progress) progress.style.display = 'block';
 
   let done = 0;
-  for(const file of files){
-    try {
-      const b64 = await fileToBase64(file);
-      const dataUrl = 'data:'+file.type+';base64,'+b64;
-      const storedName = desc
-        ? desc + (files.length > 1 ? ' ('+(done+1)+')' : '')
-        : file.name.replace(/\.[^.]+$/,'');
+  try {
+    for(const file of files){
+      try {
+        // Read full base64 for Drive upload
+        const b64 = await fileToBase64(file);
+        const fullDataUrl = 'data:'+file.type+';base64,'+b64;
 
-      // ── Save to localStorage immediately so it shows up everywhere ──
-      addStoredImage(pid, file.name, storedName, dataUrl);
+        // Create a small thumbnail (max 300px) for localStorage to avoid quota issues
+        const thumbDataUrl = await resizeImageToThumb(fullDataUrl, 300);
 
-      done++;
-      if(bar) bar.style.width = Math.round(done/files.length*100)+'%';
+        const storedName = desc
+          ? desc + (files.length > 1 ? ' ('+(done+1)+')' : '')
+          : file.name.replace(/\.[^.]+$/,'');
 
-      // ── Refresh whichever grid is currently visible ──
-      renderStoredImages(pid);
-      // Also update main grid card if open
-      const mainGrid = document.getElementById('image-grid-main');
-      if(mainGrid) renderStoredImages(pid);
+        // Store thumbnail in localStorage
+        addStoredImage(pid, file.name, storedName, thumbDataUrl, fullDataUrl);
 
-      // ── Show/hide grid card for main upload view ──
-      const gridCard = document.getElementById('image-grid-card-'+zid);
-      if(gridCard) gridCard.style.display = '';
-      if(zone) zone.style.display = 'none';
+        done++;
+        if(bar) bar.style.width = Math.round(done/files.length*100)+'%';
 
-      // ── Push to Google Drive in background (fire-and-forget) ──
-      fetch(CONFIG.webAppUrl, {
-        method:'POST',
-        mode:'no-cors',
-        body: JSON.stringify({
-          action:'uploadImage',
-          pid, filename: storedName,
-          originalFilename: file.name,
-          mimeType: file.type,
-          data: b64
-        })
-      }).catch(()=>{});
+        // Refresh visible grids immediately
+        renderStoredImages(pid);
+        const gridCard = document.getElementById('image-grid-card-'+zid);
+        if(gridCard) gridCard.style.display = '';
+        if(zone) zone.style.display = 'none';
 
-    } catch(err) {
-      console.error('Upload failed',err);
+        // Fire-and-forget to Google Drive
+        fetch(CONFIG.webAppUrl, {
+          method:'POST', mode:'no-cors',
+          body: JSON.stringify({ action:'uploadImage', pid, filename:storedName,
+            originalFilename:file.name, mimeType:file.type, data:b64 })
+        }).catch(()=>{});
+
+      } catch(fileErr){
+        console.error('Failed processing file:', file.name, fileErr);
+        showToast('Could not save "'+file.name+'" — try a smaller image','error');
+      }
+    }
+  } finally {
+    // ── Always clean up — no stuck state ──
+    await new Promise(r=>setTimeout(r, 300));
+    if(progress){ progress.style.display='none'; if(bar) bar.style.width='0%'; }
+
+    // Restore zone for modal view (compact add-more strip)
+    if(zone && zid !== 'main'){
+      zone.style.display = '';
+      zone.querySelector('.upload-zone-icon').textContent = '➕';
+      zone.querySelector('.upload-zone-text').textContent = 'Tap to add more photos';
+      const sub = zone.querySelector('.upload-zone-sub');
+      if(sub) sub.textContent = 'JPG, PNG — multiple files supported';
+    }
+    // For main view: if nothing was saved (all failed), restore the upload zone
+    if(zid === 'main' && done === 0){
+      if(zone){
+        zone.style.display = '';
+        zone.querySelector('.upload-zone-icon').textContent = '📷';
+        zone.querySelector('.upload-zone-text').textContent = 'Tap to upload a photo';
+      }
     }
   }
 
-  await new Promise(r=>setTimeout(r, 400));
-  if(progress) progress.style.display = 'none';
-  if(bar) bar.style.width = '0%';
+  if(done > 0) showToast(done+' photo'+(done!==1?'s':'')+' saved ✓', 'success');
+}
 
-  // ── Restore zone for modal (compact add-more) ──
-  if(zone && zid !== 'main'){
-    zone.style.display = '';
-    const zoneIcon = zone.querySelector('.upload-zone-icon');
-    if(zoneIcon) zoneIcon.textContent = '➕';
-    const zoneText = zone.querySelector('.upload-zone-text');
-    if(zoneText) zoneText.textContent = 'Tap to add more photos';
-    const zoneSub = zone.querySelector('.upload-zone-sub');
-    if(zoneSub) zoneSub.textContent = 'JPG, PNG — multiple files supported';
-  }
-
-  showToast(done+' photo'+(done!==1?'s':'')+' saved ✓', 'success');
+// Resize an image dataUrl to a thumbnail (max maxPx on longest side)
+function resizeImageToThumb(dataUrl, maxPx){
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxPx / Math.max(img.width, img.height));
+      const w = Math.round(img.width * scale);
+      const h = Math.round(img.height * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', 0.75));
+    };
+    img.onerror = () => resolve(dataUrl); // fallback: use original
+    img.src = dataUrl;
+  });
 }
 
 function fileToBase64(file){
