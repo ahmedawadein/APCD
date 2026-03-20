@@ -357,36 +357,24 @@
   .image-lightbox-close:hover{opacity:1}
   .image-caption-input{margin-top:8px;font-size:12.5px;padding:6px 10px}
 
-  /* PHOTO PICKER POPUP */
-  .photo-picker-overlay{position:fixed;inset:0;z-index:600;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);animation:fadeIn .18s}
-  .photo-picker-sheet{background:var(--navy-mid);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:20px 20px 28px;animation:slideUpSheet .22s ease}
-  @keyframes slideUpSheet{from{transform:translateY(60px);opacity:0}to{transform:none;opacity:1}}
-  .photo-picker-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);text-align:center;margin-bottom:16px}
-  .photo-picker-options{display:flex;gap:10px}
-  .photo-picker-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:9px;padding:18px 12px;border:1px solid var(--border-dim);border-radius:12px;background:rgba(255,255,255,.04);cursor:pointer;transition:all .15s;font-family:'Lato',sans-serif;color:var(--text-main)}
-  .photo-picker-btn:hover{border-color:var(--teal);background:var(--teal-glow);color:var(--teal)}
-  .photo-picker-btn .picker-icon{font-size:28px}
-  .photo-picker-btn .picker-label{font-size:13px;font-weight:700}
-  .photo-picker-btn .picker-sub{font-size:10.5px;color:var(--text-faint);text-align:center;line-height:1.4}
-  .photo-picker-cancel{display:block;width:100%;margin-top:10px;padding:11px;border:1px solid var(--border-dim);border-radius:10px;background:transparent;color:var(--text-dim);font-family:'Lato',sans-serif;font-size:13.5px;font-weight:700;cursor:pointer;transition:all .15s}
-  .photo-picker-cancel:hover{border-color:var(--red);color:var(--red)}
-  .picker-desc-step{display:none;animation:fadeIn .18s}
-  .picker-desc-step.active{display:block}
-  .picker-desc-label{font-size:12px;color:var(--text-dim);margin-bottom:8px;font-family:'Lato',sans-serif}
-  .picker-desc-input{width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:9px;color:var(--text-main);font-family:'Lato',sans-serif;font-size:14px;padding:11px 14px;outline:none;transition:border-color .15s,box-shadow .15s;margin-bottom:10px}
+  /* PHOTO DESCRIPTION MODAL */
+  .photo-picker-overlay{position:fixed;inset:0;z-index:600;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);backdrop-filter:blur(3px)}
+  .photo-picker-sheet{background:var(--navy-mid);border:1px solid var(--border);border-radius:14px;width:calc(100% - 32px);max-width:420px;padding:20px 20px 18px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .photo-picker-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:12px}
+  .picker-preview-strip{display:flex;gap:7px;margin-bottom:11px;overflow-x:auto}
+  .picker-preview-thumb{width:58px;height:58px;border-radius:7px;object-fit:cover;border:1px solid var(--border);flex-shrink:0}
+  .picker-file-count{font-size:11px;color:var(--text-faint);margin-bottom:9px;font-family:'DM Mono',monospace}
+  .picker-desc-label{font-size:12px;color:var(--text-dim);margin-bottom:6px}
+  .picker-desc-input{width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text-main);font-family:'Lato',sans-serif;font-size:14px;padding:10px 13px;outline:none;transition:border-color .15s,box-shadow .15s;margin-bottom:9px}
   .picker-desc-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-glow)}
   .picker-desc-input::placeholder{color:var(--text-faint)}
-  .picker-quick-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-  .picker-tag{padding:5px 11px;border:1px solid var(--border-dim);border-radius:20px;font-size:11.5px;font-family:'Lato',sans-serif;color:var(--text-dim);cursor:pointer;transition:all .13s;background:transparent}
-  .picker-tag:hover,.picker-tag.selected{border-color:var(--teal);background:var(--teal-glow);color:var(--teal)}
+  .picker-quick-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:13px}
+  .picker-tag{padding:4px 10px;border:1px solid var(--border-dim);border-radius:20px;font-size:11px;font-family:'Lato',sans-serif;color:var(--text-dim);cursor:pointer;transition:all .12s;background:transparent;user-select:none}
+  .picker-tag:hover,.picker-tag.sel{border-color:var(--teal);background:var(--teal-glow);color:var(--teal)}
   .picker-desc-actions{display:flex;gap:8px}
-  .picker-upload-btn{flex:1;padding:12px;border-radius:9px;background:var(--teal);color:var(--navy);font-family:'Lato',sans-serif;font-size:13.5px;font-weight:700;cursor:pointer;border:none;transition:all .15s}
-  .picker-upload-btn:hover{background:#22d4cc;transform:translateY(-1px)}
-  .picker-back-btn{padding:12px 16px;border-radius:9px;background:transparent;border:1px solid var(--border-dim);color:var(--text-dim);font-family:'Lato',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
-  .picker-back-btn:hover{border-color:var(--border);color:var(--text-main)}
-  .picker-preview-strip{display:flex;gap:8px;margin-bottom:10px;overflow-x:auto;padding-bottom:4px}
-  .picker-preview-thumb{width:58px;height:58px;border-radius:8px;object-fit:cover;border:1px solid var(--border-dim);flex-shrink:0}
-  .picker-file-count{font-size:12px;color:var(--teal);font-family:'DM Mono',monospace;margin-bottom:10px}
+  .picker-upload-btn{flex:1;padding:11px;border-radius:8px;background:var(--teal);color:var(--navy);font-family:'Lato',sans-serif;font-size:13.5px;font-weight:700;cursor:pointer;border:none}
+  .picker-upload-btn:disabled{opacity:.55;cursor:default}
+  .picker-cancel-btn{padding:11px 15px;border-radius:8px;background:transparent;border:1px solid var(--border-dim);color:var(--text-dim);font-family:'Lato',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
 
   /* PATIENT SEARCH BAR */
   #patient-lookup-bar{background:rgba(13,27,42,.95);border-bottom:1px solid var(--border);padding:12px 30px;display:flex;align-items:center;gap:12px;position:sticky;top:58px;z-index:40;backdrop-filter:blur(8px)}
@@ -1981,23 +1969,16 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
       <div class="form-card">
         <div class="form-card-title">Upload</div>
         <div class="upload-zone" id="upload-zone-main"
-          onclick="showPhotoPicker('main')"
+          onclick="document.getElementById('img-file-main').click()"
           ondragover="event.preventDefault();this.classList.add('drag-over')"
           ondragleave="this.classList.remove('drag-over')"
           ondrop="handleImageDrop(event,'main')">
-          <!-- Camera input (no capture attr = shows OS picker, but we handle separately) -->
-          <input type="file" id="img-file-input-main-camera" accept="image/*"
-            capture="environment" onchange="handleImageSelect(event,'main')">
-          <input type="file" id="img-file-input-main-gallery" accept="image/*" multiple
-            onchange="handleImageSelect(event,'main')">
+          <input type="file" id="img-file-main" accept="image/*" multiple style="display:none"
+            onchange="onFilesChosen(event,'main')">
           <div class="upload-zone-icon">📷</div>
           <div class="upload-zone-text">Tap to upload a photo</div>
-          <div class="upload-zone-sub">Take a new photo or choose from your gallery / hard disc</div>
-          <div class="upload-progress" id="upload-progress-main">
-            <div class="upload-progress-bar" id="upload-bar-main" style="width:0%"></div>
-          </div>
+          <div class="upload-zone-sub">Choose from gallery, camera or hard disc</div>
         </div>
-        <div id="upload-status" style="margin-top:10px;font-size:13px;color:var(--text-dim);min-height:20px"></div>
       </div>
       <div class="form-card" id="image-grid-card-main" style="display:none">
         <div class="form-card-title" style="display:flex;align-items:center;justify-content:space-between">
@@ -2017,59 +1998,36 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
 <div id="sync-bar"><div class="sync-dot"></div><span class="sync-msg" id="sync-msg"></span></div>
 </div><!-- /app -->
 
-<!-- PHOTO PICKER POPUP -->
-<div id="photo-picker-overlay" class="photo-picker-overlay" style="display:none" onclick="if(event.target===this)closePhotoPicker()">
+<!-- PHOTO DESCRIPTION MODAL -->
+<div id="photo-picker-overlay" class="photo-picker-overlay" style="display:none">
   <div class="photo-picker-sheet">
-
-    <!-- Step 1: Choose source -->
-    <div id="picker-source-step">
-      <div class="photo-picker-title">Upload Photo</div>
-      <div class="photo-picker-options">
-        <button class="photo-picker-btn" onclick="pickerChooseSource('camera')">
-          <span class="picker-icon">📸</span>
-          <span class="picker-label">Take Photo</span>
-          <span class="picker-sub">Open camera to capture a new image</span>
-        </button>
-        <button class="photo-picker-btn" onclick="pickerChooseSource('gallery')">
-          <span class="picker-icon">🖼️</span>
-          <span class="picker-label">Choose File</span>
-          <span class="picker-sub">Pick from gallery, photos, or hard disc</span>
-        </button>
-      </div>
-      <button class="photo-picker-cancel" onclick="closePhotoPicker()">Cancel</button>
+    <div class="photo-picker-title">📎 Add Photo Description</div>
+    <div id="picker-preview-strip" class="picker-preview-strip"></div>
+    <div id="picker-file-count" class="picker-file-count"></div>
+    <div class="picker-desc-label">Short description (optional)</div>
+    <input id="picker-desc-input" class="picker-desc-input" type="text"
+      placeholder="e.g. Right biometry, Left gonioscopy…"
+      onkeydown="if(event.key==='Enter'){event.preventDefault();confirmUpload()}">
+    <div class="picker-quick-tags">
+      <span class="picker-tag" onclick="setTag(this,'Right biometry')">Right biometry</span>
+      <span class="picker-tag" onclick="setTag(this,'Left biometry')">Left biometry</span>
+      <span class="picker-tag" onclick="setTag(this,'Right gonioscopy')">Right gonioscopy</span>
+      <span class="picker-tag" onclick="setTag(this,'Left gonioscopy')">Left gonioscopy</span>
+      <span class="picker-tag" onclick="setTag(this,'Right anterior segment')">Right ant. segment</span>
+      <span class="picker-tag" onclick="setTag(this,'Left anterior segment')">Left ant. segment</span>
+      <span class="picker-tag" onclick="setTag(this,'Right fundus')">Right fundus</span>
+      <span class="picker-tag" onclick="setTag(this,'Left fundus')">Left fundus</span>
+      <span class="picker-tag" onclick="setTag(this,'Right OCT')">Right OCT</span>
+      <span class="picker-tag" onclick="setTag(this,'Left OCT')">Left OCT</span>
+      <span class="picker-tag" onclick="setTag(this,'Corneal topography')">Corneal topography</span>
+      <span class="picker-tag" onclick="setTag(this,'Post-op day 1')">Post-op day 1</span>
+      <span class="picker-tag" onclick="setTag(this,'Post-op week 1')">Post-op week 1</span>
+      <span class="picker-tag" onclick="setTag(this,'Post-op month 1')">Post-op month 1</span>
     </div>
-
-    <!-- Step 2: Add description (shown after files selected) -->
-    <div id="picker-desc-step" class="picker-desc-step">
-      <div class="photo-picker-title">Add Description</div>
-      <div id="picker-preview-strip" class="picker-preview-strip"></div>
-      <div id="picker-file-count" class="picker-file-count"></div>
-      <div class="picker-desc-label">Short description for this photo (optional)</div>
-      <input id="picker-desc-input" class="picker-desc-input" type="text"
-        placeholder="e.g. Right biometry, Left gonioscopy…"
-        onkeydown="if(event.key==='Enter')pickerConfirmUpload()">
-      <div class="picker-quick-tags" id="picker-quick-tags">
-        <span class="picker-tag" onclick="pickerSetTag(this,'Right biometry')">Right biometry</span>
-        <span class="picker-tag" onclick="pickerSetTag(this,'Left biometry')">Left biometry</span>
-        <span class="picker-tag" onclick="pickerSetTag(this,'Right gonioscopy')">Right gonioscopy</span>
-        <span class="picker-tag" onclick="pickerSetTag(this,'Left gonioscopy')">Left gonioscopy</span>
-        <span class="picker-tag" onclick="pickerSetTag(this,'Right anterior segment')">Right ant. segment</span>
-        <span class="picker-tag" onclick="pickerSetTag(this,'Left anterior segment')">Left ant. segment</span>
-        <span class="picker-tag" onclick="pickerSetTag(this,'Right fundus')">Right fundus</span>
-        <span class="picker-tag" onclick="pickerSetTag(this,'Left fundus')">Left fundus</span>
-        <span class="picker-tag" onclick="pickerSetTag(this,'Right OCT')">Right OCT</span>
-        <span class="picker-tag" onclick="pickerSetTag(this,'Left OCT')">Left OCT</span>
-        <span class="picker-tag" onclick="pickerSetTag(this,'Corneal topography')">Corneal topography</span>
-        <span class="picker-tag" onclick="pickerSetTag(this,'Post-op day 1')">Post-op day 1</span>
-        <span class="picker-tag" onclick="pickerSetTag(this,'Post-op week 1')">Post-op week 1</span>
-        <span class="picker-tag" onclick="pickerSetTag(this,'Post-op month 1')">Post-op month 1</span>
-      </div>
-      <div class="picker-desc-actions">
-        <button class="picker-back-btn" onclick="pickerGoBack()">← Back</button>
-        <button class="picker-upload-btn" onclick="pickerConfirmUpload()">Upload Photo</button>
-      </div>
+    <div class="picker-desc-actions">
+      <button class="picker-cancel-btn" onclick="cancelUpload()">Cancel</button>
+      <button class="picker-upload-btn" id="picker-save-btn" onclick="confirmUpload()">Save Photo</button>
     </div>
-
   </div>
 </div>
 
@@ -2149,7 +2107,7 @@ function showView(v){
     if(imgs.length){
       if(gridCard) gridCard.style.display = '';
       if(zone) zone.style.display = 'none';
-      renderStoredImages(pid);
+      renderImages(pid);
     } else {
       if(gridCard) gridCard.style.display = 'none';
       if(zone) zone.style.display = '';
@@ -3235,121 +3193,92 @@ function getFupComplications(eye){
 }
 
 
-// ─── PHOTO PICKER ───
-let _photoPickerZoneId = 'main';
-let _pickerPendingFiles = null;  // files waiting for description confirmation
-let _pickerSource = null;        // 'camera' or 'gallery'
+// ─── IMAGE: pending files waiting for description ───
+let _pendingFiles = [];
+let _pendingZone = 'main';
 
-function showPhotoPicker(zoneId){
-  _photoPickerZoneId = zoneId || 'main';
-  _pickerPendingFiles = null;
-  // Reset to step 1
-  document.getElementById('picker-source-step').style.display = '';
-  document.getElementById('picker-desc-step').classList.remove('active');
-  document.getElementById('picker-desc-input').value = '';
-  document.querySelectorAll('.picker-tag').forEach(t=>t.classList.remove('selected'));
-  document.getElementById('photo-picker-overlay').style.display = 'flex';
-  document.body.style.overflow = 'hidden';
+// Called when user selects files (from zone input or drag-drop)
+function onFilesChosen(event, zoneId){
+  const files = [...event.target.files].filter(f => f.type.startsWith('image/'));
+  event.target.value = ''; // reset so same file can be chosen again
+  if(!files.length) return;
+  openDescModal(files, zoneId);
 }
 
-function closePhotoPicker(){
-  document.getElementById('photo-picker-overlay').style.display = 'none';
-  document.body.style.overflow = '';
-  _pickerPendingFiles = null;
+function handleImageDrop(event, zoneId){
+  event.preventDefault();
+  document.getElementById('upload-zone-'+zoneId)?.classList.remove('drag-over');
+  const files = [...event.dataTransfer.files].filter(f => f.type.startsWith('image/'));
+  if(!files.length) return;
+  openDescModal(files, zoneId);
 }
 
-function pickerChooseSource(source){
-  _pickerSource = source;
-  const zid = _photoPickerZoneId;
-  const inputId = source === 'camera'
-    ? 'img-file-input-'+zid+'-camera'
-    : 'img-file-input-'+zid+'-gallery';
-  const input = document.getElementById(inputId);
-  if(input){ input.value = ''; input.click(); }
-  // The onchange handler will call pickerFilesSelected()
-}
+function openDescModal(files, zoneId){
+  const targetPid = zoneId === 'main' ? ACTIVE_PATIENT?.PID : zoneId;
+  if(!targetPid){ showToast('Please select a patient first','error'); return; }
+  _pendingFiles = files;
+  _pendingZone = zoneId;
 
-// Called from the hidden file input's onchange (replaces handleImageSelect)
-function pickerFilesSelected(event, zoneId){
-  const files = [...event.target.files];
-  if(!files.length){ closePhotoPicker(); return; }
-  _pickerPendingFiles = files;
-  _photoPickerZoneId = zoneId;
-
-  // Show step 2
-  document.getElementById('picker-source-step').style.display = 'none';
-  document.getElementById('picker-desc-step').classList.add('active');
-  document.getElementById('picker-desc-input').value = '';
-  document.querySelectorAll('.picker-tag').forEach(t=>t.classList.remove('selected'));
-
-  // Show file preview strip
+  // Build preview thumbnails
   const strip = document.getElementById('picker-preview-strip');
-  const count = document.getElementById('picker-file-count');
   strip.innerHTML = '';
-  files.slice(0,6).forEach(f => {
-    const url = URL.createObjectURL(f);
+  files.slice(0,5).forEach(f => {
     const img = document.createElement('img');
     img.className = 'picker-preview-thumb';
-    img.src = url;
+    img.src = URL.createObjectURL(f);
     strip.appendChild(img);
   });
-  count.textContent = files.length === 1
-    ? '1 photo selected'
-    : files.length + ' photos selected — one description will apply to all';
+  document.getElementById('picker-file-count').textContent =
+    files.length === 1 ? '1 photo selected' :
+    files.length + ' photos — one description applies to all';
 
-  // Focus the input
-  setTimeout(()=>document.getElementById('picker-desc-input').focus(), 120);
+  document.getElementById('picker-desc-input').value = '';
+  document.querySelectorAll('.picker-tag').forEach(t => t.classList.remove('sel'));
+  document.getElementById('photo-picker-overlay').style.display = 'flex';
+  setTimeout(() => document.getElementById('picker-desc-input').focus(), 80);
 }
 
-function pickerSetTag(el, text){
-  const input = document.getElementById('picker-desc-input');
-  // Toggle: if already selected, clear it
-  if(el.classList.contains('selected')){
-    el.classList.remove('selected');
-    if(input.value === text) input.value = '';
-  } else {
-    document.querySelectorAll('.picker-tag').forEach(t=>t.classList.remove('selected'));
-    el.classList.add('selected');
-    input.value = text;
-  }
-  input.focus();
+function setTag(el, text){
+  document.querySelectorAll('.picker-tag').forEach(t => t.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('picker-desc-input').value = text;
+  document.getElementById('picker-desc-input').focus();
 }
 
-function pickerGoBack(){
-  document.getElementById('picker-source-step').style.display = '';
-  document.getElementById('picker-desc-step').classList.remove('active');
-  _pickerPendingFiles = null;
+function cancelUpload(){
+  _pendingFiles = [];
+  document.getElementById('photo-picker-overlay').style.display = 'none';
 }
 
-function pickerConfirmUpload(){
-  if(!_pickerPendingFiles || !_pickerPendingFiles.length) return;
-  const description = document.getElementById('picker-desc-input').value.trim();
-  const zid = _photoPickerZoneId;
-  const targetPid = zid === 'main' ? ACTIVE_PATIENT?.PID : zid;
-  if(!targetPid){ showToast('Please select a patient first','error'); closePhotoPicker(); return; }
-  closePhotoPicker();
-  uploadImages(_pickerPendingFiles, targetPid, zid, description);
-  _pickerPendingFiles = null;
+function confirmUpload(){
+  if(!_pendingFiles.length) return;
+  const desc = document.getElementById('picker-desc-input').value.trim();
+  const zid = _pendingZone;
+  const pid = zid === 'main' ? ACTIVE_PATIENT?.PID : zid;
+  if(!pid){ showToast('Please select a patient first','error'); cancelUpload(); return; }
+
+  document.getElementById('photo-picker-overlay').style.display = 'none';
+
+  const btn = document.getElementById('picker-save-btn');
+  if(btn) btn.disabled = true;
+
+  saveImages([..._pendingFiles], pid, zid, desc).finally(() => {
+    if(btn) btn.disabled = false;
+  });
+  _pendingFiles = [];
 }
 
-// ─── IMAGE STORAGE (localStorage) ───
-// Images are stored locally as: pedicat_imgs_<pid> = [{name, desc, dataUrl, uploadedAt}]
-
+// ─── IMAGE STORAGE (localStorage thumbnails) ───
 function getStoredImages(pid){
-  try { return JSON.parse(localStorage.getItem('pedicat_imgs_'+pid)||'[]'); } catch(e){ return []; }
+  try{ return JSON.parse(localStorage.getItem('pedicat_imgs_'+pid)||'[]'); }catch(e){ return []; }
 }
-function saveStoredImages(pid, images){
-  try { localStorage.setItem('pedicat_imgs_'+pid, JSON.stringify(images)); } catch(e){
-    // If quota exceeded, try saving without full-res copies
-    try {
-      const slim = images.map(i=>({...i, fullDataUrl: undefined}));
-      localStorage.setItem('pedicat_imgs_'+pid, JSON.stringify(slim));
-    } catch(e2){ console.warn('localStorage full — could not cache images'); }
-  }
+function saveStoredImages(pid, imgs){
+  try{ localStorage.setItem('pedicat_imgs_'+pid, JSON.stringify(imgs)); }
+  catch(e){ console.warn('Storage full',e); }
 }
-function addStoredImage(pid, name, desc, thumbDataUrl, fullDataUrl){
+function addStoredImage(pid, name, desc, thumb){
   const imgs = getStoredImages(pid);
-  imgs.push({ name, desc, dataUrl: thumbDataUrl, fullDataUrl: fullDataUrl||thumbDataUrl, uploadedAt: new Date().toISOString() });
+  imgs.push({name, desc, dataUrl: thumb, savedAt: new Date().toISOString()});
   saveStoredImages(pid, imgs);
 }
 
@@ -3360,192 +3289,120 @@ function openImagesTab(pid){
   currentImagePID = pid;
   const tab = document.getElementById('tab-images');
   if(!tab) return;
-  tab.innerHTML = `
-    <div style="margin-bottom:14px">
-      <div class="upload-zone" id="upload-zone-${pid}"
-        onclick="showPhotoPicker('${pid}')"
+  tab.innerHTML = \`
+    <div style="margin-bottom:12px">
+      <div class="upload-zone" id="upload-zone-\${pid}"
+        onclick="document.getElementById('img-file-\${pid}').click()"
         ondragover="event.preventDefault();this.classList.add('drag-over')"
         ondragleave="this.classList.remove('drag-over')"
-        ondrop="handleImageDrop(event,'${pid}')">
-        <input type="file" id="img-file-input-${pid}-camera" accept="image/*"
-          capture="environment" onchange="handleImageSelect(event,'${pid}')">
-        <input type="file" id="img-file-input-${pid}-gallery" accept="image/*" multiple
-          onchange="handleImageSelect(event,'${pid}')">
+        ondrop="handleImageDrop(event,'\${pid}')">
+        <input type="file" id="img-file-\${pid}" accept="image/*" multiple style="display:none"
+          onchange="onFilesChosen(event,'\${pid}')">
         <div class="upload-zone-icon">📷</div>
         <div class="upload-zone-text">Tap to upload a photo</div>
-        <div class="upload-zone-sub">Take a new photo or choose from gallery / hard disc</div>
-        <div class="upload-progress" id="upload-progress-${pid}">
-          <div class="upload-progress-bar" id="upload-bar-${pid}" style="width:0%"></div>
-        </div>
+        <div class="upload-zone-sub">Choose from gallery, camera or hard disc</div>
       </div>
     </div>
-    <div id="image-grid-${pid}" class="image-grid" style="margin-top:4px"></div>`;
-  renderStoredImages(pid);
+    <div class="image-grid" id="image-grid-\${pid}"></div>\`;
+  renderImages(pid);
 }
 
-function renderStoredImages(pid){
+function renderImages(pid){
   const grid = document.getElementById('image-grid-'+pid) || document.getElementById('image-grid-main');
   if(!grid) return;
   const imgs = getStoredImages(pid);
   if(!imgs.length){
-    grid.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-faint);font-size:12.5px;grid-column:1/-1">No images yet — tap above to upload</div>';
+    grid.innerHTML = '<div style="text-align:center;padding:28px;color:var(--text-faint);font-size:12.5px;grid-column:1/-1">No images yet — tap above to upload</div>';
     return;
   }
-  grid.innerHTML = imgs.map((img,i)=>`
+  grid.innerHTML = imgs.map((img,i) => \`
     <div class="image-thumb">
-      <img src="${img.dataUrl}" onclick="openLightbox('${img.fullDataUrl||img.dataUrl}')" alt="${img.desc||img.name}">
-      <div class="image-thumb-label" title="${img.desc||img.name}">${img.desc||img.name}</div>
-      <button onclick="deleteStoredImage('${pid}',${i},event)" title="Delete" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>
-    </div>`).join('');
+      <img src="\${img.dataUrl}" onclick="openLightbox('\${img.dataUrl}')" alt="\${img.desc||img.name}">
+      <div class="image-thumb-label" title="\${img.desc||img.name}">\${img.desc||img.name}</div>
+      <button onclick="deleteImage('\${pid}',\${i},event)" title="Remove"
+        style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.65);border:none;color:#fff;
+               border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;line-height:1">✕</button>
+    </div>\`).join('');
 }
 
-function deleteStoredImage(pid, index, event){
+function deleteImage(pid, idx, event){
   event.stopPropagation();
   if(!confirm('Remove this image?')) return;
   const imgs = getStoredImages(pid);
-  imgs.splice(index, 1);
+  imgs.splice(idx, 1);
   saveStoredImages(pid, imgs);
-  renderStoredImages(pid);
-  // Also re-render main grid if visible
-  const mainGrid = document.getElementById('image-grid-main');
-  if(mainGrid && ACTIVE_PATIENT?.PID === pid) renderStoredImages(pid);
+  renderImages(pid);
   showToast('Image removed','success');
 }
 
-async function loadPatientImages(pid){
-  // Now uses localStorage — no server fetch needed
-  renderStoredImages(pid);
-}
+async function loadPatientImages(pid){ renderImages(pid); }
 
-function handleImageDrop(event, pid){
-  event.preventDefault();
-  document.getElementById('upload-zone-'+pid)?.classList.remove('drag-over');
-  const files = [...event.dataTransfer.files].filter(f=>f.type.startsWith('image/'));
-  const targetPid = pid==='main' ? ACTIVE_PATIENT?.PID : pid;
-  if(!targetPid){showToast('Please select a patient first','error');return;}
-  if(files.length){
-    _pickerPendingFiles = files;
-    _photoPickerZoneId = pid;
-    document.getElementById('picker-source-step').style.display = 'none';
-    document.getElementById('picker-desc-step').classList.add('active');
-    document.getElementById('picker-desc-input').value = '';
-    document.querySelectorAll('.picker-tag').forEach(t=>t.classList.remove('selected'));
-    const strip = document.getElementById('picker-preview-strip');
-    const count = document.getElementById('picker-file-count');
-    strip.innerHTML = '';
-    files.slice(0,6).forEach(f => {
-      const url = URL.createObjectURL(f);
-      const img = document.createElement('img');
-      img.className = 'picker-preview-thumb';
-      img.src = url;
-      strip.appendChild(img);
-    });
-    count.textContent = files.length === 1 ? '1 photo selected' : files.length + ' photos selected — one description will apply to all';
-    document.getElementById('photo-picker-overlay').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    setTimeout(()=>document.getElementById('picker-desc-input').focus(), 120);
-  }
-}
+async function saveImages(files, pid, zid, description){
+  const desc = (description||'').trim();
+  const saveBtn = document.getElementById('picker-save-btn');
+  let saved = 0;
 
-function handleImageSelect(event, pid){
-  pickerFilesSelected(event, pid);
-}
+  for(let i = 0; i < files.length; i++){
+    const file = files[i];
+    try{
+      // Read as dataURL
+      const dataUrl = await new Promise((res, rej) => {
+        const fr = new FileReader();
+        fr.onload = e => res(e.target.result);
+        fr.onerror = () => rej(new Error('FileReader failed'));
+        fr.readAsDataURL(file);
+      });
 
-async function uploadImages(files, pid, zoneId, description){
-  const zid = zoneId || pid;
-  const desc = (description || '').trim();
-  const progress = document.getElementById('upload-progress-'+zid);
-  const bar = document.getElementById('upload-bar-'+zid);
-  const zone = document.getElementById('upload-zone-'+zid);
+      // Resize to thumbnail (max 400px) for storage
+      const thumb = await new Promise(res => {
+        const img = new Image();
+        img.onload = () => {
+          const MAX = 400;
+          const scale = Math.min(1, MAX / Math.max(img.width||1, img.height||1));
+          const w = Math.max(1, Math.round(img.width * scale));
+          const h = Math.max(1, Math.round(img.height * scale));
+          try{
+            const c = document.createElement('canvas');
+            c.width = w; c.height = h;
+            c.getContext('2d').drawImage(img, 0, 0, w, h);
+            res(c.toDataURL('image/jpeg', 0.8));
+          } catch(e){ res(dataUrl); }
+        };
+        img.onerror = () => res(dataUrl);
+        img.src = dataUrl;
+      });
 
-  // ── Show uploading state on zone ──
-  if(zone){
-    zone.querySelector('.upload-zone-text').textContent = 'Saving…';
-    zone.querySelector('.upload-zone-icon').textContent = '⏳';
-  }
-  if(progress) progress.style.display = 'block';
+      const label = desc
+        ? (files.length > 1 ? desc+' ('+(i+1)+')' : desc)
+        : file.name.replace(/\.[^.]+$/, '');
 
-  let done = 0;
-  try {
-    for(const file of files){
-      try {
-        // Read full base64 for Drive upload
-        const b64 = await fileToBase64(file);
-        const fullDataUrl = 'data:'+file.type+';base64,'+b64;
+      addStoredImage(pid, file.name, label, thumb);
+      saved++;
 
-        // Create a small thumbnail (max 300px) for localStorage to avoid quota issues
-        const thumbDataUrl = await resizeImageToThumb(fullDataUrl, 300);
+      // Refresh grid immediately after each file
+      renderImages(pid);
+      // Show grid card in main view
+      const gc = document.getElementById('image-grid-card-main');
+      if(gc) gc.style.display = '';
+      const zone = document.getElementById('upload-zone-main');
+      if(zone && zid === 'main') zone.style.display = 'none';
 
-        const storedName = desc
-          ? desc + (files.length > 1 ? ' ('+(done+1)+')' : '')
-          : file.name.replace(/\.[^.]+$/,'');
+      // Fire-and-forget to Google Drive (base64 without data: prefix)
+      const b64 = dataUrl.split(',')[1] || '';
+      fetch(CONFIG.webAppUrl, {
+        method:'POST', mode:'no-cors',
+        body: JSON.stringify({action:'uploadImage', pid,
+          filename: label, originalFilename: file.name,
+          mimeType: file.type, data: b64})
+      }).catch(()=>{});
 
-        // Store thumbnail in localStorage
-        addStoredImage(pid, file.name, storedName, thumbDataUrl, fullDataUrl);
-
-        done++;
-        if(bar) bar.style.width = Math.round(done/files.length*100)+'%';
-
-        // Refresh visible grids immediately
-        renderStoredImages(pid);
-        const gridCard = document.getElementById('image-grid-card-'+zid);
-        if(gridCard) gridCard.style.display = '';
-        if(zone) zone.style.display = 'none';
-
-        // Fire-and-forget to Google Drive
-        fetch(CONFIG.webAppUrl, {
-          method:'POST', mode:'no-cors',
-          body: JSON.stringify({ action:'uploadImage', pid, filename:storedName,
-            originalFilename:file.name, mimeType:file.type, data:b64 })
-        }).catch(()=>{});
-
-      } catch(fileErr){
-        console.error('Failed processing file:', file.name, fileErr);
-        showToast('Could not save "'+file.name+'" — try a smaller image','error');
-      }
-    }
-  } finally {
-    // ── Always clean up — no stuck state ──
-    await new Promise(r=>setTimeout(r, 300));
-    if(progress){ progress.style.display='none'; if(bar) bar.style.width='0%'; }
-
-    // Restore zone for modal view (compact add-more strip)
-    if(zone && zid !== 'main'){
-      zone.style.display = '';
-      zone.querySelector('.upload-zone-icon').textContent = '➕';
-      zone.querySelector('.upload-zone-text').textContent = 'Tap to add more photos';
-      const sub = zone.querySelector('.upload-zone-sub');
-      if(sub) sub.textContent = 'JPG, PNG — multiple files supported';
-    }
-    // For main view: if nothing was saved (all failed), restore the upload zone
-    if(zid === 'main' && done === 0){
-      if(zone){
-        zone.style.display = '';
-        zone.querySelector('.upload-zone-icon').textContent = '📷';
-        zone.querySelector('.upload-zone-text').textContent = 'Tap to upload a photo';
-      }
+    } catch(err){
+      console.error('saveImages error for', file.name, err);
+      showToast('Could not save '+file.name, 'error');
     }
   }
 
-  if(done > 0) showToast(done+' photo'+(done!==1?'s':'')+' saved ✓', 'success');
-}
-
-// Resize an image dataUrl to a thumbnail (max maxPx on longest side)
-function resizeImageToThumb(dataUrl, maxPx){
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      const scale = Math.min(1, maxPx / Math.max(img.width, img.height));
-      const w = Math.round(img.width * scale);
-      const h = Math.round(img.height * scale);
-      const canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      resolve(canvas.toDataURL('image/jpeg', 0.75));
-    };
-    img.onerror = () => resolve(dataUrl); // fallback: use original
-    img.src = dataUrl;
-  });
+  if(saved > 0) showToast(saved+' photo'+(saved!==1?'s':'')+' saved ✓', 'success');
 }
 
 function fileToBase64(file){
