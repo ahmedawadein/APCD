@@ -182,6 +182,27 @@
   .section-divider{height:1px;background:var(--border-dim);margin:16px 0}
   .hint{font-size:11px;color:var(--text-faint);margin-top:3px}
   .two-col-detail{display:grid;grid-template-columns:1fr 1fr;gap:0}
+
+  /* PATIENT SEARCH BAR */
+  #patient-lookup-bar{background:rgba(13,27,42,.95);border-bottom:1px solid var(--border);padding:12px 30px;display:flex;align-items:center;gap:12px;position:sticky;top:58px;z-index:40;backdrop-filter:blur(8px)}
+  #patient-lookup-bar.hidden{display:none!important}
+  .lookup-wrap{position:relative;flex:1;max-width:400px}
+  .lookup-wrap input{padding-left:36px;border-color:var(--border)}
+  .lookup-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-faint);pointer-events:none;font-size:14px}
+  .lookup-results{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--navy-mid);border:1px solid var(--border);border-radius:10px;z-index:300;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.5);max-height:240px;overflow-y:auto}
+  .lookup-result-item{padding:10px 16px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border-dim);transition:background .12s}
+  .lookup-result-item:last-child{border-bottom:none}
+  .lookup-result-item:hover{background:var(--teal-glow)}
+  .lookup-pid{font-family:'DM Mono',monospace;font-size:10px;color:var(--teal)}
+  .lookup-name{font-weight:700;color:var(--text-main);font-size:13px}
+  .lookup-meta{font-size:11px;color:var(--text-faint);margin-top:1px}
+  #apb{display:none;align-items:center;gap:14px;flex:1}
+  #apb.visible{display:flex}
+  .apb-avatar{width:34px;height:34px;border-radius:50%;background:var(--teal-glow);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:14px;color:var(--teal);flex-shrink:0}
+  .apb-name{font-weight:700;font-size:14px;color:var(--text-main)}
+  .apb-meta{font-size:11px;color:var(--text-faint);font-family:'DM Mono',monospace;margin-top:1px}
+  .apb-clear{font-size:11px;color:var(--text-faint);cursor:pointer;padding:4px 10px;border:1px solid var(--border-dim);border-radius:5px;background:transparent;font-family:'Lato',sans-serif;transition:all .15s;white-space:nowrap}
+  .apb-clear:hover{color:var(--red);border-color:rgba(224,82,82,.3)}
 </style>
 </head>
 <body>
@@ -216,6 +237,23 @@
       <span id="connection-badge" class="badge badge-amber">⬡ Not configured</span>
     </div>
   </div>
+
+  <!-- PATIENT LOOKUP BAR -->
+  <div id="patient-lookup-bar" class="hidden">
+    <div class="lookup-wrap">
+      <span class="lookup-icon">⌕</span>
+      <input type="text" id="global-patient-search" placeholder="Search by PID, name or National ID…" oninput="lookupPatient(this.value)" autocomplete="off">
+      <div id="lookup-results" class="lookup-results" style="display:none"></div>
+    </div>
+    <div id="apb">
+      <div class="apb-avatar" id="apb-avatar">—</div>
+      <div>
+        <div class="apb-name" id="apb-name"></div>
+        <div class="apb-meta" id="apb-meta"></div>
+      </div>
+      <button class="apb-clear" onclick="clearActivePatient()">✕ Clear patient</button>
+    </div>
+  </div>
   <div id="content">
 
     <!-- ═══════════════════════════════ SETUP ═══ -->
@@ -229,7 +267,7 @@
           <h3>Step 1 — Create your Google Sheet</h3>
           <p>Create a new spreadsheet and add <strong>4 tabs</strong> named exactly: <strong>Patients, Examinations, Operations, Followup</strong></p>
           <p style="margin-bottom:8px">In the <strong>Patients</strong> tab, row 1 headers:</p>
-          <div class="code-block">PID | DateOfRegistration | FirstName | LastName | NationalID | DOB | Sex | Phone | AlternatePhone | Address | Referring | Others | EntryDate</div>
+          <div class="code-block">PID | DateOfRegistration | Name | NationalID | DOB | Sex | Phone | AlternatePhone | Address | Referring | Others | EntryDate</div>
           <p style="margin-bottom:8px;margin-top:10px">In the <strong>Examinations</strong> tab:</p>
           <div class="code-block">ID | PID | DateOfExam | Eye | ProcedureType | Examiner | CorneaOpacity | LocationCornea | Density | CorneaDiamH | CorneaDiamV | CCT | CCTOtherEye | PupilDiam | Synaechia | Location | Angle | AngleDesc | IOP | LensDensity | LensMorphology | CataractLocation | Spherophakia | Lenticonus | PHPV | PHPVType | Subluxation | SubluxationGrade | SubluxationDeg | SubluxationLoc | Fundus | FundusAbnorm | CD | AxialLength | AXLOtherEye | Syndrome | Investigations | Consanguinity | FamilyHistory | FamilyHistoryDesc | PupilBefore | Comments | EntryDate</div>
           <p style="margin-bottom:8px;margin-top:10px">In the <strong>Operations</strong> tab:</p>
@@ -294,8 +332,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
           <div class="form-card-title">Identification</div>
           <div class="form-grid cols-3">
             <div class="form-group"><label>Patient ID (PID)</label><input type="text" id="p-pid" readonly style="background:rgba(28,184,176,.07);color:var(--teal);font-family:'DM Mono',monospace;cursor:default"><div class="hint">Auto-generated by the system</div></div>
-            <div class="form-group"><label>First Name *</label><input type="text" id="p-firstname" required></div>
-            <div class="form-group"><label>Last Name *</label><input type="text" id="p-lastname" required></div>
+            <div class="form-group span-2"><label>Full Name *</label><input type="text" id="p-name" required placeholder="Patient full name"></div>
             <div class="form-group"><label>National ID</label><input type="text" id="p-natid" placeholder="Optional — 14-digit national ID"><div class="hint">Optional identifier</div></div>
             <div class="form-group"><label>Date of Birth</label><input type="date" id="p-dob"></div>
             <div class="form-group"><label>Sex</label><div class="radio-group"><div class="radio-option"><input type="radio" name="p-sex" id="sex-m" value="Male"><label for="sex-m">Male</label></div><div class="radio-option"><input type="radio" name="p-sex" id="sex-f" value="Female"><label for="sex-f">Female</label></div></div></div>
@@ -326,7 +363,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
         <div class="form-card">
           <div class="form-card-title">Procedure Info</div>
           <div class="form-grid cols-4">
-            <div class="form-group span-2"><label>Patient PID *</label><input type="text" id="e-pid" required placeholder="Patient PID" list="exam-pid-list"><datalist id="exam-pid-list"></datalist></div>
+            <div class="form-group span-2"><label>Patient</label><input type="text" id="e-pid-display" readonly placeholder="Select patient using search bar above" style="background:rgba(28,184,176,.05);color:var(--teal);cursor:default"><input type="hidden" id="e-pid"></div>
             <div class="form-group"><label>Date of Exam *</label><input type="date" id="e-date" required></div>
             <div class="form-group"><label>Eye *</label><div class="radio-group"><div class="radio-option"><input type="radio" name="e-eye" id="ee-od" value="OD"><label for="ee-od">OD</label></div><div class="radio-option"><input type="radio" name="e-eye" id="ee-os" value="OS"><label for="ee-os">OS</label></div><div class="radio-option"><input type="radio" name="e-eye" id="ee-ou" value="OU"><label for="ee-ou">OU</label></div></div></div>
             <div class="form-group span-2"><label>Procedure Type</label><select id="e-proctype"><option value="">— Select —</option><option>Initial Examination</option><option>Unspecified Preoperative Examination</option><option>One Day Postoperative Examination</option><option>One Week Postoperative Examination</option><option>One Month Postoperative Examination</option><option>Three Months Postoperative Examination</option><option>Six Months Postoperative Examination</option><option>One Year Postoperative Examination</option><option>Postoperative Examination Unspecified</option></select></div>
@@ -417,7 +454,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
         <div class="form-card">
           <div class="form-card-title">Procedure Details</div>
           <div class="form-grid cols-4">
-            <div class="form-group span-2"><label>Patient PID *</label><input type="text" id="s-pid" required list="surg-pid-list"><datalist id="surg-pid-list"></datalist></div>
+            <div class="form-group span-2"><label>Patient</label><input type="text" id="s-pid-display" readonly placeholder="Select patient using search bar above" style="background:rgba(28,184,176,.05);color:var(--teal);cursor:default"><input type="hidden" id="s-pid"></div>
             <div class="form-group"><label>Date of Operation *</label><input type="date" id="s-date" required></div>
             <div class="form-group"><label>Eye *</label><div class="radio-group"><div class="radio-option"><input type="radio" name="s-eye" id="se-od" value="OD"><label for="se-od">OD</label></div><div class="radio-option"><input type="radio" name="s-eye" id="se-os" value="OS"><label for="se-os">OS</label></div></div></div>
             <div class="form-group span-2"><label>Operation Type *</label><select id="s-optype"><option value="">— Select —</option><option>Anterior Lensectomy</option><option>Posterior Lensectomy</option><option>Irrigation/Aspiration</option><option>Secondary Implantation</option><option>Membranectomy</option><option>Other</option></select></div>
@@ -501,7 +538,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
         <div class="form-card">
           <div class="form-card-title">Visit Info</div>
           <div class="form-grid cols-4">
-            <div class="form-group span-2"><label>Patient PID *</label><input type="text" id="f-pid" required list="fup-pid-list"><datalist id="fup-pid-list"></datalist></div>
+            <div class="form-group span-2"><label>Patient</label><input type="text" id="f-pid-display" readonly placeholder="Select patient using search bar above" style="background:rgba(28,184,176,.05);color:var(--teal);cursor:default"><input type="hidden" id="f-pid"></div>
             <div class="form-group"><label>Date of Exam *</label><input type="date" id="f-date" required></div>
             <div class="form-group"><label>Eye *</label><div class="radio-group"><div class="radio-option"><input type="radio" name="f-eye" id="fe-od" value="OD"><label for="fe-od">OD</label></div><div class="radio-option"><input type="radio" name="f-eye" id="fe-os" value="OS"><label for="fe-os">OS</label></div><div class="radio-option"><input type="radio" name="f-eye" id="fe-ou" value="OU"><label for="fe-ou">OU</label></div></div></div>
             <div class="form-group span-2"><label>Visit Type</label><select id="f-visittype"><option value="">— Select —</option><option>One Day Postoperative Examination</option><option>One Week Postoperative Examination</option><option>One Month Postoperative Examination</option><option>Three Months Postoperative Examination</option><option>Six Months Postoperative Examination</option><option>One Year Postoperative Examination</option><option>Postoperative Examination Unspecified</option></select></div>
@@ -608,10 +645,13 @@ function showView(v){
   const n=document.getElementById('nav-'+v);if(n)n.classList.add('active');
   const titles={dashboard:'Dashboard',patients:'Patients','new-patient':'New Patient','new-examination':'Preoperative Examination','new-surgery':'Operation Record','new-followup':'Follow-up Visit',setup:'Setup & Configuration'};
   document.getElementById('topbar-title').textContent=titles[v]||'';
+  const dataEntryViews=['new-examination','new-surgery','new-followup'];
+  const bar=document.getElementById('patient-lookup-bar');
+  if(dataEntryViews.includes(v)){bar.classList.remove('hidden');fillActivePatientFields();}
+  else{bar.classList.add('hidden');}
   if(v==='patients')renderPatientsTable();
   if(v==='dashboard')renderDashboard();
   if(v==='new-patient')generatePID();
-  if(['new-examination','new-surgery','new-followup'].includes(v))populatePIDDatalist();
 }
 
 // ─── CONFIG ───
@@ -670,7 +710,7 @@ function renderDashboard(){
     const ec=DB.examinations.filter(x=>String(x.PID)===String(p.PID)).length;
     const oc=DB.operations.filter(x=>String(x.PID)===String(p.PID)).length;
     const fc=DB.followups.filter(x=>String(x.PID)===String(p.PID)).length;
-    return `<tr><td class="mono">${p.PID}</td><td class="name">${p.LastName||''}, ${p.FirstName||''}</td><td>${p.Sex||'—'}</td><td>${ec}</td><td>${oc}</td><td>${fc}</td></tr>`;
+    return `<tr><td class="mono">${p.PID}</td><td class="name">${p.Name||''}</td><td>${p.Sex||'—'}</td><td>${ec}</td><td>${oc}</td><td>${fc}</td></tr>`;
   }).join('')}</tbody></table>`;
 }
 
@@ -678,14 +718,14 @@ function renderDashboard(){
 function renderPatientsTable(filter=''){
   const tbody=document.getElementById('patients-tbody');
   let list=DB.patients;
-  if(filter){const q=filter.toLowerCase();list=list.filter(p=>(String(p.PID||'').toLowerCase().includes(q)||(p.LastName||'').toLowerCase().includes(q)||(p.FirstName||'').toLowerCase().includes(q)));}
+  if(filter){const q=filter.toLowerCase();list=list.filter(p=>(String(p.PID||'').toLowerCase().includes(q)||(p.Name||'').toLowerCase().includes(q)||(p.NationalID||'').toLowerCase().includes(q)));}
   if(!list.length){tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state" style="padding:30px"><div class="empty-icon">◈</div><h3>No patients found</h3></div></td></tr>`;return;}
   tbody.innerHTML=list.map(p=>{
     const ec=DB.examinations.filter(x=>String(x.PID)===String(p.PID)).length;
     const oc=DB.operations.filter(x=>String(x.PID)===String(p.PID)).length;
     const fc=DB.followups.filter(x=>String(x.PID)===String(p.PID)).length;
     const age=p.DOB?calcAge(p.DOB):'—';
-    return `<tr><td class="mono">${p.PID}</td><td class="name">${p.LastName||''}, ${p.FirstName||''}</td><td>${age}</td><td>${p.Sex||'—'}</td><td class="mono">${p.Phone||'—'}</td><td>${ec}</td><td>${oc}</td><td>${fc}</td><td><button class="table-action" onclick="openDetail('${p.PID}')">View ›</button></td></tr>`;
+    return `<tr><td class="mono">${p.PID}</td><td class="name">${p.Name||''}</td><td>${age}</td><td>${p.Sex||'—'}</td><td class="mono">${p.Phone||'—'}</td><td>${ec}</td><td>${oc}</td><td>${fc}</td><td><button class="table-action" onclick="openDetail('${p.PID}')">View ›</button></td></tr>`;
   }).join('');
 }
 function filterPatients(){renderPatientsTable(document.getElementById('patient-search').value);}
@@ -699,12 +739,7 @@ function calcAge(dob){
 }
 
 // ─── DATALIST ───
-function populatePIDDatalist(){
-  ['exam-pid-list','surg-pid-list','fup-pid-list'].forEach(id=>{
-    const dl=document.getElementById(id);
-    if(dl)dl.innerHTML=DB.patients.map(p=>`<option value="${p.PID}">${p.LastName||''}, ${p.FirstName||''}</option>`).join('');
-  });
-}
+function populatePIDDatalist(){} // replaced by global search
 
 // ─── IOL TOGGLE ───
 function toggleIOL(show){
@@ -716,12 +751,11 @@ function toggleIOL(show){
 // ─── PATIENT DETAIL MODAL ───
 function openDetail(pid){
   const p=DB.patients.find(x=>String(x.PID)===String(pid));if(!p)return;
-  document.getElementById('modal-patient-name').textContent=`${p.FirstName||''} ${p.LastName||''}`;
+  document.getElementById('modal-patient-name').textContent=p.Name||p.PID||'';
   document.getElementById('modal-patient-meta').textContent=`PID: ${p.PID} · DOB: ${p.DOB?new Date(p.DOB).toLocaleDateString():'—'} · ${p.Sex||'—'}`;
 
   document.getElementById('tab-demo').innerHTML=
-    dr('PID',p.PID)+dr('First Name',p.FirstName)+dr('Last Name',p.LastName)+
-    dr('National ID',p.NationalID)+
+    dr('PID',p.PID)+dr('Name',p.Name)+dr('National ID',p.NationalID)+
     dr('Date of Birth',p.DOB?new Date(p.DOB).toLocaleDateString():'—')+
     dr('Sex',p.Sex)+dr('Date of Registration',p.DateOfRegistration?new Date(p.DateOfRegistration).toLocaleDateString():'—')+
     dr('Phone',p.Phone)+dr('Alternate Phone',p.AlternatePhone)+
@@ -770,7 +804,7 @@ async function submitPatient(e){
   e.preventDefault();if(!CONFIG.webAppUrl){showToast('Configure Google Sheets first','error');showView('setup');return;}
   const btn=document.getElementById('patient-submit-btn');setLoading(btn,true);
   const sex=document.querySelector('input[name="p-sex"]:checked');
-  const row={PID:document.getElementById('p-pid').value.trim(),DateOfRegistration:document.getElementById('p-regdate').value,FirstName:document.getElementById('p-firstname').value.trim(),LastName:document.getElementById('p-lastname').value.trim(),NationalID:document.getElementById('p-natid').value.trim(),DOB:document.getElementById('p-dob').value,Sex:sex?sex.value:'',Phone:document.getElementById('p-phone').value,AlternatePhone:document.getElementById('p-phone2').value,Address:document.getElementById('p-address').value,Referring:document.getElementById('p-referring').value,Others:document.getElementById('p-others').value,EntryDate:today()};
+  const row={PID:document.getElementById('p-pid').value.trim(),DateOfRegistration:document.getElementById('p-regdate').value,Name:document.getElementById('p-name').value.trim(),NationalID:document.getElementById('p-natid').value.trim(),DOB:document.getElementById('p-dob').value,Sex:sex?sex.value:'',Phone:document.getElementById('p-phone').value,AlternatePhone:document.getElementById('p-phone2').value,Address:document.getElementById('p-address').value,Referring:document.getElementById('p-referring').value,Others:document.getElementById('p-others').value,EntryDate:today()};
   try{await pushRow('Patients',row);DB.patients.push(row);showToast('Patient saved ✓','success');document.getElementById('patient-form').reset();generatePID();showView('patients');}
   catch{showToast('Error saving patient','error');}
   setLoading(btn,false,'Save Patient');
@@ -779,13 +813,14 @@ async function submitPatient(e){
 // ─── SUBMIT EXAMINATION ───
 async function submitExamination(e){
   e.preventDefault();if(!CONFIG.webAppUrl){showToast('Configure Google Sheets first','error');showView('setup');return;}
+  if(!ACTIVE_PATIENT){showToast('Please select a patient first using the search bar','error');return;}
   const btn=document.getElementById('exam-submit-btn');setLoading(btn,true);
   const eye=document.querySelector('input[name="e-eye"]:checked');
   const cornea=document.querySelector('input[name="e-cornea"]:checked');
   const syn=document.querySelector('input[name="e-syn"]:checked');
   const sub=document.querySelector('input[name="e-sub"]:checked');
   const fundus=document.querySelector('input[name="e-fundus"]:checked');
-  const row={ID:'EX'+Date.now(),PID:document.getElementById('e-pid').value.trim(),DateOfExam:document.getElementById('e-date').value,Eye:eye?eye.value:'',ProcedureType:document.getElementById('e-proctype').value,Examiner:document.getElementById('e-examiner').value,CorneaOpacity:cornea?cornea.value:'',LocationCornea:document.getElementById('e-cornea-loc').value,Density:document.getElementById('e-cornea-density').value,CorneaDiamH:document.getElementById('e-cornea-diamh').value,CorneaDiamV:document.getElementById('e-cornea-diamv').value,CCT:document.getElementById('e-cct').value,CCTOtherEye:document.getElementById('e-cct-other').value,PupilDiam:document.getElementById('e-pupil-diam').value,Synaechia:syn?syn.value:'',Location:document.getElementById('e-syn-loc').value,Angle:document.getElementById('e-angle').value,AngleDesc:document.getElementById('e-angledesc').value,IOP:document.getElementById('e-iop').value,LensDensity:document.getElementById('e-lens-density').value,LensMorphology:document.getElementById('e-lens-morph').value,CataractLocation:document.getElementById('e-cat-loc').value,Spherophakia:document.getElementById('e-sph').checked?'Yes':'No',Lenticonus:document.getElementById('e-lent').checked?'Yes':'No',PHPV:document.getElementById('e-phpv').value,PHPVType:document.getElementById('e-phpv-type').value,Subluxation:sub?sub.value:'',SubluxationGrade:document.getElementById('e-sub-grade').value,SubluxationDeg:document.getElementById('e-sub-deg').value,SubluxationLoc:document.getElementById('e-sub-loc').value,Fundus:fundus?fundus.value:'',FundusAbnorm:document.getElementById('e-fundus-abn').value,CD:document.getElementById('e-cd').value,AxialLength:document.getElementById('e-axl').value,AXLOtherEye:document.getElementById('e-axl-other').value,Syndrome:document.getElementById('e-syndrome').value,Investigations:document.getElementById('e-invest').value,Consanguinity:document.getElementById('e-consang').checked?'Yes':'No',FamilyHistory:document.getElementById('e-fhx').checked?'Yes':'No',FamilyHistoryDesc:document.getElementById('e-fhx-desc').value,PupilBefore:document.getElementById('e-pupilbefore').value,Comments:document.getElementById('e-comments').value,EntryDate:today()};
+  const row={ID:'EX'+Date.now(),PID:document.getElementById('e-pid').value||ACTIVE_PATIENT?.PID||'',DateOfExam:document.getElementById('e-date').value,Eye:eye?eye.value:'',ProcedureType:document.getElementById('e-proctype').value,Examiner:document.getElementById('e-examiner').value,CorneaOpacity:cornea?cornea.value:'',LocationCornea:document.getElementById('e-cornea-loc').value,Density:document.getElementById('e-cornea-density').value,CorneaDiamH:document.getElementById('e-cornea-diamh').value,CorneaDiamV:document.getElementById('e-cornea-diamv').value,CCT:document.getElementById('e-cct').value,CCTOtherEye:document.getElementById('e-cct-other').value,PupilDiam:document.getElementById('e-pupil-diam').value,Synaechia:syn?syn.value:'',Location:document.getElementById('e-syn-loc').value,Angle:document.getElementById('e-angle').value,AngleDesc:document.getElementById('e-angledesc').value,IOP:document.getElementById('e-iop').value,LensDensity:document.getElementById('e-lens-density').value,LensMorphology:document.getElementById('e-lens-morph').value,CataractLocation:document.getElementById('e-cat-loc').value,Spherophakia:document.getElementById('e-sph').checked?'Yes':'No',Lenticonus:document.getElementById('e-lent').checked?'Yes':'No',PHPV:document.getElementById('e-phpv').value,PHPVType:document.getElementById('e-phpv-type').value,Subluxation:sub?sub.value:'',SubluxationGrade:document.getElementById('e-sub-grade').value,SubluxationDeg:document.getElementById('e-sub-deg').value,SubluxationLoc:document.getElementById('e-sub-loc').value,Fundus:fundus?fundus.value:'',FundusAbnorm:document.getElementById('e-fundus-abn').value,CD:document.getElementById('e-cd').value,AxialLength:document.getElementById('e-axl').value,AXLOtherEye:document.getElementById('e-axl-other').value,Syndrome:document.getElementById('e-syndrome').value,Investigations:document.getElementById('e-invest').value,Consanguinity:document.getElementById('e-consang').checked?'Yes':'No',FamilyHistory:document.getElementById('e-fhx').checked?'Yes':'No',FamilyHistoryDesc:document.getElementById('e-fhx-desc').value,PupilBefore:document.getElementById('e-pupilbefore').value,Comments:document.getElementById('e-comments').value,EntryDate:today()};
   try{await pushRow('Examinations',row);DB.examinations.push(row);showToast('Examination saved ✓','success');document.getElementById('exam-form').reset();showView('patients');}
   catch{showToast('Error saving examination','error');}
   setLoading(btn,false,'Save Examination');
@@ -794,10 +829,11 @@ async function submitExamination(e){
 // ─── SUBMIT SURGERY ───
 async function submitSurgery(e){
   e.preventDefault();if(!CONFIG.webAppUrl){showToast('Configure Google Sheets first','error');showView('setup');return;}
+  if(!ACTIVE_PATIENT){showToast('Please select a patient first using the search bar','error');return;}
   const btn=document.getElementById('surgery-submit-btn');setLoading(btn,true);
   const eye=document.querySelector('input[name="s-eye"]:checked');
   const iol=document.querySelector('input[name="iol-yn"]:checked');
-  const row={ID:'OP'+Date.now(),PID:document.getElementById('s-pid').value.trim(),DateOfOp:document.getElementById('s-date').value,Eye:eye?eye.value:'',OperationName:document.getElementById('s-optype').value,IOL:iol?iol.value:'',AnteriorCapsule:document.getElementById('s-ant-cap').value,PosteriorCapsule:document.getElementById('s-post-cap').value,CapsuleStain:document.getElementById('s-cap-stain').checked?'Yes':'No',Viscoelastic:document.getElementById('s-visco').value,AnteriorVitrectomy:document.getElementById('s-ant-vit').value,Membranectomy:document.getElementById('sp-memb').checked?'Yes':'No',Iridectomy:document.getElementById('sp-irid').checked?'Yes':'No',IrisInjury:document.getElementById('sp-iris-inj').checked?'Yes':'No',Sphincterinjury:document.getElementById('sp-sphinc').checked?'Yes':'No',Synechiolysis:document.getElementById('sp-syn').checked?'Yes':'No',IrisReconstruction:document.getElementById('sp-iris-rec').checked?'Yes':'No',IrisManipulations:document.getElementById('sp-iris-man').checked?'Yes':'No',Hyphaema:document.getElementById('sp-hyph').checked?'Yes':'No',DroppedCortex:document.getElementById('sp-drop-cortex').checked?'Yes':'No',DroppedIOL:document.getElementById('sp-drop-iol').checked?'Yes':'No',VitreousHaemorrhage:document.getElementById('sp-vit-haem').checked?'Yes':'No',OtherComplications:document.getElementById('s-complications').value,SRKII:document.getElementById('s-srkii').value,Holladay:document.getElementById('s-holladay').value,HofferQ:document.getElementById('s-hofferq').value,Kreading:document.getElementById('s-kreading').value,K1:document.getElementById('s-k1').value,K2:document.getElementById('s-k2').value,AxialLength:document.getElementById('s-axl').value,IOLType:document.getElementById('s-iol-type').value,IOLPlace:document.getElementById('s-iol-place').value,IOLPower:document.getElementById('s-iol-power').value,TargetRefraction:document.getElementById('s-target-ref').value,Orientation:document.getElementById('s-orientation').value,Steroids:document.getElementById('s-steroids').checked?'Yes':'No',Atropine:document.getElementById('s-atropine').checked?'Yes':'No',Route:document.getElementById('s-route').value,Medications:document.getElementById('s-meds').value,Examiner:document.getElementById('s-examiner').value,Duration:document.getElementById('s-duration').value,EntryDate:today()};
+  const row={ID:'OP'+Date.now(),PID:document.getElementById('s-pid').value||ACTIVE_PATIENT?.PID||'',DateOfOp:document.getElementById('s-date').value,Eye:eye?eye.value:'',OperationName:document.getElementById('s-optype').value,IOL:iol?iol.value:'',AnteriorCapsule:document.getElementById('s-ant-cap').value,PosteriorCapsule:document.getElementById('s-post-cap').value,CapsuleStain:document.getElementById('s-cap-stain').checked?'Yes':'No',Viscoelastic:document.getElementById('s-visco').value,AnteriorVitrectomy:document.getElementById('s-ant-vit').value,Membranectomy:document.getElementById('sp-memb').checked?'Yes':'No',Iridectomy:document.getElementById('sp-irid').checked?'Yes':'No',IrisInjury:document.getElementById('sp-iris-inj').checked?'Yes':'No',Sphincterinjury:document.getElementById('sp-sphinc').checked?'Yes':'No',Synechiolysis:document.getElementById('sp-syn').checked?'Yes':'No',IrisReconstruction:document.getElementById('sp-iris-rec').checked?'Yes':'No',IrisManipulations:document.getElementById('sp-iris-man').checked?'Yes':'No',Hyphaema:document.getElementById('sp-hyph').checked?'Yes':'No',DroppedCortex:document.getElementById('sp-drop-cortex').checked?'Yes':'No',DroppedIOL:document.getElementById('sp-drop-iol').checked?'Yes':'No',VitreousHaemorrhage:document.getElementById('sp-vit-haem').checked?'Yes':'No',OtherComplications:document.getElementById('s-complications').value,SRKII:document.getElementById('s-srkii').value,Holladay:document.getElementById('s-holladay').value,HofferQ:document.getElementById('s-hofferq').value,Kreading:document.getElementById('s-kreading').value,K1:document.getElementById('s-k1').value,K2:document.getElementById('s-k2').value,AxialLength:document.getElementById('s-axl').value,IOLType:document.getElementById('s-iol-type').value,IOLPlace:document.getElementById('s-iol-place').value,IOLPower:document.getElementById('s-iol-power').value,TargetRefraction:document.getElementById('s-target-ref').value,Orientation:document.getElementById('s-orientation').value,Steroids:document.getElementById('s-steroids').checked?'Yes':'No',Atropine:document.getElementById('s-atropine').checked?'Yes':'No',Route:document.getElementById('s-route').value,Medications:document.getElementById('s-meds').value,Examiner:document.getElementById('s-examiner').value,Duration:document.getElementById('s-duration').value,EntryDate:today()};
   try{await pushRow('Operations',row);DB.operations.push(row);showToast('Operation saved ✓','success');document.getElementById('surgery-form').reset();showView('patients');}
   catch{showToast('Error saving operation','error');}
   setLoading(btn,false,'Save Operation');
@@ -806,6 +842,7 @@ async function submitSurgery(e){
 // ─── SUBMIT FOLLOW-UP ───
 async function submitFollowup(e){
   e.preventDefault();if(!CONFIG.webAppUrl){showToast('Configure Google Sheets first','error');showView('setup');return;}
+  if(!ACTIVE_PATIENT){showToast('Please select a patient first using the search bar','error');return;}
   const btn=document.getElementById('followup-submit-btn');setLoading(btn,true);
   const eye=document.querySelector('input[name="f-eye"]:checked');
   const cornea=document.querySelector('input[name="f-cornea"]:checked');
@@ -813,11 +850,74 @@ async function submitFollowup(e){
   const iris=document.querySelector('input[name="f-iris"]:checked');
   const pupil=document.querySelector('input[name="f-pupil"]:checked');
   const fundus=document.querySelector('input[name="f-fundus"]:checked');
-  const row={ID:'FU'+Date.now(),PID:document.getElementById('f-pid').value.trim(),DateOfExam:document.getElementById('f-date').value,Eye:eye?eye.value:'',VisitType:document.getElementById('f-visittype').value,Examiner:document.getElementById('f-examiner').value,Cornea:cornea?cornea.value:'',CorneaDesc:document.getElementById('f-cornea-desc').value,AC:ac?ac.value:'',ACDesc:document.getElementById('f-ac-desc').value,CCT:document.getElementById('f-cct').value,Iris:iris?iris.value:'',IrisDesc:document.getElementById('f-iris-desc').value,Pupil:pupil?pupil.value:'',PupilDesc:document.getElementById('f-pupil-desc').value,LensStatus:document.getElementById('f-lens-status').value,LensDesc:document.getElementById('f-lens-desc').value,Opacification:document.getElementById('f-opacification').value,Fundus:fundus?fundus.value:'',FundusDesc:document.getElementById('f-fundus-desc').value,IOP:document.getElementById('f-iop').value,CD:document.getElementById('f-cd').value,VA:document.getElementById('f-va').value,Sphere:document.getElementById('f-sph').value,Cylinder:document.getElementById('f-cyl').value,Axis:document.getElementById('f-axis').value,Gonioscopy:document.getElementById('f-gonio').checked?'Yes':'No',GonioDesc:document.getElementById('f-gonio-desc').value,Comments:document.getElementById('f-comments').value,EntryDate:today()};
+  const row={ID:'FU'+Date.now(),PID:document.getElementById('f-pid').value||ACTIVE_PATIENT?.PID||'',DateOfExam:document.getElementById('f-date').value,Eye:eye?eye.value:'',VisitType:document.getElementById('f-visittype').value,Examiner:document.getElementById('f-examiner').value,Cornea:cornea?cornea.value:'',CorneaDesc:document.getElementById('f-cornea-desc').value,AC:ac?ac.value:'',ACDesc:document.getElementById('f-ac-desc').value,CCT:document.getElementById('f-cct').value,Iris:iris?iris.value:'',IrisDesc:document.getElementById('f-iris-desc').value,Pupil:pupil?pupil.value:'',PupilDesc:document.getElementById('f-pupil-desc').value,LensStatus:document.getElementById('f-lens-status').value,LensDesc:document.getElementById('f-lens-desc').value,Opacification:document.getElementById('f-opacification').value,Fundus:fundus?fundus.value:'',FundusDesc:document.getElementById('f-fundus-desc').value,IOP:document.getElementById('f-iop').value,CD:document.getElementById('f-cd').value,VA:document.getElementById('f-va').value,Sphere:document.getElementById('f-sph').value,Cylinder:document.getElementById('f-cyl').value,Axis:document.getElementById('f-axis').value,Gonioscopy:document.getElementById('f-gonio').checked?'Yes':'No',GonioDesc:document.getElementById('f-gonio-desc').value,Comments:document.getElementById('f-comments').value,EntryDate:today()};
   try{await pushRow('Followup',row);DB.followups.push(row);showToast('Follow-up saved ✓','success');document.getElementById('followup-form').reset();showView('patients');}
   catch{showToast('Error saving follow-up','error');}
   setLoading(btn,false,'Save Follow-up');
 }
+
+// ─── ACTIVE PATIENT STATE ───
+let ACTIVE_PATIENT = null;
+
+function lookupPatient(q){
+  const resultsEl=document.getElementById('lookup-results');
+  if(!q||q.length<1){resultsEl.style.display='none';return;}
+  const ql=q.toLowerCase();
+  const matches=DB.patients.filter(p=>
+    String(p.PID||'').toLowerCase().includes(ql)||
+    (p.Name||'').toLowerCase().includes(ql)||
+    (p.NationalID||'').toLowerCase().includes(ql)
+  ).slice(0,8);
+  if(!matches.length){resultsEl.innerHTML='<div class="lookup-result-item" style="color:var(--text-faint)">No patients found</div>';resultsEl.style.display='block';return;}
+  resultsEl.innerHTML=matches.map(p=>{
+    const age=p.DOB?calcAge(p.DOB):'';
+    return `<div class="lookup-result-item" onclick="selectPatient('${p.PID}')">
+      <div class="lookup-pid">${p.PID}${p.NationalID?' · ID: '+p.NationalID:''}</div>
+      <div class="lookup-name">${p.Name||'—'}</div>
+      <div class="lookup-meta">${p.Sex||''}${age?' · '+age:''}</div>
+    </div>`;
+  }).join('');
+  resultsEl.style.display='block';
+}
+
+function selectPatient(pid){
+  const p=DB.patients.find(x=>String(x.PID)===String(pid));
+  if(!p)return;
+  ACTIVE_PATIENT=p;
+  document.getElementById('global-patient-search').value='';
+  document.getElementById('lookup-results').style.display='none';
+  const age=p.DOB?calcAge(p.DOB):'';
+  const initials=(p.Name||'?').split(' ').map(w=>w[0]||'').slice(0,2).join('').toUpperCase();
+  document.getElementById('apb-avatar').textContent=initials;
+  document.getElementById('apb-name').textContent=p.Name||p.PID;
+  document.getElementById('apb-meta').textContent=`PID: ${p.PID} · ${p.Sex||'—'} · ${age||'—'}${p.NationalID?' · ID: '+p.NationalID:''}`;
+  document.getElementById('apb').classList.add('visible');
+  fillActivePatientFields();
+  showToast(`Patient selected: ${p.Name||p.PID}`,'success');
+}
+
+function clearActivePatient(){
+  ACTIVE_PATIENT=null;
+  document.getElementById('apb').classList.remove('visible');
+  document.getElementById('global-patient-search').value='';
+  fillActivePatientFields();
+}
+
+function fillActivePatientFields(){
+  const pid=ACTIVE_PATIENT?ACTIVE_PATIENT.PID:'';
+  const label=ACTIVE_PATIENT?`${ACTIVE_PATIENT.Name||''} (${pid})`:'';
+  ['e','s','f'].forEach(prefix=>{
+    const hiddenEl=document.getElementById(prefix+'-pid');
+    const displayEl=document.getElementById(prefix+'-pid-display');
+    if(hiddenEl)hiddenEl.value=pid;
+    if(displayEl)displayEl.value=label||'';
+  });
+}
+
+// Close lookup results when clicking outside
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.lookup-wrap'))document.getElementById('lookup-results').style.display='none';
+});
 
 // ─── GENERATE PID ───
 function generatePID(){
