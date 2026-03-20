@@ -201,6 +201,34 @@
   .bi-radio .radio-option label{padding:5px 11px;font-size:11.5px}
   .section-shared{padding:12px 14px;border-top:1px solid var(--border-dim);background:rgba(0,0,0,.1)}
 
+
+  /* CONDITIONAL FIELDS */
+  .cond-field{transition:opacity .2s,max-height .3s;max-height:200px;overflow:hidden}
+  .cond-field.disabled{opacity:.25;pointer-events:none;max-height:0;margin:0;padding:0}
+
+  /* BIOMETRY FORMULA ROWS */
+  .formula-list{display:flex;flex-direction:column;gap:7px;margin-top:4px}
+  .formula-row{display:grid;grid-template-columns:148px 1fr 110px 28px;gap:7px;align-items:center;background:rgba(0,0,0,.18);border:1px solid var(--border-dim);border-radius:7px;padding:7px 10px}
+  .formula-row select,.formula-row input[type=number]{background:var(--input-bg);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-main);font-family:'Lato',sans-serif;font-size:12.5px;padding:5px 9px;width:100%;outline:none;transition:border-color .15s;appearance:none}
+  .formula-row select:focus,.formula-row input:focus{border-color:var(--teal)}
+  .formula-row select option{background:var(--navy-mid)}
+  .formula-row .formula-label{font-size:10px;color:var(--text-faint);font-family:'DM Mono',monospace;letter-spacing:.5px}
+  .rm-btn{width:26px;height:26px;border-radius:5px;background:rgba(224,82,82,.1);border:1px solid rgba(224,82,82,.2);color:var(--red);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;font-family:monospace}
+  .rm-btn:hover{background:rgba(224,82,82,.25)}
+  .add-formula-btn{display:inline-flex;align-items:center;gap:6px;padding:5px 13px;border-radius:6px;font-size:12px;font-family:'Lato',sans-serif;font-weight:700;cursor:pointer;border:1px dashed var(--border);background:transparent;color:var(--teal);transition:all .15s;margin-top:5px}
+  .add-formula-btn:hover{background:var(--teal-glow);border-style:solid}
+  .formula-headers{display:grid;grid-template-columns:148px 1fr 110px 28px;gap:7px;padding:0 10px;margin-bottom:2px}
+  .formula-headers span{font-size:9.5px;font-family:'DM Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-faint)}
+
+  /* EXAMINER SELECT + ADD */
+  .examiner-wrap{display:flex;gap:7px;align-items:center}
+  .examiner-wrap select{flex:1}
+  .add-ex-btn{padding:7px 11px;border-radius:7px;font-size:11.5px;font-family:'Lato',sans-serif;font-weight:700;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--teal);transition:all .15s;white-space:nowrap;flex-shrink:0}
+  .add-ex-btn:hover{background:var(--teal-glow)}
+
+  /* POSTOP TIMEPOINT BADGE */
+  .postop-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:10.5px;font-family:'DM Mono',monospace;background:rgba(155,127,232,.12);color:var(--purple);border:1px solid rgba(155,127,232,.25);margin-left:8px;vertical-align:middle}
+
   /* PATIENT SEARCH BAR */
   #patient-lookup-bar{background:rgba(13,27,42,.95);border-bottom:1px solid var(--border);padding:12px 30px;display:flex;align-items:center;gap:12px;position:sticky;top:58px;z-index:40;backdrop-filter:blur(8px)}
   #patient-lookup-bar.hidden{display:none!important}
@@ -379,12 +407,11 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
       <div class="section-header"><h2>Preoperative Examination</h2><p>Initial and preoperative clinical findings — both eyes in one submission</p></div>
       <form id="exam-form" onsubmit="submitExamination(event)">
         <div class="form-card">
-          <div class="form-card-title">Procedure Info</div>
+          <div class="form-card-title">Examination Info</div>
           <div class="form-grid cols-4">
             <div class="form-group span-2"><label>Patient</label><input type="text" id="e-pid-display" readonly placeholder="Select patient using search bar above" style="background:rgba(28,184,176,.05);color:var(--teal);cursor:default"><input type="hidden" id="e-pid"></div>
             <div class="form-group"><label>Date of Exam *</label><input type="date" id="e-date" required></div>
-            <div class="form-group span-2"><label>Procedure Type</label><select id="e-proctype"><option value="">— Select —</option><option>Initial Examination</option><option>Unspecified Preoperative Examination</option><option>One Day Postoperative Examination</option><option>One Week Postoperative Examination</option><option>One Month Postoperative Examination</option><option>Three Months Postoperative Examination</option><option>Six Months Postoperative Examination</option><option>One Year Postoperative Examination</option><option>Postoperative Examination Unspecified</option></select></div>
-            <div class="form-group span-2"><label>Examiner</label><select id="e-examiner"><option value="">— Select —</option><option>Esraa Elmalah</option><option>Hatem Saeed</option><option>Mohamed Elsada</option><option>Lobna Khazbak</option><option>Hala Elhilaly</option></select></div>
+            <div class="form-group span-2"><label>Examiner</label><div class="examiner-wrap"><select id="e-examiner" onchange="handleExaminerChange('e-examiner')"></select></div></div>
           </div>
         </div>
 
@@ -392,18 +419,18 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
           <div class="form-card-title">Cornea</div>
           <div class="bilateral-grid">
             <div class="eye-col"><div class="eye-col-header od">OD — Right Eye</div><div class="eye-col-body">
-              <div class="bi-field"><label>Corneal Opacity</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-cornea-od" id="co-od-n" value="Normal"><label for="co-od-n">Normal</label></div><div class="radio-option"><input type="radio" name="e-cornea-od" id="co-od-y" value="Present"><label for="co-od-y">Present</label></div></div></div>
-              <div class="bi-field"><label>Location</label><input type="text" id="e-cornea-loc-od" placeholder="e.g. central"></div>
-              <div class="bi-field"><label>Density</label><input type="text" id="e-cornea-density-od" placeholder="mild/moderate/dense"></div>
+              <div class="bi-field"><label>Corneal Opacity</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-cornea-od" id="co-od-n" value="Normal" onchange="toggleConditional('e-cornea-od','Present','e-cornea-loc-od-wrap','e-cornea-density-od-wrap')" checked><label for="co-od-n">Normal</label></div><div class="radio-option"><input type="radio" name="e-cornea-od" id="co-od-y" value="Present" onchange="toggleConditional('e-cornea-od','Present','e-cornea-loc-od-wrap','e-cornea-density-od-wrap')"><label for="co-od-y">Present</label></div></div></div>
+              <div class="bi-field cond-field disabled" id="e-cornea-loc-od-wrap"><label>Location</label><input type="text" id="e-cornea-loc-od" placeholder="e.g. central"></div>
+              <div class="bi-field cond-field disabled" id="e-cornea-density-od-wrap"><label>Density</label><input type="text" id="e-cornea-density-od" placeholder="mild/moderate/dense"></div>
               <div class="bi-field"><label>Horizontal Diameter (mm)</label><input type="number" id="e-cornea-diamh-od" step="0.1" placeholder="mm"></div>
               <div class="bi-field"><label>Vertical Diameter (mm)</label><input type="number" id="e-cornea-diamv-od" step="0.1" placeholder="mm"></div>
               <div class="bi-field"><label>CCT (µm)</label><input type="number" id="e-cct-od" placeholder="µm"></div>
               <div class="bi-field"><label>Pupil Diameter (mm)</label><input type="number" id="e-pupil-diam-od" step="0.1" placeholder="mm"></div>
             </div></div>
             <div class="eye-col"><div class="eye-col-header os">OS — Left Eye</div><div class="eye-col-body">
-              <div class="bi-field"><label>Corneal Opacity</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-cornea-os" id="co-os-n" value="Normal"><label for="co-os-n">Normal</label></div><div class="radio-option"><input type="radio" name="e-cornea-os" id="co-os-y" value="Present"><label for="co-os-y">Present</label></div></div></div>
-              <div class="bi-field"><label>Location</label><input type="text" id="e-cornea-loc-os" placeholder="e.g. central"></div>
-              <div class="bi-field"><label>Density</label><input type="text" id="e-cornea-density-os" placeholder="mild/moderate/dense"></div>
+              <div class="bi-field"><label>Corneal Opacity</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-cornea-os" id="co-os-n" value="Normal" onchange="toggleConditional('e-cornea-os','Present','e-cornea-loc-os-wrap','e-cornea-density-os-wrap')" checked><label for="co-os-n">Normal</label></div><div class="radio-option"><input type="radio" name="e-cornea-os" id="co-os-y" value="Present" onchange="toggleConditional('e-cornea-os','Present','e-cornea-loc-os-wrap','e-cornea-density-os-wrap')"><label for="co-os-y">Present</label></div></div></div>
+              <div class="bi-field cond-field disabled" id="e-cornea-loc-os-wrap"><label>Location</label><input type="text" id="e-cornea-loc-os" placeholder="e.g. central"></div>
+              <div class="bi-field cond-field disabled" id="e-cornea-density-os-wrap"><label>Density</label><input type="text" id="e-cornea-density-os" placeholder="mild/moderate/dense"></div>
               <div class="bi-field"><label>Horizontal Diameter (mm)</label><input type="number" id="e-cornea-diamh-os" step="0.1" placeholder="mm"></div>
               <div class="bi-field"><label>Vertical Diameter (mm)</label><input type="number" id="e-cornea-diamv-os" step="0.1" placeholder="mm"></div>
               <div class="bi-field"><label>CCT (µm)</label><input type="number" id="e-cct-os" placeholder="µm"></div>
@@ -416,16 +443,16 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
           <div class="form-card-title">Anterior Segment</div>
           <div class="bilateral-grid">
             <div class="eye-col"><div class="eye-col-header od">OD</div><div class="eye-col-body">
-              <div class="bi-field"><label>Synechiae</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-syn-od" id="syn-od-n" value="Absent"><label for="syn-od-n">Absent</label></div><div class="radio-option"><input type="radio" name="e-syn-od" id="syn-od-y" value="Present"><label for="syn-od-y">Present</label></div></div></div>
-              <div class="bi-field"><label>Location</label><input type="text" id="e-syn-loc-od" placeholder="anterior/posterior"></div>
+              <div class="bi-field"><label>Synechiae</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-syn-od" id="syn-od-n" value="Absent" onchange="toggleConditional('e-syn-od','Present','e-syn-loc-od-wrap')" checked><label for="syn-od-n">Absent</label></div><div class="radio-option"><input type="radio" name="e-syn-od" id="syn-od-y" value="Present" onchange="toggleConditional('e-syn-od','Present','e-syn-loc-od-wrap')"><label for="syn-od-y">Present</label></div></div></div>
+              <div class="bi-field cond-field disabled" id="e-syn-loc-od-wrap"><label>Location</label><input type="text" id="e-syn-loc-od" placeholder="anterior/posterior"></div>
               <div class="bi-field"><label>Angle</label><input type="text" id="e-angle-od"></div>
               <div class="bi-field"><label>Angle Description</label><input type="text" id="e-angledesc-od"></div>
               <div class="bi-field"><label>IOP (mmHg)</label><input type="number" id="e-iop-od" min="0" max="80" placeholder="mmHg"></div>
               <div class="bi-field"><label>Pupil Before Dilation</label><input type="text" id="e-pupilbefore-od" placeholder="mm or description"></div>
             </div></div>
             <div class="eye-col"><div class="eye-col-header os">OS</div><div class="eye-col-body">
-              <div class="bi-field"><label>Synechiae</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-syn-os" id="syn-os-n" value="Absent"><label for="syn-os-n">Absent</label></div><div class="radio-option"><input type="radio" name="e-syn-os" id="syn-os-y" value="Present"><label for="syn-os-y">Present</label></div></div></div>
-              <div class="bi-field"><label>Location</label><input type="text" id="e-syn-loc-os" placeholder="anterior/posterior"></div>
+              <div class="bi-field"><label>Synechiae</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-syn-os" id="syn-os-n" value="Absent" onchange="toggleConditional('e-syn-os','Present','e-syn-loc-os-wrap')" checked><label for="syn-os-n">Absent</label></div><div class="radio-option"><input type="radio" name="e-syn-os" id="syn-os-y" value="Present" onchange="toggleConditional('e-syn-os','Present','e-syn-loc-os-wrap')"><label for="syn-os-y">Present</label></div></div></div>
+              <div class="bi-field cond-field disabled" id="e-syn-loc-os-wrap"><label>Location</label><input type="text" id="e-syn-loc-os" placeholder="anterior/posterior"></div>
               <div class="bi-field"><label>Angle</label><input type="text" id="e-angle-os"></div>
               <div class="bi-field"><label>Angle Description</label><input type="text" id="e-angledesc-os"></div>
               <div class="bi-field"><label>IOP (mmHg)</label><input type="number" id="e-iop-os" min="0" max="80" placeholder="mmHg"></div>
@@ -467,19 +494,43 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
         </div>
 
         <div class="form-card">
-          <div class="form-card-title">Fundus & Biometry</div>
+          <div class="form-card-title">Fundus</div>
           <div class="bilateral-grid">
             <div class="eye-col"><div class="eye-col-header od">OD</div><div class="eye-col-body">
               <div class="bi-field"><label>Fundus</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-fundus-od" id="fu-od-n" value="Normal"><label for="fu-od-n">Normal</label></div><div class="radio-option"><input type="radio" name="e-fundus-od" id="fu-od-ab" value="Abnormal"><label for="fu-od-ab">Abnormal</label></div><div class="radio-option"><input type="radio" name="e-fundus-od" id="fu-od-nv" value="Not visible"><label for="fu-od-nv">N/V</label></div></div></div>
               <div class="bi-field"><label>Fundus Abnormalities</label><input type="text" id="e-fundus-abn-od" placeholder="describe"></div>
               <div class="bi-field"><label>C/D Ratio</label><input type="number" id="e-cd-od" step="0.05" min="0" max="1" placeholder="0.0–1.0"></div>
-              <div class="bi-field"><label>Axial Length (mm)</label><input type="number" id="e-axl-od" step="0.01" placeholder="mm"></div>
             </div></div>
             <div class="eye-col"><div class="eye-col-header os">OS</div><div class="eye-col-body">
               <div class="bi-field"><label>Fundus</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-fundus-os" id="fu-os-n" value="Normal"><label for="fu-os-n">Normal</label></div><div class="radio-option"><input type="radio" name="e-fundus-os" id="fu-os-ab" value="Abnormal"><label for="fu-os-ab">Abnormal</label></div><div class="radio-option"><input type="radio" name="e-fundus-os" id="fu-os-nv" value="Not visible"><label for="fu-os-nv">N/V</label></div></div></div>
               <div class="bi-field"><label>Fundus Abnormalities</label><input type="text" id="e-fundus-abn-os" placeholder="describe"></div>
               <div class="bi-field"><label>C/D Ratio</label><input type="number" id="e-cd-os" step="0.05" min="0" max="1" placeholder="0.0–1.0"></div>
+            </div></div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">Biometry</div>
+          <div class="bilateral-grid">
+            <div class="eye-col"><div class="eye-col-header od">OD — Right Eye</div><div class="eye-col-body">
+              <div class="bi-field"><label>Axial Length (mm)</label><input type="number" id="e-axl-od" step="0.01" placeholder="mm"></div>
+              <div class="bi-field"><label>Technique</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-bio-tech-od" id="bt-od-us" value="Ultrasound"><label for="bt-od-us">Ultrasound</label></div><div class="radio-option"><input type="radio" name="e-bio-tech-od" id="bt-od-op" value="Optical"><label for="bt-od-op">Optical</label></div></div></div>
+              <div class="bi-field"><label>K1 (D)</label><input type="number" id="e-k1-od" step="0.01" placeholder="D"></div>
+              <div class="bi-field"><label>K2 (D)</label><input type="number" id="e-k2-od" step="0.01" placeholder="D"></div>
+              <div class="bi-field"><label>Formula(s) Used</label>
+                <div id="e-formula-list-od" class="formula-list"></div>
+                <button type="button" class="add-formula-btn" onclick="addFormula('e','od')">＋ Add formula</button>
+              </div>
+            </div></div>
+            <div class="eye-col"><div class="eye-col-header os">OS — Left Eye</div><div class="eye-col-body">
               <div class="bi-field"><label>Axial Length (mm)</label><input type="number" id="e-axl-os" step="0.01" placeholder="mm"></div>
+              <div class="bi-field"><label>Technique</label><div class="bi-radio radio-group"><div class="radio-option"><input type="radio" name="e-bio-tech-os" id="bt-os-us" value="Ultrasound"><label for="bt-os-us">Ultrasound</label></div><div class="radio-option"><input type="radio" name="e-bio-tech-os" id="bt-os-op" value="Optical"><label for="bt-os-op">Optical</label></div></div></div>
+              <div class="bi-field"><label>K1 (D)</label><input type="number" id="e-k1-os" step="0.01" placeholder="D"></div>
+              <div class="bi-field"><label>K2 (D)</label><input type="number" id="e-k2-os" step="0.01" placeholder="D"></div>
+              <div class="bi-field"><label>Formula(s) Used</label>
+                <div id="e-formula-list-os" class="formula-list"></div>
+                <button type="button" class="add-formula-btn" onclick="addFormula('e','os')">＋ Add formula</button>
+              </div>
             </div></div>
           </div>
         </div>
@@ -515,7 +566,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
             <div class="form-group"><label>Date of Operation *</label><input type="date" id="s-date" required></div>
             <div class="form-group"><label>Eye *</label><div class="radio-group"><div class="radio-option"><input type="radio" name="s-eye" id="se-od" value="OD"><label for="se-od">OD</label></div><div class="radio-option"><input type="radio" name="s-eye" id="se-os" value="OS"><label for="se-os">OS</label></div></div></div>
             <div class="form-group span-2"><label>Operation Type *</label><select id="s-optype"><option value="">— Select —</option><option>Anterior Lensectomy</option><option>Posterior Lensectomy</option><option>Irrigation/Aspiration</option><option>Secondary Implantation</option><option>Membranectomy</option><option>Other</option></select></div>
-            <div class="form-group span-2"><label>Examiner / Surgeon</label><select id="s-examiner"><option value="">— Select —</option><option>Esraa Elmalah</option><option>Hatem Saeed</option><option>Mohamed Elsada</option><option>Lobna Khazbak</option><option>Hala Elhilaly</option></select></div>
+            <div class="form-group span-2"><label>Examiner / Surgeon</label><div class="examiner-wrap"><select id="s-examiner" onchange="handleExaminerChange('s-examiner')"></select></div></div>
             <div class="form-group"><label>Duration (min)</label><input type="number" id="s-duration" min="0" placeholder="minutes"></div>
           </div>
         </div>
@@ -568,19 +619,6 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
           </div>
         </div>
 
-        <div class="form-card">
-          <div class="form-card-title">Biometry</div>
-          <div class="form-grid cols-4">
-            <div class="form-group"><label>SRK II</label><input type="number" id="s-srkii" step="0.01"></div>
-            <div class="form-group"><label>Holladay</label><input type="number" id="s-holladay" step="0.01"></div>
-            <div class="form-group"><label>Hoffer Q</label><input type="number" id="s-hofferq" step="0.01"></div>
-            <div class="form-group"><label>K Reading</label><input type="text" id="s-kreading"></div>
-            <div class="form-group"><label>K1 (D)</label><input type="number" id="s-k1" step="0.01"></div>
-            <div class="form-group"><label>K2 (D)</label><input type="number" id="s-k2" step="0.01"></div>
-            <div class="form-group"><label>Axial Length (mm)</label><input type="number" id="s-axl" step="0.01"></div>
-          </div>
-        </div>
-
         <div class="form-actions">
           <button type="button" class="btn btn-secondary" onclick="showView('dashboard')">Cancel</button>
           <button type="submit" class="btn btn-primary" id="surgery-submit-btn">Save Operation</button>
@@ -596,9 +634,8 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
           <div class="form-card-title">Visit Info</div>
           <div class="form-grid cols-4">
             <div class="form-group span-2"><label>Patient</label><input type="text" id="f-pid-display" readonly placeholder="Select patient using search bar above" style="background:rgba(28,184,176,.05);color:var(--teal);cursor:default"><input type="hidden" id="f-pid"></div>
-            <div class="form-group"><label>Date of Exam *</label><input type="date" id="f-date" required></div>
-            <div class="form-group span-2"><label>Visit Type</label><select id="f-visittype"><option value="">— Select —</option><option>One Day Postoperative Examination</option><option>One Week Postoperative Examination</option><option>One Month Postoperative Examination</option><option>Three Months Postoperative Examination</option><option>Six Months Postoperative Examination</option><option>One Year Postoperative Examination</option><option>Postoperative Examination Unspecified</option></select></div>
-            <div class="form-group span-2"><label>Examiner</label><select id="f-examiner"><option value="">— Select —</option><option>Esraa Elmalah</option><option>Hatem Saeed</option><option>Mohamed Elsada</option><option>Lobna Khazbak</option><option>Hala Elhilaly</option></select></div>
+            <div class="form-group"><label>Date of Exam *<span id="postop-badge" class="postop-badge" style="display:none"></span></label><input type="date" id="f-date" required oninput="updatePostopBadge()"></div>
+            <div class="form-group span-2"><label>Examiner</label><div class="examiner-wrap"><select id="f-examiner" onchange="handleExaminerChange('f-examiner')"></select></div></div>
           </div>
         </div>
 
@@ -667,6 +704,30 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
         </div>
 
         <div class="form-card">
+          <div class="form-card-title">Biometry (if performed)</div>
+          <div class="bilateral-grid">
+            <div class="eye-col"><div class="eye-col-header od">OD</div><div class="eye-col-body">
+              <div class="bi-field"><label>Axial Length (mm)</label><input type="number" id="f-axl-od" step="0.01" placeholder="mm"></div>
+              <div class="bi-field"><label>K1 (D)</label><input type="number" id="f-k1-od" step="0.01" placeholder="D"></div>
+              <div class="bi-field"><label>K2 (D)</label><input type="number" id="f-k2-od" step="0.01" placeholder="D"></div>
+              <div class="bi-field"><label>Formula(s) Used</label>
+                <div id="f-formula-list-od" class="formula-list"></div>
+                <button type="button" class="add-formula-btn" onclick="addFormula('f','od')">＋ Add formula</button>
+              </div>
+            </div></div>
+            <div class="eye-col"><div class="eye-col-header os">OS</div><div class="eye-col-body">
+              <div class="bi-field"><label>Axial Length (mm)</label><input type="number" id="f-axl-os" step="0.01" placeholder="mm"></div>
+              <div class="bi-field"><label>K1 (D)</label><input type="number" id="f-k1-os" step="0.01" placeholder="D"></div>
+              <div class="bi-field"><label>K2 (D)</label><input type="number" id="f-k2-os" step="0.01" placeholder="D"></div>
+              <div class="bi-field"><label>Formula(s) Used</label>
+                <div id="f-formula-list-os" class="formula-list"></div>
+                <button type="button" class="add-formula-btn" onclick="addFormula('f','os')">＋ Add formula</button>
+              </div>
+            </div></div>
+          </div>
+        </div>
+
+        <div class="form-card">
           <div class="form-card-title">Comments</div>
           <div class="form-group"><textarea id="f-comments" placeholder="Additional clinical notes for this visit…"></textarea></div>
         </div>
@@ -719,6 +780,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(saved){CONFIG=JSON.parse(saved);document.getElementById('webapp-url-input').value=CONFIG.webAppUrl||'';}
   updateConnectionBadge();
   if(CONFIG.webAppUrl) loadAll();
+  refreshExaminerSelects();
   const today=new Date().toISOString().split('T')[0];
   ['e-date','s-date','f-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today;});
 });
@@ -738,6 +800,8 @@ function showView(v){
   if(v==='patients')renderPatientsTable();
   if(v==='dashboard')renderDashboard();
   if(v==='new-patient')generatePID();
+  if(['new-examination','new-surgery','new-followup'].includes(v)){refreshExaminerSelects();resetFormulas();}
+  if(v==='new-followup')setTimeout(updatePostopBadge,100);
 }
 
 // ─── CONFIG ───
@@ -905,7 +969,7 @@ async function submitExamination(e){
   const r=(name)=>{const el=document.querySelector(`input[name="${name}"]:checked`);return el?el.value:'';}
   const row={
     ID:'EX'+Date.now(),PID:ACTIVE_PATIENT.PID,DateOfExam:g('e-date').value,
-    ProcedureType:g('e-proctype').value,Examiner:g('e-examiner').value,
+    Examiner:g('e-examiner').value,
     CorneaOpacity_OD:r('e-cornea-od'),LocationCornea_OD:g('e-cornea-loc-od').value,Density_OD:g('e-cornea-density-od').value,
     CorneaDiamH_OD:g('e-cornea-diamh-od').value,CorneaDiamV_OD:g('e-cornea-diamv-od').value,
     CCT_OD:g('e-cct-od').value,PupilDiam_OD:g('e-pupil-diam-od').value,
@@ -920,6 +984,7 @@ async function submitExamination(e){
     PHPV_OD:g('e-phpv-od').value,PHPVType_OD:g('e-phpv-type-od').value,
     Fundus_OD:r('e-fundus-od'),FundusAbnorm_OD:g('e-fundus-abn-od').value,
     CD_OD:g('e-cd-od').value,AxialLength_OD:g('e-axl-od').value,
+    BioTech_OD:r('e-bio-tech-od'),K1_OD:g('e-k1-od').value,K2_OD:g('e-k2-od').value,Formulas_OD:getFormulasJSON('e','od'),
     CorneaOpacity_OS:r('e-cornea-os'),LocationCornea_OS:g('e-cornea-loc-os').value,Density_OS:g('e-cornea-density-os').value,
     CorneaDiamH_OS:g('e-cornea-diamh-os').value,CorneaDiamV_OS:g('e-cornea-diamv-os').value,
     CCT_OS:g('e-cct-os').value,PupilDiam_OS:g('e-pupil-diam-os').value,
@@ -934,6 +999,7 @@ async function submitExamination(e){
     PHPV_OS:g('e-phpv-os').value,PHPVType_OS:g('e-phpv-type-os').value,
     Fundus_OS:r('e-fundus-os'),FundusAbnorm_OS:g('e-fundus-abn-os').value,
     CD_OS:g('e-cd-os').value,AxialLength_OS:g('e-axl-os').value,
+    BioTech_OS:r('e-bio-tech-os'),K1_OS:g('e-k1-os').value,K2_OS:g('e-k2-os').value,Formulas_OS:getFormulasJSON('e','os'),
     Syndrome:g('e-syndrome').value,Investigations:g('e-invest').value,
     Consanguinity:g('e-consang').checked?'Yes':'No',
     FamilyHistory:g('e-fhx').checked?'Yes':'No',FamilyHistoryDesc:g('e-fhx-desc').value,
@@ -951,7 +1017,7 @@ async function submitSurgery(e){
   const btn=document.getElementById('surgery-submit-btn');setLoading(btn,true);
   const eye=document.querySelector('input[name="s-eye"]:checked');
   const iol=document.querySelector('input[name="iol-yn"]:checked');
-  const row={ID:'OP'+Date.now(),PID:document.getElementById('s-pid').value||ACTIVE_PATIENT?.PID||'',DateOfOp:document.getElementById('s-date').value,Eye:eye?eye.value:'',OperationName:document.getElementById('s-optype').value,IOL:iol?iol.value:'',AnteriorCapsule:document.getElementById('s-ant-cap').value,PosteriorCapsule:document.getElementById('s-post-cap').value,CapsuleStain:document.getElementById('s-cap-stain').checked?'Yes':'No',Viscoelastic:document.getElementById('s-visco').value,AnteriorVitrectomy:document.getElementById('s-ant-vit').value,Membranectomy:document.getElementById('sp-memb').checked?'Yes':'No',Iridectomy:document.getElementById('sp-irid').checked?'Yes':'No',IrisInjury:document.getElementById('sp-iris-inj').checked?'Yes':'No',Sphincterinjury:document.getElementById('sp-sphinc').checked?'Yes':'No',Synechiolysis:document.getElementById('sp-syn').checked?'Yes':'No',IrisReconstruction:document.getElementById('sp-iris-rec').checked?'Yes':'No',IrisManipulations:document.getElementById('sp-iris-man').checked?'Yes':'No',Hyphaema:document.getElementById('sp-hyph').checked?'Yes':'No',DroppedCortex:document.getElementById('sp-drop-cortex').checked?'Yes':'No',DroppedIOL:document.getElementById('sp-drop-iol').checked?'Yes':'No',VitreousHaemorrhage:document.getElementById('sp-vit-haem').checked?'Yes':'No',OtherComplications:document.getElementById('s-complications').value,SRKII:document.getElementById('s-srkii').value,Holladay:document.getElementById('s-holladay').value,HofferQ:document.getElementById('s-hofferq').value,Kreading:document.getElementById('s-kreading').value,K1:document.getElementById('s-k1').value,K2:document.getElementById('s-k2').value,AxialLength:document.getElementById('s-axl').value,IOLType:document.getElementById('s-iol-type').value,IOLPlace:document.getElementById('s-iol-place').value,IOLPower:document.getElementById('s-iol-power').value,TargetRefraction:document.getElementById('s-target-ref').value,Orientation:document.getElementById('s-orientation').value,Steroids:document.getElementById('s-steroids').checked?'Yes':'No',Atropine:document.getElementById('s-atropine').checked?'Yes':'No',Route:document.getElementById('s-route').value,Medications:document.getElementById('s-meds').value,Examiner:document.getElementById('s-examiner').value,Duration:document.getElementById('s-duration').value,EntryDate:today()};
+  const row={ID:'OP'+Date.now(),PID:document.getElementById('s-pid').value||ACTIVE_PATIENT?.PID||'',DateOfOp:document.getElementById('s-date').value,Eye:eye?eye.value:'',OperationName:document.getElementById('s-optype').value,IOL:iol?iol.value:'',AnteriorCapsule:document.getElementById('s-ant-cap').value,PosteriorCapsule:document.getElementById('s-post-cap').value,CapsuleStain:document.getElementById('s-cap-stain').checked?'Yes':'No',Viscoelastic:document.getElementById('s-visco').value,AnteriorVitrectomy:document.getElementById('s-ant-vit').value,Membranectomy:document.getElementById('sp-memb').checked?'Yes':'No',Iridectomy:document.getElementById('sp-irid').checked?'Yes':'No',IrisInjury:document.getElementById('sp-iris-inj').checked?'Yes':'No',Sphincterinjury:document.getElementById('sp-sphinc').checked?'Yes':'No',Synechiolysis:document.getElementById('sp-syn').checked?'Yes':'No',IrisReconstruction:document.getElementById('sp-iris-rec').checked?'Yes':'No',IrisManipulations:document.getElementById('sp-iris-man').checked?'Yes':'No',Hyphaema:document.getElementById('sp-hyph').checked?'Yes':'No',DroppedCortex:document.getElementById('sp-drop-cortex').checked?'Yes':'No',DroppedIOL:document.getElementById('sp-drop-iol').checked?'Yes':'No',VitreousHaemorrhage:document.getElementById('sp-vit-haem').checked?'Yes':'No',OtherComplications:document.getElementById('s-complications').value,IOLType:document.getElementById('s-iol-type').value,IOLPlace:document.getElementById('s-iol-place').value,IOLPower:document.getElementById('s-iol-power').value,TargetRefraction:document.getElementById('s-target-ref').value,Orientation:document.getElementById('s-orientation').value,Steroids:document.getElementById('s-steroids').checked?'Yes':'No',Atropine:document.getElementById('s-atropine').checked?'Yes':'No',Route:document.getElementById('s-route').value,Medications:document.getElementById('s-meds').value,Examiner:document.getElementById('s-examiner').value,Duration:document.getElementById('s-duration').value,EntryDate:today()};
   try{await pushRow('Operations',row);DB.operations.push(row);showToast('Operation saved ✓','success');document.getElementById('surgery-form').reset();showView('patients');}
   catch{showToast('Error saving operation','error');}
   setLoading(btn,false,'Save Operation');
@@ -966,7 +1032,8 @@ async function submitFollowup(e){
   const r=(name)=>{const el=document.querySelector(`input[name="${name}"]:checked`);return el?el.value:'';}
   const row={
     ID:'FU'+Date.now(),PID:ACTIVE_PATIENT.PID,DateOfExam:g('f-date').value,
-    VisitType:g('f-visittype').value,Examiner:g('f-examiner').value,
+    VisitType:calcPostopLabel(DB.operations.filter(o=>String(o.PID)===String(ACTIVE_PATIENT.PID)).sort((a,b)=>new Date(b.DateOfOp)-new Date(a.DateOfOp))[0]?.DateOfOp, g('f-date').value),
+    Examiner:g('f-examiner').value,
     VA_OD:g('f-va-od').value,Sphere_OD:g('f-sph-od').value,Cylinder_OD:g('f-cyl-od').value,
     Axis_OD:g('f-axis-od').value,IOP_OD:g('f-iop-od').value,
     Cornea_OD:r('f-cornea-od'),CorneaDesc_OD:g('f-cornea-desc-od').value,
@@ -991,6 +1058,8 @@ async function submitFollowup(e){
     Fundus_OS:r('f-fundus-os'),FundusDesc_OS:g('f-fundus-desc-os').value,
     CD_OS:g('f-cd-os').value,Gonioscopy_OS:g('f-gonio-os').checked?'Yes':'No',
     GonioDesc_OS:g('f-gonio-desc-os').value,
+    AxialLength_OD:g('f-axl-od').value,K1_OD:g('f-k1-od').value,K2_OD:g('f-k2-od').value,Formulas_OD:getFormulasJSON('f','od'),
+    AxialLength_OS:g('f-axl-os').value,K1_OS:g('f-k1-os').value,K2_OS:g('f-k2-os').value,Formulas_OS:getFormulasJSON('f','os'),
     Comments:g('f-comments').value,EntryDate:today()
   };
   try{await pushRow('Followup',row);DB.followups.push(row);showToast('Follow-up saved ✓','success');document.getElementById('followup-form').reset();showView('patients');}
@@ -1081,6 +1150,140 @@ function showToast(msg,type='success'){
   el.innerHTML=(type==='success'?'<span style="color:var(--green)">✓</span>':'<span style="color:var(--red)">✗</span>')+msg;
   t.appendChild(el);setTimeout(()=>el.remove(),3500);
 }
+
+// ─── EXAMINERS ───
+let EXAMINERS = JSON.parse(localStorage.getItem('pedicat_examiners') || 'null') ||
+  ['Esraa Elmalah','Hatem Saeed','Mohamed Elsada','Lobna Khazbak','Hala Elhilaly','Resident'];
+
+function saveExaminers(){ localStorage.setItem('pedicat_examiners', JSON.stringify(EXAMINERS)); }
+
+function buildExaminerOptions(selected){
+  return '<option value="">— Select —</option>' +
+    EXAMINERS.map(n=>`<option value="${n}"${n===selected?' selected':''}>${n}</option>`).join('') +
+    '<option value="__add__">＋ Add new…</option>';
+}
+
+function refreshExaminerSelects(){
+  ['e-examiner','s-examiner','f-examiner'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    const prev = el.value;
+    el.innerHTML = buildExaminerOptions(prev);
+  });
+}
+
+function handleExaminerChange(id){
+  const el = document.getElementById(id);
+  if(!el || el.value !== '__add__') return;
+  const name = prompt('Enter new examiner / surgeon name:');
+  if(!name || !name.trim()){ el.value=''; return; }
+  const trimmed = name.trim();
+  if(!EXAMINERS.includes(trimmed)){ EXAMINERS.push(trimmed); saveExaminers(); }
+  refreshExaminerSelects();
+  document.getElementById(id).value = trimmed;
+  showToast(trimmed + ' added ✓', 'success');
+}
+
+// ─── POSTOP TIMEPOINT CALCULATOR ───
+function calcPostopLabel(surgDate, examDate){
+  if(!surgDate || !examDate) return '';
+  const s = new Date(surgDate), e = new Date(examDate);
+  const diffDays = Math.round((e - s) / 86400000);
+  if(diffDays < 0) return 'Pre-operative';
+  if(diffDays <= 2)  return '1 Day Postoperative';
+  if(diffDays <= 10) return '1 Week Postoperative';
+  if(diffDays <= 45) return '1 Month Postoperative';
+  if(diffDays <= 135) return '3 Months Postoperative';
+  if(diffDays <= 270) return '6 Months Postoperative';
+  if(diffDays <= 548) return '1 Year Postoperative';
+  return Math.round(diffDays/365*10)/10 + ' Years Postoperative';
+}
+
+function updatePostopBadge(){
+  const fDate = document.getElementById('f-date')?.value;
+  const badge = document.getElementById('postop-badge');
+  if(!badge) return;
+  if(!ACTIVE_PATIENT || !fDate){ badge.textContent=''; badge.style.display='none'; return; }
+  // find most recent surgery date for this patient
+  const ops = DB.operations.filter(o=>String(o.PID)===String(ACTIVE_PATIENT.PID));
+  if(!ops.length){ badge.style.display='none'; return; }
+  ops.sort((a,b)=>new Date(b.DateOfOp)-new Date(a.DateOfOp));
+  const label = calcPostopLabel(ops[0].DateOfOp, fDate);
+  badge.textContent = label;
+  badge.style.display = label ? 'inline-flex' : 'none';
+}
+
+// ─── BIOMETRY FORMULA ROWS ───
+let examFormulas_OD = [], examFormulas_OS = [];
+let fupFormulas_OD  = [], fupFormulas_OS  = [];
+
+const FORMULAS = ['SRK-II','SRK-T','Holladay 1','Hoffer Q','Haigis'];
+
+function addFormula(prefix, eye){
+  const listId = `${prefix}-formula-list-${eye}`;
+  const arr = prefix==='e' ? (eye==='od' ? examFormulas_OD : examFormulas_OS)
+                           : (eye==='od' ? fupFormulas_OD  : fupFormulas_OS);
+  const idx = arr.length;
+  arr.push({formula:'', power:''});
+  renderFormulaList(prefix, eye);
+}
+
+function removeFormula(prefix, eye, idx){
+  const arr = prefix==='e' ? (eye==='od' ? examFormulas_OD : examFormulas_OS)
+                           : (eye==='od' ? fupFormulas_OD  : fupFormulas_OS);
+  arr.splice(idx, 1);
+  renderFormulaList(prefix, eye);
+}
+
+function renderFormulaList(prefix, eye){
+  const listEl = document.getElementById(`${prefix}-formula-list-${eye}`);
+  if(!listEl) return;
+  const arr = prefix==='e' ? (eye==='od' ? examFormulas_OD : examFormulas_OS)
+                           : (eye==='od' ? fupFormulas_OD  : fupFormulas_OS);
+  listEl.innerHTML = arr.length ? `
+    <div class="formula-headers"><span>Formula</span><span></span><span>Power for Emmetropia (D)</span><span></span></div>
+    ${arr.map((f,i)=>`
+    <div class="formula-row">
+      <select onchange="updateFormula('${prefix}','${eye}',${i},'formula',this.value)">
+        <option value="">— Select —</option>
+        ${FORMULAS.map(n=>`<option value="${n}"${n===f.formula?' selected':''}>${n}</option>`).join('')}
+      </select>
+      <div></div>
+      <input type="number" step="0.5" placeholder="D" value="${f.power}"
+        onchange="updateFormula('${prefix}','${eye}',${i},'power',this.value)">
+      <button type="button" class="rm-btn" onclick="removeFormula('${prefix}','${eye}',${i})">✕</button>
+    </div>`).join('')}` : '';
+}
+
+function updateFormula(prefix, eye, idx, field, val){
+  const arr = prefix==='e' ? (eye==='od' ? examFormulas_OD : examFormulas_OS)
+                           : (eye==='od' ? fupFormulas_OD  : fupFormulas_OS);
+  if(arr[idx]) arr[idx][field] = val;
+}
+
+function getFormulasJSON(prefix, eye){
+  const arr = prefix==='e' ? (eye==='od' ? examFormulas_OD : examFormulas_OS)
+                           : (eye==='od' ? fupFormulas_OD  : fupFormulas_OS);
+  return arr.filter(f=>f.formula).map(f=>`${f.formula}:${f.power}D`).join('; ');
+}
+
+function resetFormulas(){
+  examFormulas_OD=[]; examFormulas_OS=[];
+  fupFormulas_OD=[];  fupFormulas_OS=[];
+  ['e-formula-list-od','e-formula-list-os','f-formula-list-od','f-formula-list-os']
+    .forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
+}
+
+// Conditional field toggle
+function toggleConditional(triggerName, showValue, ...fieldIds){
+  const checked = document.querySelector(`input[name="${triggerName}"]:checked`);
+  const show = checked && checked.value === showValue;
+  fieldIds.forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.classList.toggle('disabled', !show);
+  });
+}
+
 </script>
 </body>
 </html>
