@@ -543,6 +543,7 @@
     <div class="nav-item" onclick="showView('new-examination')" id="nav-new-examination"><span class="nav-icon">◉</span>Initial Exam</div>
     <div class="nav-item" onclick="showView('new-surgery')" id="nav-new-surgery"><span class="nav-icon">⊕</span>Surgery</div>
     <div class="nav-item" onclick="showView('new-followup')" id="nav-new-followup"><span class="nav-icon">◎</span>Follow-up Visit</div>
+    <div class="nav-item" onclick="showView('upload-images')" id="nav-upload-images"><span class="nav-icon">🖼</span>Upload Images</div>
     <div class="nav-section-label" style="margin-top:6px">System</div>
     <div class="nav-item" onclick="showView('setup')" id="nav-setup"><span class="nav-icon">◇</span>Setup</div>
   </div>
@@ -1911,6 +1912,43 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
       </form>
     </div>
 
+
+    <!-- ═══════════════════════════════ UPLOAD IMAGES ═══ -->
+    <div id="view-upload-images" class="hidden">
+      <div class="section-header"><h2>Upload Images</h2><p>Attach clinical photos to a patient record</p></div>
+      <div class="form-card">
+        <div class="form-card-title">Select Patient</div>
+        <div class="form-grid cols-2">
+          <div class="form-group span-2">
+            <label>Patient</label>
+            <input type="text" id="img-pid-display" readonly placeholder="Select patient using search bar above" style="background:rgba(28,184,176,.05);color:var(--teal);cursor:default">
+          </div>
+          <div class="form-group span-2">
+            <label>Image Caption / Label (optional)</label>
+            <input type="text" id="img-caption" placeholder="e.g. Right eye anterior segment, 3 months post-op">
+          </div>
+        </div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title">Upload</div>
+        <div class="upload-zone" id="upload-zone-main"
+          onclick="document.getElementById('img-file-input-main').click()"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="handleImageDrop(event,'main')">
+          <input type="file" id="img-file-input-main" accept="image/*" multiple capture="environment"
+            onchange="handleImageSelect(event,'main')">
+          <div class="upload-zone-icon">📷</div>
+          <div class="upload-zone-text">Tap to take photo or choose from gallery</div>
+          <div class="upload-zone-sub">JPG, PNG — multiple files supported</div>
+          <div class="upload-progress" id="upload-progress-main">
+            <div class="upload-progress-bar" id="upload-bar-main" style="width:0%"></div>
+          </div>
+        </div>
+        <div id="upload-status" style="margin-top:10px;font-size:13px;color:var(--text-dim);min-height:20px"></div>
+      </div>
+    </div>
+
   </div><!-- /content -->
 
 </div><!-- /main -->
@@ -1973,9 +2011,9 @@ function showView(v){
   document.getElementById('view-'+v).classList.remove('hidden');
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
   const n=document.getElementById('nav-'+v);if(n)n.classList.add('active');
-  const titles={dashboard:'Dashboard',patients:'Patients','new-patient':'New Patient','new-history':'History & Systemic Diseases','new-examination':'Initial Examination','new-surgery':'Operation Record','new-followup':'Follow-up Visit',setup:'Setup & Configuration'};
+  const titles={dashboard:'Dashboard',patients:'Patients','new-patient':'New Patient','new-history':'History & Systemic Diseases','new-examination':'Initial Examination','new-surgery':'Operation Record','new-followup':'Follow-up Visit','upload-images':'Upload Images',setup:'Setup & Configuration'};
   document.getElementById('topbar-title').textContent=titles[v]||'';
-  const dataEntryViews=['new-examination','new-surgery','new-followup','new-history'];
+  const dataEntryViews=['new-examination','new-surgery','new-followup','new-history','upload-images'];
   const bar=document.getElementById('patient-lookup-bar');
   if(dataEntryViews.includes(v)){bar.classList.remove('hidden');fillActivePatientFields();}
   else{bar.classList.add('hidden');}
@@ -2422,6 +2460,8 @@ function fillActivePatientFields(){
     if(hiddenEl)hiddenEl.value=pid;
     if(displayEl)displayEl.value=label||'';
   });
+  const imgDisplay=document.getElementById('img-pid-display');
+  if(imgDisplay)imgDisplay.value=label||'';
 }
 
 // Close lookup results when clicking outside
@@ -3035,29 +3075,13 @@ function openImagesTab(pid){
   currentImagePID = pid;
   const tab = document.getElementById('tab-images');
   if(!tab) return;
-  tab.innerHTML = buildImageUploadUI(pid);
-  loadPatientImages(pid);
-}
-
-function buildImageUploadUI(pid){
-  return `
-    <div class="upload-zone" id="upload-zone-${pid}" onclick="document.getElementById('img-file-input-${pid}').click()"
-      ondragover="event.preventDefault();this.classList.add('drag-over')"
-      ondragleave="this.classList.remove('drag-over')"
-      ondrop="handleImageDrop(event,'${pid}')">
-      <input type="file" id="img-file-input-${pid}" accept="image/*" multiple onchange="handleImageSelect(event,'${pid}')">
-      <div class="upload-zone-icon">📷</div>
-      <div class="upload-zone-text">Tap to select photos</div>
-      <div class="upload-zone-sub">JPG, PNG — from camera or gallery</div>
-      <div class="upload-progress" id="upload-progress-${pid}">
-        <div class="upload-progress-bar" id="upload-bar-${pid}" style="width:0%"></div>
-      </div>
-    </div>
-    <div class="image-grid" id="image-grid-${pid}">
-      <div style="text-align:center;padding:20px;color:var(--text-faint);font-size:12.5px;grid-column:1/-1">
+  tab.innerHTML = `
+    <div id="image-grid-${pid}" style="margin-top:4px">
+      <div style="text-align:center;padding:24px;color:var(--text-faint);font-size:12.5px">
         <span class="spinner"></span> Loading images…
       </div>
     </div>`;
+  loadPatientImages(pid);
 }
 
 async function loadPatientImages(pid){
@@ -3085,29 +3109,37 @@ function handleImageDrop(event, pid){
   event.preventDefault();
   document.getElementById('upload-zone-'+pid)?.classList.remove('drag-over');
   const files = [...event.dataTransfer.files].filter(f=>f.type.startsWith('image/'));
-  if(files.length) uploadImages(files, pid);
+  const targetPid = pid==='main' ? ACTIVE_PATIENT?.PID : pid;
+  if(!targetPid){showToast('Please select a patient first','error');return;}
+  if(files.length) uploadImages(files, targetPid, pid);
 }
 
 function handleImageSelect(event, pid){
   const files = [...event.target.files];
-  if(files.length) uploadImages(files, pid);
+  const targetPid = pid==='main' ? ACTIVE_PATIENT?.PID : pid;
+  if(!targetPid){showToast('Please select a patient first','error');event.target.value='';return;}
+  if(files.length) uploadImages(files, targetPid, pid);
 }
 
-async function uploadImages(files, pid){
-  const progress = document.getElementById('upload-progress-'+pid);
-  const bar = document.getElementById('upload-bar-'+pid);
+async function uploadImages(files, pid, zoneId){
+  const zid = zoneId || pid;
+  const progress = document.getElementById('upload-progress-'+zid);
+  const bar = document.getElementById('upload-bar-'+zid);
+  const statusEl = document.getElementById('upload-status');
+  if(statusEl) statusEl.textContent = 'Uploading '+files.length+' image'+(files.length!==1?'s':'')+'…';
   if(progress) progress.style.display = 'block';
   let done = 0;
   for(const file of files){
     try {
       const b64 = await fileToBase64(file);
+      const caption = document.getElementById('img-caption')?.value.trim() || '';
       await fetch(CONFIG.webAppUrl, {
         method:'POST',
         mode:'no-cors',
         body: JSON.stringify({
           action:'uploadImage',
           pid: pid,
-          filename: file.name,
+          filename: (caption ? caption+'_' : '') + file.name,
           mimeType: file.type,
           data: b64
         })
@@ -3122,7 +3154,12 @@ async function uploadImages(files, pid){
   await new Promise(r=>setTimeout(r, 2000));
   if(progress) progress.style.display = 'none';
   if(bar) bar.style.width = '0%';
-  loadPatientImages(pid);
+  const statusEl2 = document.getElementById('upload-status');
+  if(statusEl2) statusEl2.textContent = '';
+  const captionEl = document.getElementById('img-caption');
+  if(captionEl) captionEl.value = '';
+  // if modal is open on this patient, refresh image grid
+  if(currentImagePID === pid) loadPatientImages(pid);
   showToast(done+' image'+(done!==1?'s':'')+' uploaded ✓','success');
 }
 
