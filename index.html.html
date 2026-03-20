@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PediCat — Pediatric Cataract Registry</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0d1b2a;--navy-mid:#1a2e42;--navy-light:#243d54;
+    --teal:#1cb8b0;--teal-dim:#148f88;--teal-glow:rgba(28,184,176,.12);
+    --amber:#f4a623;--red:#e05252;--green:#3ecf8e;--purple:#9b7fe8;
+    --text-main:#e8f0f7;--text-dim:#8ba5bc;--text-faint:#4a6478;
+    --border:rgba(28,184,176,.18);--border-dim:rgba(255,255,255,.07);
+    --card:rgba(26,46,66,.6);--input-bg:rgba(13,27,42,.8);
+    --radius:10px;--radius-lg:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Lato',sans-serif;background:var(--navy);color:var(--text-main);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 10% 20%,rgba(28,184,176,.06) 0%,transparent 60%),radial-gradient(ellipse 50% 60% at 90% 80%,rgba(13,60,90,.3) 0%,transparent 60%),repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,.015) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(255,255,255,.015) 40px);pointer-events:none;z-index:0}
+  #app{position:relative;z-index:1;display:flex;min-height:100vh}
+
+  /* SIDEBAR */
+  #sidebar{width:248px;min-height:100vh;background:rgba(13,27,42,.95);border-right:1px solid var(--border-dim);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;backdrop-filter:blur(12px);z-index:100;overflow-y:auto}
+  .sidebar-logo{padding:24px 22px 18px;border-bottom:1px solid var(--border-dim)}
+  .logo-mark{font-family:'DM Serif Display',serif;font-size:22px;color:var(--teal);letter-spacing:-.5px}
+  .logo-sub{font-size:10px;font-family:'DM Mono',monospace;color:var(--text-faint);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+  .sidebar-nav{padding:12px 10px;flex:1}
+  .nav-section-label{font-size:9px;font-family:'DM Mono',monospace;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-faint);padding:10px 12px 5px}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--text-dim);transition:all .15s;margin-bottom:1px;border:1px solid transparent}
+  .nav-item:hover{background:var(--teal-glow);color:var(--text-main)}
+  .nav-item.active{background:var(--teal-glow);color:var(--teal);border-color:var(--border)}
+  .nav-item .nav-icon{font-size:14px;width:18px;text-align:center}
+  .sidebar-footer{padding:14px 18px;border-top:1px solid var(--border-dim);font-size:11px;color:var(--text-faint);font-family:'DM Mono',monospace}
+
+  /* MAIN */
+  #main{margin-left:248px;flex:1;display:flex;flex-direction:column}
+  #topbar{height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;border-bottom:1px solid var(--border-dim);background:rgba(13,27,42,.6);backdrop-filter:blur(8px);position:sticky;top:0;z-index:50}
+  .topbar-title{font-family:'DM Serif Display',serif;font-size:18px}
+  .topbar-right{display:flex;align-items:center;gap:10px}
+  #content{padding:28px 30px;flex:1}
+
+  /* FORMS */
+  .section-header{margin-bottom:22px}
+  .section-header h2{font-family:'DM Serif Display',serif;font-size:26px}
+  .section-header p{color:var(--text-dim);font-size:13px;margin-top:3px}
+  .form-card{background:var(--card);border:1px solid var(--border-dim);border-radius:var(--radius-lg);padding:22px 26px;backdrop-filter:blur(6px);margin-bottom:16px;transition:border-color .2s}
+  .form-card:hover{border-color:var(--border)}
+  .form-card-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--teal);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .form-card-title::after{content:'';flex:1;height:1px;background:var(--border)}
+  .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+  .form-grid.cols-2{grid-template-columns:repeat(2,1fr)}
+  .form-grid.cols-3{grid-template-columns:repeat(3,1fr)}
+  .form-grid.cols-4{grid-template-columns:repeat(4,1fr)}
+  .form-group{display:flex;flex-direction:column;gap:5px}
+  .form-group.span-2{grid-column:span 2}
+  .form-group.span-3{grid-column:span 3}
+  .form-group.span-full{grid-column:1/-1}
+  label{font-size:10.5px;font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim)}
+  input,select,textarea{background:var(--input-bg);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius);color:var(--text-main);font-family:'Lato',sans-serif;font-size:13.5px;padding:9px 13px;width:100%;transition:border-color .15s,box-shadow .15s;outline:none;appearance:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-glow)}
+  input::placeholder,textarea::placeholder{color:var(--text-faint)}
+  select{cursor:pointer}
+  select option{background:var(--navy-mid);color:var(--text-main)}
+  textarea{resize:vertical;min-height:70px;line-height:1.5}
+  .radio-group{display:flex;gap:6px;flex-wrap:wrap}
+  .radio-option{position:relative}
+  .radio-option input[type=radio]{position:absolute;opacity:0;width:0;height:0}
+  .radio-option label{display:block;padding:7px 14px;border:1px solid rgba(255,255,255,.1);border-radius:6px;cursor:pointer;font-size:12.5px;font-family:'Lato',sans-serif;letter-spacing:0;text-transform:none;color:var(--text-dim);transition:all .15s;user-select:none}
+  .radio-option input[type=radio]:checked+label{border-color:var(--teal);background:var(--teal-glow);color:var(--teal)}
+  .radio-option label:hover{border-color:rgba(28,184,176,.4);color:var(--text-main)}
+  .checkbox-group{display:flex;flex-wrap:wrap;gap:6px}
+  .checkbox-option{position:relative}
+  .checkbox-option input[type=checkbox]{position:absolute;opacity:0;width:0;height:0}
+  .checkbox-option label{display:block;padding:5px 12px;border:1px solid rgba(255,255,255,.1);border-radius:6px;cursor:pointer;font-size:12px;font-family:'Lato',sans-serif;letter-spacing:0;text-transform:none;color:var(--text-dim);transition:all .15s;user-select:none}
+  .checkbox-option input[type=checkbox]:checked+label{border-color:var(--amber);background:rgba(244,166,35,.1);color:var(--amber)}
+  .checkbox-option label:hover{border-color:rgba(244,166,35,.4);color:var(--text-main)}
+
+  /* TOGGLE checkbox style variant for boolean flags */
+  .flag-group{display:flex;flex-wrap:wrap;gap:5px}
+  .flag-option{position:relative}
+  .flag-option input[type=checkbox]{position:absolute;opacity:0;width:0;height:0}
+  .flag-option label{display:block;padding:4px 11px;border:1px solid rgba(255,255,255,.08);border-radius:5px;cursor:pointer;font-size:11.5px;font-family:'Lato',sans-serif;letter-spacing:0;text-transform:none;color:var(--text-faint);transition:all .15s;user-select:none}
+  .flag-option input[type=checkbox]:checked+label{border-color:var(--red);background:rgba(224,82,82,.1);color:var(--red)}
+  .flag-option label:hover{color:var(--text-dim)}
+
+  /* BUTTONS */
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:8px;font-family:'Lato',sans-serif;font-size:13.5px;font-weight:700;cursor:pointer;border:none;transition:all .15s;text-decoration:none}
+  .btn-primary{background:var(--teal);color:var(--navy)}
+  .btn-primary:hover{background:#22d4cc;transform:translateY(-1px);box-shadow:0 4px 16px rgba(28,184,176,.3)}
+  .btn-secondary{background:transparent;color:var(--text-dim);border:1px solid var(--border-dim)}
+  .btn-secondary:hover{border-color:var(--border);color:var(--text-main);background:rgba(255,255,255,.04)}
+  .btn-sm{padding:6px 13px;font-size:12px}
+  .form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:18px;border-top:1px solid var(--border-dim)}
+
+  /* BADGES */
+  .badge{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:10.5px;font-family:'DM Mono',monospace}
+  .badge-green{background:rgba(62,207,142,.12);color:var(--green);border:1px solid rgba(62,207,142,.25)}
+  .badge-amber{background:rgba(244,166,35,.12);color:var(--amber);border:1px solid rgba(244,166,35,.25)}
+  .badge-teal{background:var(--teal-glow);color:var(--teal);border:1px solid var(--border)}
+  .badge-red{background:rgba(224,82,82,.12);color:var(--red);border:1px solid rgba(224,82,82,.25)}
+
+  /* STATS */
+  .stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px}
+  .stat-card{background:var(--card);border:1px solid var(--border-dim);border-radius:var(--radius-lg);padding:18px 20px;backdrop-filter:blur(6px);transition:border-color .2s}
+  .stat-card:hover{border-color:var(--border)}
+  .stat-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px}
+  .stat-value{font-family:'DM Serif Display',serif;font-size:30px;color:var(--text-main);line-height:1}
+  .stat-value span{color:var(--teal)}
+  .stat-sub{font-size:11px;color:var(--text-faint);margin-top:3px}
+
+  /* TABLE */
+  .patients-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:10px}
+  .search-wrap{position:relative;flex:1;max-width:340px}
+  .search-wrap input{padding-left:36px}
+  .search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-faint);font-size:14px;pointer-events:none}
+  .table-wrap{background:var(--card);border:1px solid var(--border-dim);border-radius:var(--radius-lg);overflow:hidden;backdrop-filter:blur(6px)}
+  .data-table{width:100%;border-collapse:collapse}
+  .data-table th{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);padding:9px 14px;text-align:left;border-bottom:1px solid var(--border-dim);white-space:nowrap}
+  .data-table td{padding:11px 14px;font-size:13px;color:var(--text-main);border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+  .data-table tr:hover td{background:rgba(28,184,176,.04)}
+  .data-table .mono{font-family:'DM Mono',monospace;font-size:11.5px;color:var(--text-dim)}
+  .data-table .name{font-weight:700}
+  .table-action{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:5px;font-size:11.5px;cursor:pointer;border:1px solid transparent;background:transparent;color:var(--text-dim);transition:all .12s;font-family:'Lato',sans-serif}
+  .table-action:hover{border-color:var(--border);color:var(--teal);background:var(--teal-glow)}
+
+  /* MODAL */
+  .modal-overlay{position:fixed;inset:0;background:rgba(13,27,42,.88);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;animation:fadeIn .2s;overflow-y:auto}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .modal{background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius-lg);width:100%;max-width:760px;padding:30px;box-shadow:0 24px 64px rgba(0,0,0,.5);animation:slideUp .25s ease}
+  @keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+  .modal h2{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:18px}
+  .tab-bar{display:flex;gap:3px;border-bottom:1px solid var(--border-dim);margin-bottom:20px}
+  .tab-btn{padding:8px 16px;font-size:12.5px;font-family:'Lato',sans-serif;font-weight:700;color:var(--text-faint);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+  .tab-btn:hover{color:var(--text-dim)}
+  .tab-btn.active{color:var(--teal);border-bottom-color:var(--teal)}
+  .tab-panel{display:none}
+  .tab-panel.active{display:block}
+  .detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-dim);font-size:13px;gap:14px}
+  .detail-row:last-child{border-bottom:none}
+  .detail-key{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-faint);letter-spacing:1px;text-transform:uppercase;min-width:160px}
+  .detail-val{color:var(--text-main);text-align:right;word-break:break-word}
+  .detail-section-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);padding:12px 0 4px;margin-top:4px}
+
+  /* VISIT TIMELINE */
+  .visit-timeline{position:relative;padding-left:22px}
+  .visit-timeline::before{content:'';position:absolute;left:6px;top:8px;bottom:8px;width:2px;background:var(--border)}
+  .visit-entry{position:relative;margin-bottom:12px}
+  .visit-entry::before{content:'';position:absolute;left:-18px;top:7px;width:9px;height:9px;border-radius:50%;background:var(--teal);border:2px solid var(--navy)}
+  .visit-card{background:rgba(0,0,0,.2);border:1px solid var(--border-dim);border-radius:8px;padding:10px 14px}
+  .visit-date{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--teal);margin-bottom:5px}
+
+  /* SETUP */
+  .config-screen{max-width:700px;margin:0 auto}
+  .config-hero{text-align:center;padding:36px 0 28px}
+  .config-hero h1{font-family:'DM Serif Display',serif;font-size:36px;line-height:1.15}
+  .config-hero h1 span{color:var(--teal)}
+  .config-hero p{color:var(--text-dim);font-size:14px;margin-top:8px;line-height:1.6}
+  .config-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px 28px;backdrop-filter:blur(8px);margin-bottom:14px}
+  .config-card h3{font-family:'DM Serif Display',serif;font-size:16px;color:var(--teal);margin-bottom:5px}
+  .config-card p{font-size:12.5px;color:var(--text-dim);margin-bottom:16px;line-height:1.6}
+  .steps-list{counter-reset:step;list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:16px}
+  .steps-list li{counter-increment:step;display:flex;gap:11px;align-items:flex-start;font-size:12.5px;color:var(--text-dim);line-height:1.6}
+  .steps-list li::before{content:counter(step);min-width:20px;height:20px;border-radius:50%;background:var(--teal-glow);border:1px solid var(--border);color:var(--teal);font-family:'DM Mono',monospace;font-size:10px;display:flex;align-items:center;justify-content:center;margin-top:1px;flex-shrink:0}
+  .code-block{background:rgba(0,0,0,.35);border:1px solid var(--border-dim);border-radius:6px;padding:8px 12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--teal);word-break:break-all;margin:6px 0}
+  .settings-url-row{display:flex;gap:8px;align-items:center}
+  .settings-url-row input{flex:1}
+
+  /* MISC */
+  .spinner{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .empty-state{text-align:center;padding:50px 20px;color:var(--text-faint)}
+  .empty-state .empty-icon{font-size:36px;margin-bottom:10px}
+  .empty-state h3{font-family:'DM Serif Display',serif;font-size:17px;color:var(--text-dim);margin-bottom:5px}
+  .empty-state p{font-size:12.5px;line-height:1.6}
+  #toast{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:7px}
+  .toast-item{background:var(--navy-mid);border:1px solid var(--border);border-radius:9px;padding:10px 16px;font-size:13px;color:var(--text-main);display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:slideIn .25s ease;max-width:300px}
+  .toast-item.success{border-color:rgba(62,207,142,.4)}
+  .toast-item.error{border-color:rgba(224,82,82,.4)}
+  @keyframes slideIn{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
+  .hidden{display:none!important}
+  .section-divider{height:1px;background:var(--border-dim);margin:16px 0}
+  .hint{font-size:11px;color:var(--text-faint);margin-top:3px}
+  .two-col-detail{display:grid;grid-template-columns:1fr 1fr;gap:0}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">PediCat</div>
+    <div class="logo-sub">Cataract Registry</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <div class="nav-item active" onclick="showView('dashboard')" id="nav-dashboard"><span class="nav-icon">⬡</span>Dashboard</div>
+    <div class="nav-item" onclick="showView('patients')" id="nav-patients"><span class="nav-icon">◈</span>Patients</div>
+    <div class="nav-section-label" style="margin-top:6px">Data Entry</div>
+    <div class="nav-item" onclick="showView('new-patient')" id="nav-new-patient"><span class="nav-icon">＋</span>New Patient</div>
+    <div class="nav-item" onclick="showView('new-examination')" id="nav-new-examination"><span class="nav-icon">◉</span>Examination</div>
+    <div class="nav-item" onclick="showView('new-surgery')" id="nav-new-surgery"><span class="nav-icon">⊕</span>Surgery</div>
+    <div class="nav-item" onclick="showView('new-followup')" id="nav-new-followup"><span class="nav-icon">◎</span>Follow-up Visit</div>
+    <div class="nav-section-label" style="margin-top:6px">System</div>
+    <div class="nav-item" onclick="showView('setup')" id="nav-setup"><span class="nav-icon">◇</span>Setup</div>
+  </div>
+  <div class="sidebar-footer">v2.0 · PediCat Registry</div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <div class="topbar-title" id="topbar-title">Dashboard</div>
+    <div class="topbar-right">
+      <span id="connection-badge" class="badge badge-amber">⬡ Not configured</span>
+    </div>
+  </div>
+  <div id="content">
+
+    <!-- ═══════════════════════════════ SETUP ═══ -->
+    <div id="view-setup" class="hidden">
+      <div class="config-screen">
+        <div class="config-hero">
+          <h1>Connect to<br><span>Google Sheets</span></h1>
+          <p>Your registry data is stored in a Google Sheet you own.<br>Follow the steps below to get online.</p>
+        </div>
+        <div class="config-card">
+          <h3>Step 1 — Create your Google Sheet</h3>
+          <p>Create a new spreadsheet and add <strong>4 tabs</strong> named exactly: <strong>Patients, Examinations, Operations, Followup</strong></p>
+          <p style="margin-bottom:8px">In the <strong>Patients</strong> tab, row 1 headers:</p>
+          <div class="code-block">PID | DateOfRegistration | FirstName | LastName | DOB | Sex | Phone | AlternatePhone | Address | Referring | Others | EntryDate</div>
+          <p style="margin-bottom:8px;margin-top:10px">In the <strong>Examinations</strong> tab:</p>
+          <div class="code-block">ID | PID | DateOfExam | Eye | ProcedureType | Examiner | CorneaOpacity | LocationCornea | Density | CorneaDiamH | CorneaDiamV | CCT | CCTOtherEye | PupilDiam | Synaechia | Location | Angle | AngleDesc | IOP | LensDensity | LensMorphology | CataractLocation | Spherophakia | Lenticonus | PHPV | PHPVType | Subluxation | SubluxationGrade | SubluxationDeg | SubluxationLoc | Fundus | FundusAbnorm | CD | AxialLength | AXLOtherEye | Syndrome | Investigations | Consanguinity | FamilyHistory | FamilyHistoryDesc | PupilBefore | Comments | EntryDate</div>
+          <p style="margin-bottom:8px;margin-top:10px">In the <strong>Operations</strong> tab:</p>
+          <div class="code-block">ID | PID | DateOfOp | Eye | OperationName | IOL | AnteriorCapsule | PosteriorCapsule | CapsuleStain | Viscoelastic | AnteriorVitrectomy | Membranectomy | Iridectomy | IrisInjury | Sphincterinjury | Synechiolysis | IrisReconstruction | IrisManipulations | Hyphaema | DroppedCortex | DroppedIOL | VitreousHaemorrhage | OtherComplications | Biometry | SRKII | Holladay | HofferQ | Kreading | K1 | K2 | AxialLength | IOLType | IOLPlace | IOLPower | TargetRefraction | Orientation | Steroids | Atropine | Route | Medications | Examiner | Duration | OperationNotes | EntryDate</div>
+          <p style="margin-bottom:8px;margin-top:10px">In the <strong>Followup</strong> tab:</p>
+          <div class="code-block">ID | PID | DateOfExam | Eye | VisitType | Examiner | Cornea | CorneaDesc | AC | ACDesc | CCT | Iris | IrisDesc | Pupil | PupilDesc | Lens | LensDesc | LensStatus | Opacification | Fundus | FundusDesc | IOP | CD | VA | Sphere | Cylinder | Axis | Gonioscopy | GonioDesc | Comments | EntryDate</div>
+        </div>
+        <div class="config-card">
+          <h3>Step 2 — Deploy Apps Script</h3>
+          <p>In your Sheet: <strong>Extensions → Apps Script</strong>. Replace all code with this, then <strong>Deploy → New deployment → Web app → Anyone → Deploy</strong></p>
+          <textarea readonly style="height:180px;font-family:'DM Mono',monospace;font-size:10.5px;color:var(--teal);background:rgba(0,0,0,.4)" onclick="this.select()">function doPost(e){var d=JSON.parse(e.postData.contents);var ss=SpreadsheetApp.getActiveSpreadsheet();var sheet=ss.getSheetByName(d.sheet);var headers=sheet.getRange(1,1,1,sheet.getLastColumn()).getValues()[0];var row=headers.map(function(h){return d.row[h]!==undefined?d.row[h]:'';});sheet.appendRow(row);return ContentService.createTextOutput(JSON.stringify({status:'ok'})).setMimeType(ContentService.MimeType.JSON);}
+function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.parameter.sheet;var sheet=ss.getSheetByName(sn);if(!sheet)return ContentService.createTextOutput(JSON.stringify({error:'Not found'})).setMimeType(ContentService.MimeType.JSON);var data=sheet.getDataRange().getValues();var headers=data[0];var rows=data.slice(1).map(function(r){var o={};headers.forEach(function(h,i){o[h]=r[i];});return o;});return ContentService.createTextOutput(JSON.stringify({rows:rows})).setMimeType(ContentService.MimeType.JSON);}</textarea>
+        </div>
+        <div class="config-card">
+          <h3>Step 3 — Connect</h3>
+          <p>Paste your Web App URL here and click Connect.</p>
+          <div class="settings-url-row">
+            <input type="url" id="webapp-url-input" placeholder="https://script.google.com/macros/s/...">
+            <button class="btn btn-primary" onclick="saveConfig()">Connect</button>
+          </div>
+          <div id="test-result" style="margin-top:10px;font-size:12.5px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ DASHBOARD ═══ -->
+    <div id="view-dashboard">
+      <div class="section-header"><h2>Overview</h2><p>Registry summary</p></div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Patients</div><div class="stat-value" id="stat-patients">—</div><div class="stat-sub">registered</div></div>
+        <div class="stat-card"><div class="stat-label">Examinations</div><div class="stat-value" id="stat-exams">—</div><div class="stat-sub">preoperative</div></div>
+        <div class="stat-card"><div class="stat-label">Operations</div><div class="stat-value" id="stat-ops">—</div><div class="stat-sub">recorded</div></div>
+        <div class="stat-card"><div class="stat-label">Follow-up Visits</div><div class="stat-value" id="stat-fups">—</div><div class="stat-sub">logged</div></div>
+        <div class="stat-card"><div class="stat-label">IOL Implanted</div><div class="stat-value" id="stat-iol">—</div><div class="stat-sub">of operations</div></div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title">Recent patients</div>
+        <div id="dashboard-recent"><div class="empty-state"><div class="empty-icon">◈</div><h3>No data yet</h3><p>Configure Google Sheets in <strong>Setup</strong>, then start entering patients.</p></div></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ PATIENTS LIST ═══ -->
+    <div id="view-patients" class="hidden">
+      <div class="patients-toolbar">
+        <div class="section-header" style="margin-bottom:0"><h2>Patients</h2></div>
+        <div class="search-wrap"><span class="search-icon">⌕</span><input type="text" id="patient-search" placeholder="Search name or PID…" oninput="filterPatients()"></div>
+        <button class="btn btn-primary btn-sm" onclick="showView('new-patient')">＋ New Patient</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>PID</th><th>Name</th><th>DOB</th><th>Sex</th><th>Phone</th><th>Exams</th><th>Ops</th><th>Visits</th><th></th></tr></thead>
+          <tbody id="patients-tbody"><tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text-faint)"><span class="spinner"></span></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ NEW PATIENT ═══ -->
+    <div id="view-new-patient" class="hidden">
+      <div class="section-header"><h2>Register New Patient</h2><p>Demographics and contact information</p></div>
+      <form id="patient-form" onsubmit="submitPatient(event)">
+        <div class="form-card">
+          <div class="form-card-title">Identification</div>
+          <div class="form-grid cols-3">
+            <div class="form-group"><label>Patient ID (PID) *</label><input type="text" id="p-pid" required placeholder="e.g. 202400001"><div class="hint">Unique hospital identifier</div></div>
+            <div class="form-group"><label>First Name *</label><input type="text" id="p-firstname" required></div>
+            <div class="form-group"><label>Last Name *</label><input type="text" id="p-lastname" required></div>
+            <div class="form-group"><label>Date of Birth</label><input type="date" id="p-dob"></div>
+            <div class="form-group"><label>Sex</label><div class="radio-group"><div class="radio-option"><input type="radio" name="p-sex" id="sex-m" value="Male"><label for="sex-m">Male</label></div><div class="radio-option"><input type="radio" name="p-sex" id="sex-f" value="Female"><label for="sex-f">Female</label></div></div></div>
+            <div class="form-group"><label>Date of Registration</label><input type="date" id="p-regdate"></div>
+          </div>
+        </div>
+        <div class="form-card">
+          <div class="form-card-title">Contact & Referral</div>
+          <div class="form-grid cols-3">
+            <div class="form-group"><label>Phone</label><input type="tel" id="p-phone" placeholder="Primary phone"></div>
+            <div class="form-group"><label>Alternate Phone</label><input type="tel" id="p-phone2"></div>
+            <div class="form-group"><label>Referring Physician</label><input type="text" id="p-referring"></div>
+            <div class="form-group span-2"><label>Address</label><input type="text" id="p-address"></div>
+            <div class="form-group"><label>Others / Notes</label><input type="text" id="p-others"></div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="showView('patients')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="patient-submit-btn">Save Patient</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ═══════════════════════════════ EXAMINATION ═══ -->
+    <div id="view-new-examination" class="hidden">
+      <div class="section-header"><h2>Preoperative Examination</h2><p>Initial and preoperative clinical findings</p></div>
+      <form id="exam-form" onsubmit="submitExamination(event)">
+        <div class="form-card">
+          <div class="form-card-title">Procedure Info</div>
+          <div class="form-grid cols-4">
+            <div class="form-group span-2"><label>Patient PID *</label><input type="text" id="e-pid" required placeholder="Patient PID" list="exam-pid-list"><datalist id="exam-pid-list"></datalist></div>
+            <div class="form-group"><label>Date of Exam *</label><input type="date" id="e-date" required></div>
+            <div class="form-group"><label>Eye *</label><div class="radio-group"><div class="radio-option"><input type="radio" name="e-eye" id="ee-od" value="OD"><label for="ee-od">OD</label></div><div class="radio-option"><input type="radio" name="e-eye" id="ee-os" value="OS"><label for="ee-os">OS</label></div><div class="radio-option"><input type="radio" name="e-eye" id="ee-ou" value="OU"><label for="ee-ou">OU</label></div></div></div>
+            <div class="form-group span-2"><label>Procedure Type</label><select id="e-proctype"><option value="">— Select —</option><option>Initial Examination</option><option>Unspecified Preoperative Examination</option><option>One Day Postoperative Examination</option><option>One Week Postoperative Examination</option><option>One Month Postoperative Examination</option><option>Three Months Postoperative Examination</option><option>Six Months Postoperative Examination</option><option>One Year Postoperative Examination</option><option>Postoperative Examination Unspecified</option></select></div>
+            <div class="form-group span-2"><label>Examiner</label><select id="e-examiner"><option value="">— Select —</option><option>Esraa Elmalah</option><option>Hatem Saeed</option><option>Mohamed Elsada</option><option>Lobna Khazbak</option><option>Hala Elhilaly</option></select></div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">Cornea</div>
+          <div class="form-grid cols-4">
+            <div class="form-group"><label>Corneal Opacity</label><div class="radio-group"><div class="radio-option"><input type="radio" name="e-cornea" id="co-n" value="Normal"><label for="co-n">Normal</label></div><div class="radio-option"><input type="radio" name="e-cornea" id="co-y" value="Present"><label for="co-y">Present</label></div></div></div>
+            <div class="form-group"><label>Location</label><input type="text" id="e-cornea-loc" placeholder="e.g. central"></div>
+            <div class="form-group"><label>Density</label><input type="text" id="e-cornea-density" placeholder="e.g. mild/moderate/dense"></div>
+            <div class="form-group"><label>Horizontal Diameter (mm)</label><input type="number" id="e-cornea-diamh" step="0.1" placeholder="mm"></div>
+            <div class="form-group"><label>Vertical Diameter (mm)</label><input type="number" id="e-cornea-diamv" step="0.1" placeholder="mm"></div>
+            <div class="form-group"><label>CCT (µm)</label><input type="number" id="e-cct" placeholder="µm"></div>
+            <div class="form-group"><label>CCT Other Eye (µm)</label><input type="number" id="e-cct-other" placeholder="µm"></div>
+            <div class="form-group"><label>Pupil Diameter (mm)</label><input type="number" id="e-pupil-diam" step="0.1" placeholder="mm"></div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">Anterior Segment</div>
+          <div class="form-grid cols-4">
+            <div class="form-group"><label>Synechiae</label><div class="radio-group"><div class="radio-option"><input type="radio" name="e-syn" id="syn-n" value="Absent"><label for="syn-n">Absent</label></div><div class="radio-option"><input type="radio" name="e-syn" id="syn-y" value="Present"><label for="syn-y">Present</label></div></div></div>
+            <div class="form-group"><label>Location</label><input type="text" id="e-syn-loc" placeholder="anterior/posterior"></div>
+            <div class="form-group"><label>Angle</label><input type="text" id="e-angle"></div>
+            <div class="form-group"><label>Angle Description</label><input type="text" id="e-angledesc"></div>
+            <div class="form-group"><label>IOP (mmHg)</label><input type="number" id="e-iop" min="0" max="80" placeholder="mmHg"></div>
+            <div class="form-group"><label>Pupil Before Dilation</label><input type="text" id="e-pupilbefore" placeholder="mm or description"></div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">Lens</div>
+          <div class="form-grid cols-4">
+            <div class="form-group"><label>Lens Density</label><select id="e-lens-density"><option value="">— Select —</option><option>Average</option><option>Dense</option><option>Very Dense</option><option>Soft</option></select></div>
+            <div class="form-group"><label>Lens Morphology</label><input type="text" id="e-lens-morph" placeholder="e.g. lamellar, polar"></div>
+            <div class="form-group"><label>Cataract Location</label><select id="e-cat-loc"><option value="">— Select —</option><option>Total</option><option>Nuclear</option><option>Cortical</option><option>Posterior Subcapsular</option><option>Anterior Polar</option><option>Posterior Polar</option><option>Lamellar</option></select></div>
+            <div class="form-group"><label>Subluxation</label><div class="radio-group"><div class="radio-option"><input type="radio" name="e-sub" id="sub-n" value="Absent"><label for="sub-n">Absent</label></div><div class="radio-option"><input type="radio" name="e-sub" id="sub-y" value="Present"><label for="sub-y">Present</label></div></div></div>
+            <div class="form-group"><label>Subluxation Grade</label><input type="text" id="e-sub-grade"></div>
+            <div class="form-group"><label>Subluxation Degrees</label><input type="number" id="e-sub-deg" min="0" max="360" placeholder="°"></div>
+            <div class="form-group"><label>Subluxation Location</label><input type="text" id="e-sub-loc" placeholder="e.g. superonasal"></div>
+          </div>
+          <div class="section-divider"></div>
+          <div class="form-grid cols-4">
+            <div class="form-group"><label>Spherophakia</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-sph"><label for="e-sph">Present</label></div></div></div>
+            <div class="form-group"><label>Lenticonus</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-lent"><label for="e-lent">Present</label></div></div></div>
+            <div class="form-group"><label>PHPV</label><select id="e-phpv"><option value="Absent">Absent</option><option value="Anterior">Anterior</option><option value="Posterior">Posterior</option><option value="Combined">Combined</option></select></div>
+            <div class="form-group"><label>PHPV Type</label><input type="text" id="e-phpv-type"></div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">Fundus & Biometry</div>
+          <div class="form-grid cols-4">
+            <div class="form-group"><label>Fundus</label><div class="radio-group"><div class="radio-option"><input type="radio" name="e-fundus" id="fu-n" value="Normal"><label for="fu-n">Normal</label></div><div class="radio-option"><input type="radio" name="e-fundus" id="fu-ab" value="Abnormal"><label for="fu-ab">Abnormal</label></div><div class="radio-option"><input type="radio" name="e-fundus" id="fu-nv" value="Not visible"><label for="fu-nv">Not visible</label></div></div></div>
+            <div class="form-group span-2"><label>Fundus Abnormalities</label><input type="text" id="e-fundus-abn" placeholder="describe if abnormal"></div>
+            <div class="form-group"><label>C/D Ratio</label><input type="number" id="e-cd" step="0.05" min="0" max="1" placeholder="0.0–1.0"></div>
+            <div class="form-group"><label>Axial Length (mm)</label><input type="number" id="e-axl" step="0.01" placeholder="mm"></div>
+            <div class="form-group"><label>AXL Other Eye (mm)</label><input type="number" id="e-axl-other" step="0.01" placeholder="mm"></div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">Systemic & History</div>
+          <div class="form-grid cols-3">
+            <div class="form-group"><label>Syndrome</label><input type="text" id="e-syndrome" placeholder="e.g. Down, Marfan"></div>
+            <div class="form-group"><label>Investigations</label><input type="text" id="e-invest"></div>
+            <div class="form-group"><label>Consanguinity</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-consang"><label for="e-consang">Present</label></div></div></div>
+            <div class="form-group"><label>Family History</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="e-fhx"><label for="e-fhx">Present</label></div></div></div>
+            <div class="form-group span-2"><label>Family History Details</label><input type="text" id="e-fhx-desc"></div>
+          </div>
+          <div class="form-group span-full" style="margin-top:12px"><label>Comments</label><textarea id="e-comments"></textarea></div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="showView('dashboard')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="exam-submit-btn">Save Examination</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ═══════════════════════════════ SURGERY ═══ -->
+    <div id="view-new-surgery" class="hidden">
+      <div class="section-header"><h2>Operation Record</h2><p>Intraoperative details and technique</p></div>
+      <form id="surgery-form" onsubmit="submitSurgery(event)">
+        <div class="form-card">
+          <div class="form-card-title">Procedure Details</div>
+          <div class="form-grid cols-4">
+            <div class="form-group span-2"><label>Patient PID *</label><input type="text" id="s-pid" required list="surg-pid-list"><datalist id="surg-pid-list"></datalist></div>
+            <div class="form-group"><label>Date of Operation *</label><input type="date" id="s-date" required></div>
+            <div class="form-group"><label>Eye *</label><div class="radio-group"><div class="radio-option"><input type="radio" name="s-eye" id="se-od" value="OD"><label for="se-od">OD</label></div><div class="radio-option"><input type="radio" name="s-eye" id="se-os" value="OS"><label for="se-os">OS</label></div></div></div>
+            <div class="form-group span-2"><label>Operation Type *</label><select id="s-optype"><option value="">— Select —</option><option>Anterior Lensectomy</option><option>Posterior Lensectomy</option><option>Irrigation/Aspiration</option><option>Secondary Implantation</option><option>Membranectomy</option><option>Other</option></select></div>
+            <div class="form-group span-2"><label>Examiner / Surgeon</label><select id="s-examiner"><option value="">— Select —</option><option>Esraa Elmalah</option><option>Hatem Saeed</option><option>Mohamed Elsada</option><option>Lobna Khazbak</option><option>Hala Elhilaly</option></select></div>
+            <div class="form-group"><label>Duration (min)</label><input type="number" id="s-duration" min="0" placeholder="minutes"></div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">Capsule Management</div>
+          <div class="form-grid cols-2">
+            <div class="form-group"><label>Anterior Capsule Technique</label><select id="s-ant-cap"><option value="">— Select —</option><option>Planned can-opener</option><option>Complete anterior capsulorhexis</option><option>Incomplete/extension anterior capsulorhexis</option><option>Vitrhexis</option><option>Scissors</option></select></div>
+            <div class="form-group"><label>Posterior Capsule</label><select id="s-post-cap"><option value="">— Select —</option><option>Intact</option><option>Accidentally Opened</option><option>Planned Posterior Capsulorhexis</option><option>Planned Ocutome Capsulorhexis Anterior Approach</option><option>Planned Ocutome Capsulorhexis Posterior Approach</option></select></div>
+            <div class="form-group"><label>Capsule Stain</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="s-cap-stain"><label for="s-cap-stain">Used</label></div></div></div>
+            <div class="form-group"><label>Anterior Vitrectomy</label><select id="s-ant-vit"><option value="">— Select —</option><option>None</option><option>Anterior Approach</option><option>Pars Plicata Approach</option></select></div>
+          </div>
+          <div class="section-divider"></div>
+          <div class="form-grid cols-3">
+            <div class="form-group"><label>Viscoelastic</label><select id="s-visco"><option value="">— Select —</option><option>MethylCellulose</option><option>Sodium Hyaluronate</option></select></div>
+            <div class="form-group"><label>Medications (Periop)</label><select id="s-meds"><option value="">— Select —</option><option>Diprofos</option><option>Decadrone</option><option>Triamcinolone</option></select></div>
+            <div class="form-group"><label>Route</label><select id="s-route"><option value="">— Select —</option><option>Subtenon</option><option>Intravitreal</option><option>Topical</option><option>Systemic</option></select></div>
+            <div class="form-group"><label>Steroids</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="s-steroids"><label for="s-steroids">Given</label></div></div></div>
+            <div class="form-group"><label>Atropine</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="s-atropine"><label for="s-atropine">Given</label></div></div></div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">Additional Procedures</div>
+          <div class="flag-group">
+            <div class="flag-option"><input type="checkbox" id="sp-memb"><label for="sp-memb">Membranectomy</label></div>
+            <div class="flag-option"><input type="checkbox" id="sp-irid"><label for="sp-irid">Iridectomy</label></div>
+            <div class="flag-option"><input type="checkbox" id="sp-iris-inj"><label for="sp-iris-inj">Iris Injury</label></div>
+            <div class="flag-option"><input type="checkbox" id="sp-sphinc"><label for="sp-sphinc">Sphincter Injury</label></div>
+            <div class="flag-option"><input type="checkbox" id="sp-syn"><label for="sp-syn">Synechiolysis</label></div>
+            <div class="flag-option"><input type="checkbox" id="sp-iris-rec"><label for="sp-iris-rec">Iris Reconstruction</label></div>
+            <div class="flag-option"><input type="checkbox" id="sp-iris-man"><label for="sp-iris-man">Iris Manipulations</label></div>
+            <div class="flag-option"><input type="checkbox" id="sp-hyph"><label for="sp-hyph">Hyphaema</label></div>
+            <div class="flag-option"><input type="checkbox" id="sp-drop-cortex"><label for="sp-drop-cortex">Dropped Cortex</label></div>
+            <div class="flag-option"><input type="checkbox" id="sp-drop-iol"><label for="sp-drop-iol">Dropped IOL</label></div>
+            <div class="flag-option"><input type="checkbox" id="sp-vit-haem"><label for="sp-vit-haem">Vitreous Haemorrhage</label></div>
+          </div>
+          <div class="form-group" style="margin-top:12px"><label>Other Complications / Notes</label><textarea id="s-complications"></textarea></div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">IOL Details</div>
+          <div class="form-group" style="margin-bottom:14px"><label>IOL Implanted?</label><div class="radio-group"><div class="radio-option"><input type="radio" name="iol-yn" id="iol-yes" value="Yes" onchange="toggleIOL(true)"><label for="iol-yes">Yes</label></div><div class="radio-option"><input type="radio" name="iol-yn" id="iol-no" value="No" onchange="toggleIOL(false)"><label for="iol-no">No — Aphakic</label></div></div></div>
+          <div id="iol-details" class="form-grid cols-4">
+            <div class="form-group span-2"><label>IOL Type / Model</label><select id="s-iol-type"><option value="">— Select —</option><option>Acrysof one-piece</option><option>Acrysof three-piece</option><option>Sensar</option><option>PMMA 6.5 mm</option><option>PMMA 5 mm</option><option>Verisyse</option><option>Veriflex</option><option>Scleral Fixation Lens</option><option>medicontur</option></select></div>
+            <div class="form-group"><label>IOL Placement</label><select id="s-iol-place"><option value="">— Select —</option><option>Bag</option><option>Sulcus</option><option>Iris Support Anterior</option><option>Iris Support Posterior</option><option>Scleral Fixation one-point</option><option>Scleral Fixation two-point</option><option>Scleral Fixation Tunnel</option><option>Unspecified</option></select></div>
+            <div class="form-group"><label>IOL Power (D)</label><input type="number" id="s-iol-power" step="0.5" placeholder="diopters"></div>
+            <div class="form-group"><label>Target Refraction (D)</label><input type="number" id="s-target-ref" step="0.25" placeholder="diopters"></div>
+            <div class="form-group"><label>Orientation</label><select id="s-orientation"><option value="">— Select —</option><option>Horizontal</option><option>Vertical</option><option>Oblique</option></select></div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">Biometry</div>
+          <div class="form-grid cols-4">
+            <div class="form-group"><label>SRK II</label><input type="number" id="s-srkii" step="0.01"></div>
+            <div class="form-group"><label>Holladay</label><input type="number" id="s-holladay" step="0.01"></div>
+            <div class="form-group"><label>Hoffer Q</label><input type="number" id="s-hofferq" step="0.01"></div>
+            <div class="form-group"><label>K Reading</label><input type="text" id="s-kreading"></div>
+            <div class="form-group"><label>K1 (D)</label><input type="number" id="s-k1" step="0.01"></div>
+            <div class="form-group"><label>K2 (D)</label><input type="number" id="s-k2" step="0.01"></div>
+            <div class="form-group"><label>Axial Length (mm)</label><input type="number" id="s-axl" step="0.01"></div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="showView('dashboard')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="surgery-submit-btn">Save Operation</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ═══════════════════════════════ FOLLOW-UP ═══ -->
+    <div id="view-new-followup" class="hidden">
+      <div class="section-header"><h2>Follow-up Visit</h2><p>Postoperative examination findings</p></div>
+      <form id="followup-form" onsubmit="submitFollowup(event)">
+        <div class="form-card">
+          <div class="form-card-title">Visit Info</div>
+          <div class="form-grid cols-4">
+            <div class="form-group span-2"><label>Patient PID *</label><input type="text" id="f-pid" required list="fup-pid-list"><datalist id="fup-pid-list"></datalist></div>
+            <div class="form-group"><label>Date of Exam *</label><input type="date" id="f-date" required></div>
+            <div class="form-group"><label>Eye *</label><div class="radio-group"><div class="radio-option"><input type="radio" name="f-eye" id="fe-od" value="OD"><label for="fe-od">OD</label></div><div class="radio-option"><input type="radio" name="f-eye" id="fe-os" value="OS"><label for="fe-os">OS</label></div><div class="radio-option"><input type="radio" name="f-eye" id="fe-ou" value="OU"><label for="fe-ou">OU</label></div></div></div>
+            <div class="form-group span-2"><label>Visit Type</label><select id="f-visittype"><option value="">— Select —</option><option>One Day Postoperative Examination</option><option>One Week Postoperative Examination</option><option>One Month Postoperative Examination</option><option>Three Months Postoperative Examination</option><option>Six Months Postoperative Examination</option><option>One Year Postoperative Examination</option><option>Postoperative Examination Unspecified</option></select></div>
+            <div class="form-group span-2"><label>Examiner</label><select id="f-examiner"><option value="">— Select —</option><option>Esraa Elmalah</option><option>Hatem Saeed</option><option>Mohamed Elsada</option><option>Lobna Khazbak</option><option>Hala Elhilaly</option></select></div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">Slit Lamp Findings</div>
+          <div class="form-grid cols-3">
+            <div class="form-group"><label>Cornea</label><div class="radio-group"><div class="radio-option"><input type="radio" name="f-cornea" id="fc-n" value="Clear"><label for="fc-n">Clear</label></div><div class="radio-option"><input type="radio" name="f-cornea" id="fc-ab" value="Abnormal"><label for="fc-ab">Abnormal</label></div></div><input type="text" id="f-cornea-desc" placeholder="details…" style="margin-top:6px"></div>
+            <div class="form-group"><label>Anterior Chamber</label><div class="radio-group"><div class="radio-option"><input type="radio" name="f-ac" id="fac-q" value="Quiet"><label for="fac-q">Quiet</label></div><div class="radio-option"><input type="radio" name="f-ac" id="fac-ab" value="Abnormal"><label for="fac-ab">Abnormal</label></div></div><input type="text" id="f-ac-desc" placeholder="cells, flare…" style="margin-top:6px"></div>
+            <div class="form-group"><label>CCT (µm)</label><input type="number" id="f-cct" placeholder="µm"></div>
+            <div class="form-group"><label>Iris</label><div class="radio-group"><div class="radio-option"><input type="radio" name="f-iris" id="fi-n" value="Normal"><label for="fi-n">Normal</label></div><div class="radio-option"><input type="radio" name="f-iris" id="fi-ab" value="Abnormal"><label for="fi-ab">Abnormal</label></div></div><input type="text" id="f-iris-desc" placeholder="details…" style="margin-top:6px"></div>
+            <div class="form-group"><label>Pupil</label><div class="radio-group"><div class="radio-option"><input type="radio" name="f-pupil" id="fp-n" value="Round"><label for="fp-n">Round</label></div><div class="radio-option"><input type="radio" name="f-pupil" id="fp-ab" value="Abnormal"><label for="fp-ab">Abnormal</label></div></div><input type="text" id="f-pupil-desc" placeholder="details…" style="margin-top:6px"></div>
+            <div class="form-group"><label>Lens / IOL Status</label><select id="f-lens-status"><option value="">— Select —</option><option>Aphakic</option><option>IOL in situ — well positioned</option><option>IOL decentred</option><option>IOL tilted</option><option>IOL displaced</option><option>Pseudophakic — other</option></select><input type="text" id="f-lens-desc" placeholder="lens details…" style="margin-top:6px"></div>
+          </div>
+          <div class="form-group span-full" style="margin-top:10px"><label>Opacification / PCO</label><input type="text" id="f-opacification" placeholder="describe if present"></div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">Vision & Refraction</div>
+          <div class="form-grid cols-4">
+            <div class="form-group span-2"><label>Visual Acuity</label><select id="f-va"><option value="">— Select —</option><option>Cannot be measured</option><option>Cannot Fix or Follow</option><option>Central Steady Maintained</option><option>Uncentral Unsteady Unmaintained</option><option>Central Steady Unmaintained</option><option>Central Unsteady Unmaintained</option><option>NOPL</option><option>PLBP</option><option>PLGP</option><option>HMBP</option><option>HMGP</option><option>cf 20 cm</option><option>cf 30 cm</option><option>cf 40 cm</option><option>cf 50 cm</option><option>cf 60 cm</option><option>cf 70 cm</option><option>cf 80 cm</option><option>cf 90 cm</option><option>1/60</option><option>2/60</option><option>3/60</option><option>4/60</option><option>5/60</option><option>0.1</option><option>0.16</option><option>0.2</option><option>0.25</option><option>0.3</option><option>0.4</option><option>0.5</option><option>0.6</option><option>0.63</option><option>0.7</option><option>0.8</option><option>0.9</option><option>1.0</option></select></div>
+            <div class="form-group"><label>Sphere (D)</label><input type="number" id="f-sph" step="0.25" placeholder="e.g. -2.50"></div>
+            <div class="form-group"><label>Cylinder (D)</label><input type="number" id="f-cyl" step="0.25" placeholder="e.g. -0.75"></div>
+            <div class="form-group"><label>Axis (°)</label><input type="number" id="f-axis" min="0" max="180" placeholder="0–180"></div>
+            <div class="form-group"><label>IOP (mmHg)</label><input type="number" id="f-iop" min="0" max="80" placeholder="mmHg"></div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">Fundus</div>
+          <div class="form-grid cols-3">
+            <div class="form-group"><label>Fundus</label><div class="radio-group"><div class="radio-option"><input type="radio" name="f-fundus" id="ff-n" value="Normal"><label for="ff-n">Normal</label></div><div class="radio-option"><input type="radio" name="f-fundus" id="ff-ab" value="Abnormal"><label for="ff-ab">Abnormal</label></div><div class="radio-option"><input type="radio" name="f-fundus" id="ff-nv" value="Not visible"><label for="ff-nv">Not visible</label></div></div></div>
+            <div class="form-group span-2"><label>Fundus Description</label><input type="text" id="f-fundus-desc" placeholder="if abnormal"></div>
+            <div class="form-group"><label>C/D Ratio</label><input type="number" id="f-cd" step="0.05" min="0" max="1" placeholder="0.0–1.0"></div>
+            <div class="form-group"><label>Gonioscopy</label><div class="flag-group"><div class="flag-option"><input type="checkbox" id="f-gonio"><label for="f-gonio">Performed</label></div></div></div>
+            <div class="form-group"><label>Gonioscopy Description</label><input type="text" id="f-gonio-desc"></div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">Comments</div>
+          <div class="form-group"><textarea id="f-comments" placeholder="Additional clinical notes for this visit…"></textarea></div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="showView('dashboard')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="followup-submit-btn">Save Follow-up</button>
+        </div>
+      </form>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<div id="toast"></div>
+
+<!-- PATIENT DETAIL MODAL -->
+<div id="detail-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <h2 id="modal-patient-name">Patient</h2>
+        <div id="modal-patient-meta" style="font-size:12px;color:var(--text-faint);font-family:'DM Mono',monospace;margin-top:2px"></div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="closeModal()">✕ Close</button>
+    </div>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('tab-demo',this)">Demographics</button>
+      <button class="tab-btn" onclick="switchTab('tab-exams',this)">Examinations</button>
+      <button class="tab-btn" onclick="switchTab('tab-ops',this)">Operations</button>
+      <button class="tab-btn" onclick="switchTab('tab-fups',this)">Follow-ups</button>
+    </div>
+    <div id="tab-demo" class="tab-panel active"></div>
+    <div id="tab-exams" class="tab-panel"></div>
+    <div id="tab-ops" class="tab-panel"></div>
+    <div id="tab-fups" class="tab-panel"></div>
+  </div>
+</div>
+
+<script>
+// ─── STATE ───
+let CONFIG={webAppUrl:''};
+let DB={patients:[],examinations:[],operations:[],followups:[]};
+
+// ─── INIT ───
+document.addEventListener('DOMContentLoaded',()=>{
+  const saved=localStorage.getItem('pedicat_v2_config');
+  if(saved){CONFIG=JSON.parse(saved);document.getElementById('webapp-url-input').value=CONFIG.webAppUrl||'';}
+  updateConnectionBadge();
+  if(CONFIG.webAppUrl) loadAll();
+  const today=new Date().toISOString().split('T')[0];
+  ['e-date','s-date','f-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today;});
+});
+
+// ─── NAV ───
+function showView(v){
+  document.querySelectorAll('[id^="view-"]').forEach(el=>el.classList.add('hidden'));
+  document.getElementById('view-'+v).classList.remove('hidden');
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  const n=document.getElementById('nav-'+v);if(n)n.classList.add('active');
+  const titles={dashboard:'Dashboard',patients:'Patients','new-patient':'New Patient','new-examination':'Preoperative Examination','new-surgery':'Operation Record','new-followup':'Follow-up Visit',setup:'Setup & Configuration'};
+  document.getElementById('topbar-title').textContent=titles[v]||'';
+  if(v==='patients')renderPatientsTable();
+  if(v==='dashboard')renderDashboard();
+  if(['new-examination','new-surgery','new-followup'].includes(v))populatePIDDatalist();
+}
+
+// ─── CONFIG ───
+function saveConfig(){
+  const url=document.getElementById('webapp-url-input').value.trim();
+  if(!url){showToast('Please enter a Web App URL','error');return;}
+  CONFIG.webAppUrl=url;
+  localStorage.setItem('pedicat_v2_config',JSON.stringify(CONFIG));
+  updateConnectionBadge();
+  document.getElementById('test-result').innerHTML='<span class="spinner"></span> Testing…';
+  loadAll().then(()=>{
+    document.getElementById('test-result').innerHTML='<span style="color:var(--green)">✓ Connected successfully</span>';
+    showToast('Connected to Google Sheets!','success');
+  }).catch(()=>{
+    document.getElementById('test-result').innerHTML='<span style="color:var(--red)">✗ Connection failed — check URL and deployment</span>';
+    showToast('Connection failed','error');
+  });
+}
+function updateConnectionBadge(){
+  const b=document.getElementById('connection-badge');
+  if(CONFIG.webAppUrl){b.className='badge badge-green';b.textContent='⬡ Connected';}
+  else{b.className='badge badge-amber';b.textContent='⬡ Not configured';}
+}
+
+// ─── DATA ───
+async function loadAll(){
+  if(!CONFIG.webAppUrl)return;
+  const[p,e,o,f]=await Promise.all([fetchSheet('Patients'),fetchSheet('Examinations'),fetchSheet('Operations'),fetchSheet('Followup')]);
+  DB.patients=p;DB.examinations=e;DB.operations=o;DB.followups=f;
+  renderDashboard();
+}
+async function fetchSheet(name){
+  const res=await fetch(`${CONFIG.webAppUrl}?sheet=${name}`);
+  const data=await res.json();
+  return data.rows||[];
+}
+async function pushRow(sheet,row){
+  const res=await fetch(CONFIG.webAppUrl,{method:'POST',body:JSON.stringify({sheet,row})});
+  const data=await res.json();
+  if(data.status!=='ok')throw new Error('Push failed');
+}
+
+// ─── DASHBOARD ───
+function renderDashboard(){
+  document.getElementById('stat-patients').textContent=DB.patients.length||'0';
+  document.getElementById('stat-exams').textContent=DB.examinations.length||'0';
+  document.getElementById('stat-ops').textContent=DB.operations.length||'0';
+  document.getElementById('stat-fups').textContent=DB.followups.length||'0';
+  const iol=DB.operations.filter(o=>o.IOL==='Yes').length;
+  const tot=DB.operations.length;
+  document.getElementById('stat-iol').innerHTML=`${iol}<span style="font-size:15px;color:var(--text-dim)">/${tot||0}</span>`;
+  const el=document.getElementById('dashboard-recent');
+  if(!DB.patients.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">◈</div><h3>No patients yet</h3><p>Add your first patient to get started.</p></div>`;return;}
+  const recent=[...DB.patients].slice(-8).reverse();
+  el.innerHTML=`<table class="data-table"><thead><tr><th>PID</th><th>Name</th><th>Sex</th><th>Exams</th><th>Ops</th><th>Follow-ups</th></tr></thead><tbody>${recent.map(p=>{
+    const ec=DB.examinations.filter(x=>String(x.PID)===String(p.PID)).length;
+    const oc=DB.operations.filter(x=>String(x.PID)===String(p.PID)).length;
+    const fc=DB.followups.filter(x=>String(x.PID)===String(p.PID)).length;
+    return `<tr><td class="mono">${p.PID}</td><td class="name">${p.LastName||''}, ${p.FirstName||''}</td><td>${p.Sex||'—'}</td><td>${ec}</td><td>${oc}</td><td>${fc}</td></tr>`;
+  }).join('')}</tbody></table>`;
+}
+
+// ─── PATIENTS TABLE ───
+function renderPatientsTable(filter=''){
+  const tbody=document.getElementById('patients-tbody');
+  let list=DB.patients;
+  if(filter){const q=filter.toLowerCase();list=list.filter(p=>(String(p.PID||'').toLowerCase().includes(q)||(p.LastName||'').toLowerCase().includes(q)||(p.FirstName||'').toLowerCase().includes(q)));}
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state" style="padding:30px"><div class="empty-icon">◈</div><h3>No patients found</h3></div></td></tr>`;return;}
+  tbody.innerHTML=list.map(p=>{
+    const ec=DB.examinations.filter(x=>String(x.PID)===String(p.PID)).length;
+    const oc=DB.operations.filter(x=>String(x.PID)===String(p.PID)).length;
+    const fc=DB.followups.filter(x=>String(x.PID)===String(p.PID)).length;
+    const age=p.DOB?calcAge(p.DOB):'—';
+    return `<tr><td class="mono">${p.PID}</td><td class="name">${p.LastName||''}, ${p.FirstName||''}</td><td>${age}</td><td>${p.Sex||'—'}</td><td class="mono">${p.Phone||'—'}</td><td>${ec}</td><td>${oc}</td><td>${fc}</td><td><button class="table-action" onclick="openDetail('${p.PID}')">View ›</button></td></tr>`;
+  }).join('');
+}
+function filterPatients(){renderPatientsTable(document.getElementById('patient-search').value);}
+function calcAge(dob){
+  const d=new Date(dob),now=new Date();
+  let y=now.getFullYear()-d.getFullYear();
+  const m=now.getMonth()-d.getMonth();
+  if(m<0||(m===0&&now.getDate()<d.getDate()))y--;
+  if(y<2){const mo=(now.getFullYear()-d.getFullYear())*12+(now.getMonth()-d.getMonth());return mo+'mo';}
+  return y+'y';
+}
+
+// ─── DATALIST ───
+function populatePIDDatalist(){
+  ['exam-pid-list','surg-pid-list','fup-pid-list'].forEach(id=>{
+    const dl=document.getElementById(id);
+    if(dl)dl.innerHTML=DB.patients.map(p=>`<option value="${p.PID}">${p.LastName||''}, ${p.FirstName||''}</option>`).join('');
+  });
+}
+
+// ─── IOL TOGGLE ───
+function toggleIOL(show){
+  const el=document.getElementById('iol-details');
+  el.style.opacity=show?'1':'0.3';
+  el.style.pointerEvents=show?'':'none';
+}
+
+// ─── PATIENT DETAIL MODAL ───
+function openDetail(pid){
+  const p=DB.patients.find(x=>String(x.PID)===String(pid));if(!p)return;
+  document.getElementById('modal-patient-name').textContent=`${p.FirstName||''} ${p.LastName||''}`;
+  document.getElementById('modal-patient-meta').textContent=`PID: ${p.PID} · DOB: ${p.DOB?new Date(p.DOB).toLocaleDateString():'—'} · ${p.Sex||'—'}`;
+
+  document.getElementById('tab-demo').innerHTML=
+    dr('PID',p.PID)+dr('First Name',p.FirstName)+dr('Last Name',p.LastName)+
+    dr('Date of Birth',p.DOB?new Date(p.DOB).toLocaleDateString():'—')+
+    dr('Sex',p.Sex)+dr('Date of Registration',p.DateOfRegistration?new Date(p.DateOfRegistration).toLocaleDateString():'—')+
+    dr('Phone',p.Phone)+dr('Alternate Phone',p.AlternatePhone)+
+    dr('Address',p.Address)+dr('Referring',p.Referring)+dr('Others',p.Others);
+
+  const exams=DB.examinations.filter(x=>String(x.PID)===String(pid));
+  document.getElementById('tab-exams').innerHTML=!exams.length?empty('No examinations recorded')
+    :`<div class="visit-timeline">${exams.map(e=>`<div class="visit-entry"><div class="visit-card">
+      <div class="visit-date">${e.DateOfExam?new Date(e.DateOfExam).toLocaleDateString():'—'} · ${e.Eye||'—'} · ${e.ProcedureType||''}</div>
+      ${dr('Examiner',e.Examiner)}${dr('IOP',e.IOP?e.IOP+' mmHg':'—')}${dr('Axial Length',e.AxialLength?e.AxialLength+' mm':'—')}
+      ${dr('Lens Density',e.LensDensity)}${dr('Cataract Location',e.CataractLocation)}${dr('Fundus',e.Fundus)}${e.Comments?dr('Comments',e.Comments):''}
+    </div></div>`).join('')}</div>`;
+
+  const ops=DB.operations.filter(x=>String(x.PID)===String(pid));
+  document.getElementById('tab-ops').innerHTML=!ops.length?empty('No operations recorded')
+    :`<div class="visit-timeline">${ops.map(o=>`<div class="visit-entry"><div class="visit-card">
+      <div class="visit-date">${o.DateOfOp?new Date(o.DateOfOp).toLocaleDateString():'—'} · ${o.Eye||'—'}</div>
+      ${dr('Operation',o.OperationName)}${dr('Surgeon',o.Examiner)}
+      ${dr('Anterior Capsule',o.AnteriorCapsule)}${dr('Posterior Capsule',o.PosteriorCapsule)}
+      ${dr('IOL',o.IOL==='Yes'?`${o.IOLType||''} ${o.IOLPower?o.IOLPower+'D':''} — ${o.IOLPlace||''}`:'Aphakic')}
+      ${o.OtherComplications?dr('Complications',o.OtherComplications):''}
+    </div></div>`).join('')}</div>`;
+
+  const fups=DB.followups.filter(x=>String(x.PID)===String(pid));
+  document.getElementById('tab-fups').innerHTML=!fups.length?empty('No follow-up visits recorded')
+    :`<div class="visit-timeline">${fups.map(f=>`<div class="visit-entry"><div class="visit-card">
+      <div class="visit-date">${f.DateOfExam?new Date(f.DateOfExam).toLocaleDateString():'—'} · ${f.Eye||'—'} · ${f.VisitType||''}</div>
+      ${dr('Examiner',f.Examiner)}${dr('VA',f.VA)}${dr('Refraction',f.Sphere||f.Cylinder?`${f.Sphere||0} / ${f.Cylinder||0} × ${f.Axis||''}`:'')}
+      ${dr('IOP',f.IOP?f.IOP+' mmHg':'—')}${dr('Lens Status',f.LensStatus)}${f.Comments?dr('Comments',f.Comments):''}
+    </div></div>`).join('')}</div>`;
+
+  document.getElementById('detail-modal').classList.remove('hidden');
+}
+function dr(k,v){return v?`<div class="detail-row"><span class="detail-key">${k}</span><span class="detail-val">${v}</span></div>`:''}
+function empty(msg){return `<div class="empty-state" style="padding:30px"><h3>${msg}</h3></div>`}
+function closeModal(){document.getElementById('detail-modal').classList.add('hidden');}
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-panel').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');btn.classList.add('active');
+}
+document.getElementById('detail-modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+// ─── SUBMIT PATIENT ───
+async function submitPatient(e){
+  e.preventDefault();if(!CONFIG.webAppUrl){showToast('Configure Google Sheets first','error');showView('setup');return;}
+  const btn=document.getElementById('patient-submit-btn');setLoading(btn,true);
+  const sex=document.querySelector('input[name="p-sex"]:checked');
+  const row={PID:document.getElementById('p-pid').value.trim(),DateOfRegistration:document.getElementById('p-regdate').value,FirstName:document.getElementById('p-firstname').value.trim(),LastName:document.getElementById('p-lastname').value.trim(),DOB:document.getElementById('p-dob').value,Sex:sex?sex.value:'',Phone:document.getElementById('p-phone').value,AlternatePhone:document.getElementById('p-phone2').value,Address:document.getElementById('p-address').value,Referring:document.getElementById('p-referring').value,Others:document.getElementById('p-others').value,EntryDate:today()};
+  try{await pushRow('Patients',row);DB.patients.push(row);showToast('Patient saved ✓','success');document.getElementById('patient-form').reset();showView('patients');}
+  catch{showToast('Error saving patient','error');}
+  setLoading(btn,false,'Save Patient');
+}
+
+// ─── SUBMIT EXAMINATION ───
+async function submitExamination(e){
+  e.preventDefault();if(!CONFIG.webAppUrl){showToast('Configure Google Sheets first','error');showView('setup');return;}
+  const btn=document.getElementById('exam-submit-btn');setLoading(btn,true);
+  const eye=document.querySelector('input[name="e-eye"]:checked');
+  const cornea=document.querySelector('input[name="e-cornea"]:checked');
+  const syn=document.querySelector('input[name="e-syn"]:checked');
+  const sub=document.querySelector('input[name="e-sub"]:checked');
+  const fundus=document.querySelector('input[name="e-fundus"]:checked');
+  const row={ID:'EX'+Date.now(),PID:document.getElementById('e-pid').value.trim(),DateOfExam:document.getElementById('e-date').value,Eye:eye?eye.value:'',ProcedureType:document.getElementById('e-proctype').value,Examiner:document.getElementById('e-examiner').value,CorneaOpacity:cornea?cornea.value:'',LocationCornea:document.getElementById('e-cornea-loc').value,Density:document.getElementById('e-cornea-density').value,CorneaDiamH:document.getElementById('e-cornea-diamh').value,CorneaDiamV:document.getElementById('e-cornea-diamv').value,CCT:document.getElementById('e-cct').value,CCTOtherEye:document.getElementById('e-cct-other').value,PupilDiam:document.getElementById('e-pupil-diam').value,Synaechia:syn?syn.value:'',Location:document.getElementById('e-syn-loc').value,Angle:document.getElementById('e-angle').value,AngleDesc:document.getElementById('e-angledesc').value,IOP:document.getElementById('e-iop').value,LensDensity:document.getElementById('e-lens-density').value,LensMorphology:document.getElementById('e-lens-morph').value,CataractLocation:document.getElementById('e-cat-loc').value,Spherophakia:document.getElementById('e-sph').checked?'Yes':'No',Lenticonus:document.getElementById('e-lent').checked?'Yes':'No',PHPV:document.getElementById('e-phpv').value,PHPVType:document.getElementById('e-phpv-type').value,Subluxation:sub?sub.value:'',SubluxationGrade:document.getElementById('e-sub-grade').value,SubluxationDeg:document.getElementById('e-sub-deg').value,SubluxationLoc:document.getElementById('e-sub-loc').value,Fundus:fundus?fundus.value:'',FundusAbnorm:document.getElementById('e-fundus-abn').value,CD:document.getElementById('e-cd').value,AxialLength:document.getElementById('e-axl').value,AXLOtherEye:document.getElementById('e-axl-other').value,Syndrome:document.getElementById('e-syndrome').value,Investigations:document.getElementById('e-invest').value,Consanguinity:document.getElementById('e-consang').checked?'Yes':'No',FamilyHistory:document.getElementById('e-fhx').checked?'Yes':'No',FamilyHistoryDesc:document.getElementById('e-fhx-desc').value,PupilBefore:document.getElementById('e-pupilbefore').value,Comments:document.getElementById('e-comments').value,EntryDate:today()};
+  try{await pushRow('Examinations',row);DB.examinations.push(row);showToast('Examination saved ✓','success');document.getElementById('exam-form').reset();showView('patients');}
+  catch{showToast('Error saving examination','error');}
+  setLoading(btn,false,'Save Examination');
+}
+
+// ─── SUBMIT SURGERY ───
+async function submitSurgery(e){
+  e.preventDefault();if(!CONFIG.webAppUrl){showToast('Configure Google Sheets first','error');showView('setup');return;}
+  const btn=document.getElementById('surgery-submit-btn');setLoading(btn,true);
+  const eye=document.querySelector('input[name="s-eye"]:checked');
+  const iol=document.querySelector('input[name="iol-yn"]:checked');
+  const row={ID:'OP'+Date.now(),PID:document.getElementById('s-pid').value.trim(),DateOfOp:document.getElementById('s-date').value,Eye:eye?eye.value:'',OperationName:document.getElementById('s-optype').value,IOL:iol?iol.value:'',AnteriorCapsule:document.getElementById('s-ant-cap').value,PosteriorCapsule:document.getElementById('s-post-cap').value,CapsuleStain:document.getElementById('s-cap-stain').checked?'Yes':'No',Viscoelastic:document.getElementById('s-visco').value,AnteriorVitrectomy:document.getElementById('s-ant-vit').value,Membranectomy:document.getElementById('sp-memb').checked?'Yes':'No',Iridectomy:document.getElementById('sp-irid').checked?'Yes':'No',IrisInjury:document.getElementById('sp-iris-inj').checked?'Yes':'No',Sphincterinjury:document.getElementById('sp-sphinc').checked?'Yes':'No',Synechiolysis:document.getElementById('sp-syn').checked?'Yes':'No',IrisReconstruction:document.getElementById('sp-iris-rec').checked?'Yes':'No',IrisManipulations:document.getElementById('sp-iris-man').checked?'Yes':'No',Hyphaema:document.getElementById('sp-hyph').checked?'Yes':'No',DroppedCortex:document.getElementById('sp-drop-cortex').checked?'Yes':'No',DroppedIOL:document.getElementById('sp-drop-iol').checked?'Yes':'No',VitreousHaemorrhage:document.getElementById('sp-vit-haem').checked?'Yes':'No',OtherComplications:document.getElementById('s-complications').value,SRKII:document.getElementById('s-srkii').value,Holladay:document.getElementById('s-holladay').value,HofferQ:document.getElementById('s-hofferq').value,Kreading:document.getElementById('s-kreading').value,K1:document.getElementById('s-k1').value,K2:document.getElementById('s-k2').value,AxialLength:document.getElementById('s-axl').value,IOLType:document.getElementById('s-iol-type').value,IOLPlace:document.getElementById('s-iol-place').value,IOLPower:document.getElementById('s-iol-power').value,TargetRefraction:document.getElementById('s-target-ref').value,Orientation:document.getElementById('s-orientation').value,Steroids:document.getElementById('s-steroids').checked?'Yes':'No',Atropine:document.getElementById('s-atropine').checked?'Yes':'No',Route:document.getElementById('s-route').value,Medications:document.getElementById('s-meds').value,Examiner:document.getElementById('s-examiner').value,Duration:document.getElementById('s-duration').value,EntryDate:today()};
+  try{await pushRow('Operations',row);DB.operations.push(row);showToast('Operation saved ✓','success');document.getElementById('surgery-form').reset();showView('patients');}
+  catch{showToast('Error saving operation','error');}
+  setLoading(btn,false,'Save Operation');
+}
+
+// ─── SUBMIT FOLLOW-UP ───
+async function submitFollowup(e){
+  e.preventDefault();if(!CONFIG.webAppUrl){showToast('Configure Google Sheets first','error');showView('setup');return;}
+  const btn=document.getElementById('followup-submit-btn');setLoading(btn,true);
+  const eye=document.querySelector('input[name="f-eye"]:checked');
+  const cornea=document.querySelector('input[name="f-cornea"]:checked');
+  const ac=document.querySelector('input[name="f-ac"]:checked');
+  const iris=document.querySelector('input[name="f-iris"]:checked');
+  const pupil=document.querySelector('input[name="f-pupil"]:checked');
+  const fundus=document.querySelector('input[name="f-fundus"]:checked');
+  const row={ID:'FU'+Date.now(),PID:document.getElementById('f-pid').value.trim(),DateOfExam:document.getElementById('f-date').value,Eye:eye?eye.value:'',VisitType:document.getElementById('f-visittype').value,Examiner:document.getElementById('f-examiner').value,Cornea:cornea?cornea.value:'',CorneaDesc:document.getElementById('f-cornea-desc').value,AC:ac?ac.value:'',ACDesc:document.getElementById('f-ac-desc').value,CCT:document.getElementById('f-cct').value,Iris:iris?iris.value:'',IrisDesc:document.getElementById('f-iris-desc').value,Pupil:pupil?pupil.value:'',PupilDesc:document.getElementById('f-pupil-desc').value,LensStatus:document.getElementById('f-lens-status').value,LensDesc:document.getElementById('f-lens-desc').value,Opacification:document.getElementById('f-opacification').value,Fundus:fundus?fundus.value:'',FundusDesc:document.getElementById('f-fundus-desc').value,IOP:document.getElementById('f-iop').value,CD:document.getElementById('f-cd').value,VA:document.getElementById('f-va').value,Sphere:document.getElementById('f-sph').value,Cylinder:document.getElementById('f-cyl').value,Axis:document.getElementById('f-axis').value,Gonioscopy:document.getElementById('f-gonio').checked?'Yes':'No',GonioDesc:document.getElementById('f-gonio-desc').value,Comments:document.getElementById('f-comments').value,EntryDate:today()};
+  try{await pushRow('Followup',row);DB.followups.push(row);showToast('Follow-up saved ✓','success');document.getElementById('followup-form').reset();showView('patients');}
+  catch{showToast('Error saving follow-up','error');}
+  setLoading(btn,false,'Save Follow-up');
+}
+
+// ─── HELPERS ───
+function today(){return new Date().toISOString().split('T')[0];}
+function setLoading(btn,on,label=''){if(on){btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Saving…';}else{btn.disabled=false;btn.innerHTML=label;}}
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  const el=document.createElement('div');
+  el.className=`toast-item ${type}`;
+  el.innerHTML=(type==='success'?'<span style="color:var(--green)">✓</span>':'<span style="color:var(--red)">✗</span>')+msg;
+  t.appendChild(el);setTimeout(()=>el.remove(),3500);
+}
+</script>
+</body>
+</html>
