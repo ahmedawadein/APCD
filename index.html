@@ -587,8 +587,6 @@
     <div class="nav-section-label">Main</div>
     <div class="nav-item active" onclick="showView('dashboard')" id="nav-dashboard"><span class="nav-icon">⬡</span>Dashboard</div>
     <div class="nav-item" onclick="showView('patients')" id="nav-patients"><span class="nav-icon">◈</span>Patients</div>
-    <div class="nav-item" onclick="showView('upload-images')" id="nav-upload-images"><span class="nav-icon">🖼</span>Upload Images</div>
-    <div class="nav-item" onclick="showView('upload-images')" id="nav-upload-images"><span class="nav-icon">🖼</span>Upload Images</div>
     <div class="nav-section-label" style="margin-top:6px">System</div>
     <div class="nav-item" onclick="showView('setup')" id="nav-setup"><span class="nav-icon">◇</span>Setup</div>
   </div>
@@ -680,7 +678,6 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
       <div class="patients-toolbar">
         <div class="section-header" style="margin-bottom:0"><h2>Patients</h2></div>
         <div class="search-wrap"><span class="search-icon">⌕</span><input type="text" id="patient-search" placeholder="Search name or PID…" oninput="filterPatients()"></div>
-        <button class="btn btn-primary btn-sm" onclick="showView('new-patient')">＋ New Patient</button>
         <button class="btn btn-primary btn-sm" onclick="showView('new-patient')">＋ New Patient</button>
       </div>
       <div class="table-wrap">
@@ -2012,7 +2009,6 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
         </div>
         <div class="chart-demo-actions">
           <button class="btn btn-secondary btn-sm" onclick="openEditPatientFromChart()">✎ Edit Demographics</button>
-          <button class="btn btn-secondary btn-sm" onclick="showView('upload-images')">🖼 Upload Images</button>
         </div>
       </div>
 
@@ -3667,10 +3663,26 @@ function chartShowRecord(type, record, idx){
   const body = document.getElementById('chart-bottom-body');
 
   if(type==='img'){
-    body.innerHTML=`<div style="text-align:center;padding:20px">
-      <img src="${record.dataUrl}" style="max-width:100%;max-height:60vh;border-radius:10px;cursor:zoom-in;box-shadow:0 4px 24px rgba(0,0,0,.4)" onclick="openLightbox('${record.dataUrl}')">
-      <div style="margin-top:10px;font-size:13.5px;color:var(--text-dim);font-family:'DM Mono',monospace">${record.desc||record.name||''}</div>
-    </div>`;
+    const ipid2 = _chartPID;
+    body.innerHTML=`
+      <div style="text-align:center;padding:10px 0 16px">
+        <img src="${record.dataUrl}" style="max-width:100%;max-height:55vh;border-radius:10px;cursor:zoom-in;box-shadow:0 4px 24px rgba(0,0,0,.4)" onclick="openLightbox('${record.dataUrl}')">
+        <div style="margin-top:8px;font-size:13.5px;color:var(--text-dim);font-family:'DM Mono',monospace">${record.desc||record.name||''}</div>
+      </div>
+      <div style="border-top:1px solid var(--border-dim);padding-top:14px;margin-top:4px">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:10px">Upload Another Photo</div>
+        <div class="upload-zone" id="upload-zone-${ipid2}"
+          onclick="document.getElementById('img-file-chart-view').click()"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="handleImageDrop(event,'${ipid2}')">
+          <input type="file" id="img-file-chart-view" accept="image/*" multiple style="display:none"
+            onchange="onFilesChosen(event,'${ipid2}')">
+          <div class="upload-zone-icon">➕</div>
+          <div class="upload-zone-text">Tap to add more photos</div>
+          <div class="upload-zone-sub">Choose from gallery, camera or hard disc</div>
+        </div>
+      </div>`;
     return;
   }
 
@@ -3740,11 +3752,21 @@ function chartShowNewForm(type, pid){
   const body = document.getElementById('chart-bottom-body');
 
   if(type==='img'){
-    body.innerHTML=`<div class="chart-empty">
-      <div class="chart-empty-icon">🖼️</div>
-      <div class="chart-empty-msg" style="margin-bottom:16px">Use the Upload Images section to add photos for this patient.</div>
-      <button class="btn btn-primary" onclick="showView('upload-images')">Go to Upload Images</button>
-    </div>`;
+    const ipid = pid || _chartPID;
+    body.innerHTML=`
+      <div class="upload-zone" id="upload-zone-${ipid}"
+        onclick="document.getElementById('img-file-chart').click()"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="handleImageDrop(event,'${ipid}')">
+        <input type="file" id="img-file-chart" accept="image/*" multiple style="display:none"
+          onchange="onFilesChosen(event,'${ipid}')">
+        <div class="upload-zone-icon">📷</div>
+        <div class="upload-zone-text">Tap to upload a photo</div>
+        <div class="upload-zone-sub">Choose from gallery, camera or hard disc</div>
+      </div>
+      <div class="image-grid" id="image-grid-${ipid}" style="margin-top:12px"></div>`;
+    renderImages(ipid);
     return;
   }
 
