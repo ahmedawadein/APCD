@@ -928,6 +928,13 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
             <div class="form-group span-2"><label>Patient</label><input type="text" id="e-pid-display" readonly placeholder="Select patient using search bar above" style="background:rgba(28,184,176,.05);color:var(--teal);cursor:default"><input type="hidden" id="e-pid"></div>
             <div class="form-group"><label>Date of Exam *</label><input type="date" id="e-date" required></div>
             <div class="form-group span-2"><label>Examiner</label><div class="examiner-wrap"><select id="e-examiner" onchange="handleExaminerChange('e-examiner')"></select></div></div>
+            <div class="form-group span-full" style="margin-top:4px">
+              <label style="display:inline-flex;align-items:center;gap:9px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:14px;font-weight:700;font-family:'Lato',sans-serif">
+                <input type="checkbox" id="e-eua" value="Yes" style="width:16px;height:16px;accent-color:var(--amber);cursor:pointer;flex-shrink:0">
+                <span style="color:var(--amber)">Examination Under Anaesthesia (EUA)</span>
+                <span style="font-size:12px;color:var(--text-faint);font-weight:400">— leave unchecked if performed awake</span>
+              </label>
+            </div>
           </div>
         </div>
 
@@ -1010,6 +1017,8 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
                   <div class="bi-radio radio-group">
                     <div class="radio-option"><input type="radio" name="e-angle-od" id="e-angle-od-open" value="Open"><label for="e-angle-od-open">Open</label></div>
                     <div class="radio-option"><input type="radio" name="e-angle-od" id="e-angle-od-closed" value="Closed"><label for="e-angle-od-closed">Closed</label></div>
+                    <div class="radio-option"><input type="radio" name="e-angle-od" id="e-angle-od-ant-insert" value="Open with anterior iris insertion"><label for="e-angle-od-ant-insert">Open with anterior iris insertion</label></div>
+                    <div class="radio-option"><input type="radio" name="e-angle-od" id="e-angle-od-dysgenetic" value="Dysgenetic angle"><label for="e-angle-od-dysgenetic">Dysgenetic angle</label></div>
                   </div>
                 </div>
                 <div class="bi-field"><label>Angle Description</label><input type="text" id="e-gonio-desc-od" placeholder="describe angle findings…"></div>
@@ -1027,6 +1036,8 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
                   <div class="bi-radio radio-group">
                     <div class="radio-option"><input type="radio" name="e-angle-os" id="e-angle-os-open" value="Open"><label for="e-angle-os-open">Open</label></div>
                     <div class="radio-option"><input type="radio" name="e-angle-os" id="e-angle-os-closed" value="Closed"><label for="e-angle-os-closed">Closed</label></div>
+                    <div class="radio-option"><input type="radio" name="e-angle-os" id="e-angle-os-ant-insert" value="Open with anterior iris insertion"><label for="e-angle-os-ant-insert">Open with anterior iris insertion</label></div>
+                    <div class="radio-option"><input type="radio" name="e-angle-os" id="e-angle-os-dysgenetic" value="Dysgenetic angle"><label for="e-angle-os-dysgenetic">Dysgenetic angle</label></div>
                   </div>
                 </div>
                 <div class="bi-field"><label>Angle Description</label><input type="text" id="e-gonio-desc-os" placeholder="describe angle findings…"></div>
@@ -1574,6 +1585,13 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
             <div class="form-group span-2"><label>Patient</label><input type="text" id="f-pid-display" readonly placeholder="Select patient using search bar above" style="background:rgba(28,184,176,.05);color:var(--teal);cursor:default"><input type="hidden" id="f-pid"></div>
             <div class="form-group"><label>Date of Exam *<span id="postop-badge" class="postop-badge" style="display:none"></span></label><input type="date" id="f-date" required oninput="updatePostopBadge()"></div>
             <div class="form-group span-2"><label>Examiner</label><div class="examiner-wrap"><select id="f-examiner" onchange="handleExaminerChange('f-examiner')"></select></div></div>
+            <div class="form-group span-full" style="margin-top:4px">
+              <label style="display:inline-flex;align-items:center;gap:9px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:14px;font-weight:700;font-family:'Lato',sans-serif">
+                <input type="checkbox" id="f-eua" value="Yes" style="width:16px;height:16px;accent-color:var(--amber);cursor:pointer;flex-shrink:0">
+                <span style="color:var(--amber)">Examination Under Anaesthesia (EUA)</span>
+                <span style="font-size:12px;color:var(--text-faint);font-weight:400">— leave unchecked if performed awake</span>
+              </label>
+            </div>
           </div>
         </div>
 
@@ -1858,6 +1876,8 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
                   <div class="bi-radio radio-group">
                     <div class="radio-option"><input type="radio" name="f-angle-od" id="f-angle-od-open" value="Open"><label for="f-angle-od-open">Open</label></div>
                     <div class="radio-option"><input type="radio" name="f-angle-od" id="f-angle-od-closed" value="Closed"><label for="f-angle-od-closed">Closed</label></div>
+                    <div class="radio-option"><input type="radio" name="f-angle-od" id="f-angle-od-ant-insert" value="Open with anterior iris insertion"><label for="f-angle-od-ant-insert">Open with anterior iris insertion</label></div>
+                    <div class="radio-option"><input type="radio" name="f-angle-od" id="f-angle-od-dysgenetic" value="Dysgenetic angle"><label for="f-angle-od-dysgenetic">Dysgenetic angle</label></div>
                   </div>
                 </div>
                 <div class="bi-field"><label>Angle Description</label><input type="text" id="f-gonio-desc-od" placeholder="describe angle findings…"></div>
@@ -1875,6 +1895,8 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
                   <div class="bi-radio radio-group">
                     <div class="radio-option"><input type="radio" name="f-angle-os" id="f-angle-os-open" value="Open"><label for="f-angle-os-open">Open</label></div>
                     <div class="radio-option"><input type="radio" name="f-angle-os" id="f-angle-os-closed" value="Closed"><label for="f-angle-os-closed">Closed</label></div>
+                    <div class="radio-option"><input type="radio" name="f-angle-os" id="f-angle-os-ant-insert" value="Open with anterior iris insertion"><label for="f-angle-os-ant-insert">Open with anterior iris insertion</label></div>
+                    <div class="radio-option"><input type="radio" name="f-angle-os" id="f-angle-os-dysgenetic" value="Dysgenetic angle"><label for="f-angle-os-dysgenetic">Dysgenetic angle</label></div>
                   </div>
                 </div>
                 <div class="bi-field"><label>Angle Description</label><input type="text" id="f-gonio-desc-os" placeholder="describe angle findings…"></div>
@@ -2449,7 +2471,7 @@ async function submitExamination(e){
   const g=(id)=>document.getElementById(id);
   const r=(name)=>{const el=document.querySelector(`input[name="${name}"]:checked`);return el?el.value:'';}
   const row={
-    ID:'EX'+Date.now(),PID:ACTIVE_PATIENT.PID,DateOfExam:g('e-date').value,
+    ID:'EX'+Date.now(),PID:ACTIVE_PATIENT.PID,DateOfExam:g('e-date').value,EUA:g('e-eua')?.checked?'Yes':'No',
     Examiner:g('e-examiner').value,
     VA_OD:g('e-va-od').value,Irrefractable_OD:g('e-irr-od')?.checked?'Yes':'No',Sphere_OD:g('e-sphere-od')?.value||'',Cylinder_OD:g('e-cylinder-od')?.value||'',Axis_OD:g('e-axisval-od')?.value||'',
     VA_OS:g('e-va-os').value,Irrefractable_OS:g('e-irr-os')?.checked?'Yes':'No',Sphere_OS:g('e-sphere-os')?.value||'',Cylinder_OS:g('e-cylinder-os')?.value||'',Axis_OS:g('e-axisval-os')?.value||'',
@@ -2568,7 +2590,7 @@ async function submitFollowup(e){
   const g=(id)=>document.getElementById(id);
   const r=(name)=>{const el=document.querySelector(`input[name="${name}"]:checked`);return el?el.value:'';}
   const row={
-    ID:'FU'+Date.now(),PID:ACTIVE_PATIENT.PID,DateOfExam:g('f-date').value,
+    ID:'FU'+Date.now(),PID:ACTIVE_PATIENT.PID,DateOfExam:g('f-date').value,EUA:g('f-eua')?.checked?'Yes':'No',
     VisitType:calcPostopLabel(DB.operations.filter(o=>String(o.PID)===String(ACTIVE_PATIENT.PID)).sort((a,b)=>new Date(b.DateOfOp)-new Date(a.DateOfOp))[0]?.DateOfOp, g('f-date').value),
     Examiner:g('f-examiner').value,
     VA_OD:g('f-va-od').value,Irrefractable_OD:g('f-irr-od')?.checked?'Yes':'No',Sphere_OD:g('f-sph-od').value,Cylinder_OD:g('f-cyl-od').value,
