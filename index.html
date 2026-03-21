@@ -2547,8 +2547,10 @@ function openDetail(pid){
 
   const exams=DB.examinations.filter(x=>String(x.PID)===String(pid));
   document.getElementById('tab-exams').innerHTML=!exams.length?empty('No preoperative examinations recorded')
-    :`<div class="visit-timeline">${exams.map(e=>`<div class="visit-entry"><div class="visit-card">
+    :`<div class="visit-timeline">${exams.map((e,i)=>`<div class="visit-entry"><div class="visit-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
       <div class="visit-date">${e.DateOfExam?new Date(e.DateOfExam).toLocaleDateString():'—'}${e.EUA==='Yes'?' · <span style="color:var(--amber);font-size:10px;font-family:\'DM Mono\',monospace">EUA</span>':''}</div>
+      <button onclick="editRecord('exam',e.ID||i,'${pid}')" style="font-size:11px;padding:3px 10px;border-radius:5px;border:1px solid rgba(247,183,49,.35);background:transparent;color:var(--amber);cursor:pointer;font-family:'Lato',sans-serif;font-weight:700">✎ Edit</button></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin:8px 0 4px;border:1px solid var(--border-dim);border-radius:6px;overflow:hidden;font-size:11.5px">
         <div style="padding:6px 10px;border-right:1px solid var(--border-dim);background:rgba(247,183,49,.05)">
           <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--amber);margin-bottom:5px">OD — RIGHT</div>
@@ -2571,8 +2573,10 @@ function openDetail(pid){
 
   const ops=DB.operations.filter(x=>String(x.PID)===String(pid));
   document.getElementById('tab-ops').innerHTML=!ops.length?empty('No operations recorded')
-    :`<div class="visit-timeline">${ops.map(o=>`<div class="visit-entry"><div class="visit-card">
+    :`<div class="visit-timeline">${ops.map((o,i)=>`<div class="visit-entry"><div class="visit-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
       <div class="visit-date">${o.DateOfOp?new Date(o.DateOfOp).toLocaleDateString():'—'} · ${o.Eye||'—'}</div>
+      <button onclick="editRecord('op',o.ID||i,'${pid}')" style="font-size:11px;padding:3px 10px;border-radius:5px;border:1px solid rgba(247,183,49,.35);background:transparent;color:var(--amber);cursor:pointer;font-family:'Lato',sans-serif;font-weight:700">✎ Edit</button></div>
       ${dr('Type',o.SurgeryCategory||'Cataract')}${dr('Operation',o.OperationName)}${dr('Surgeon',o.Examiner)}
       ${dr('Anterior Capsule',o.AnteriorCapsule)}${dr('Posterior Capsule',o.PosteriorCapsule)}
       ${dr('IOL',o.IOL==='Yes'?`${o.IOLType||''} ${o.IOLPower?o.IOLPower+'D':''} — ${o.IOLPlace||''}`:'Aphakic')}
@@ -2581,8 +2585,10 @@ function openDetail(pid){
 
   const fups=DB.followups.filter(x=>String(x.PID)===String(pid));
   document.getElementById('tab-fups').innerHTML=!fups.length?empty('No follow-up visits recorded')
-    :`<div class="visit-timeline">${fups.map(f=>`<div class="visit-entry"><div class="visit-card">
+    :`<div class="visit-timeline">${fups.map((f,i)=>`<div class="visit-entry"><div class="visit-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
       <div class="visit-date">${f.DateOfExam?new Date(f.DateOfExam).toLocaleDateString():'—'}${f.VisitType?' · '+f.VisitType:''}${f.EUA==='Yes'?' · <span style="color:var(--amber);font-size:10px;font-family:\'DM Mono\',monospace">EUA</span>':''}</div>
+      <button onclick="editRecord('fup',f.ID||i,'${pid}')" style="font-size:11px;padding:3px 10px;border-radius:5px;border:1px solid rgba(247,183,49,.35);background:transparent;color:var(--amber);cursor:pointer;font-family:'Lato',sans-serif;font-weight:700">✎ Edit</button></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin:8px 0 4px;border:1px solid var(--border-dim);border-radius:6px;overflow:hidden;font-size:11.5px">
         <div style="padding:6px 10px;border-right:1px solid var(--border-dim);background:rgba(247,183,49,.05)">
           <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--amber);margin-bottom:5px">OD — RIGHT</div>
@@ -2605,8 +2611,10 @@ function openDetail(pid){
 
   const hists=(DB.history||[]).filter(x=>String(x.PID)===String(pid));
   document.getElementById('tab-hist').innerHTML=!hists.length?empty('No history recorded')
-    :`<div class="visit-timeline">${hists.map(h=>`<div class="visit-entry"><div class="visit-card">
-      <div class="visit-date">${h.EntryDate||''}</div>
+    :`<div class="visit-timeline">${hists.map((h,i)=>`<div class="visit-entry"><div class="visit-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+      <div class="visit-date">${h.EntryDate||'History entry'}</div>
+      <button onclick="editRecord('hist',h.ID||i,'${pid}')" style="font-size:11px;padding:3px 10px;border-radius:5px;border:1px solid rgba(247,183,49,.35);background:transparent;color:var(--amber);cursor:pointer;font-family:'Lato',sans-serif;font-weight:700">✎ Edit</button></div>
       ${dr('Consanguinity',h.Consanguinity)}${dr('Family History',h.FamilyHistory)}${h.FamilyHistoryMembers?dr('Family Members',h.FamilyHistoryMembers):''}
       ${dr('Blunt Trauma',h.BluntTrauma)}${dr('Penetrating Trauma',h.PenetratingTrauma)}
       ${h.PreviousSurgeries?dr('Previous Surgeries',h.PreviousSurgeries):''}
@@ -2625,6 +2633,68 @@ function openDetail(pid){
 function dr(k,v){return v?`<div class="detail-row"><span class="detail-key">${k}</span><span class="detail-val">${v}</span></div>`:''}
 function empty(msg){return `<div class="empty-state" style="padding:30px"><h3>${msg}</h3></div>`}
 function closeModal(){document.getElementById('detail-modal').classList.add('hidden');}
+
+// ─── EDIT RECORD ───
+// Closes the view modal and opens the Patient Workspace at the correct tab,
+// with the record highlighted and pre-loaded for editing.
+function editRecord(type, id, pid){
+  closeModal();
+
+  // Set active patient
+  const p = DB.patients.find(x => String(x.PID)===String(pid));
+  if(!p){ showToast('Patient not found','error'); return; }
+  ACTIVE_PATIENT = p;
+  WS_PATIENT = p;
+  fillActivePatientFields();
+
+  // Navigate to workspace
+  showView('workspace');
+
+  // Map type to panel and DB array
+  const map = {
+    hist:  { panel:'ws-panel-hist',  tab:0, db:'history',      label:'History entry' },
+    exam:  { panel:'ws-panel-exam',  tab:1, db:'examinations', label:'Preop Examination' },
+    op:    { panel:'ws-panel-surg',  tab:2, db:'operations',   label:'Operation' },
+    fup:   { panel:'ws-panel-fup',   tab:3, db:'followups',    label:'Follow-up Visit' },
+  };
+  const cfg = map[type];
+  if(!cfg) return;
+
+  // Find the record
+  const records = (DB[cfg.db]||[]).filter(x=>String(x.PID)===String(pid));
+  const record = typeof id === 'number'
+    ? records[id]
+    : records.find(x=>String(x.ID)===String(id)) || records[parseInt(id)] || records[0];
+
+  // Show workspace patient content and select correct tab
+  setTimeout(() => {
+    wsSelectPatient(pid);
+    setTimeout(() => {
+      const btn = document.querySelectorAll('.ws-tab-btn')[cfg.tab];
+      if(btn) wsTab(cfg.panel, btn);
+
+      // Show a notice banner at top of panel pointing to the record
+      if(record){
+        const panel = document.getElementById(cfg.panel);
+        if(panel){
+          const notice = document.createElement('div');
+          notice.style.cssText = 'background:rgba(247,183,49,.12);border:1px solid rgba(247,183,49,.35);border-radius:10px;padding:12px 16px;margin-bottom:14px;font-size:13px;color:var(--amber);display:flex;align-items:center;gap:10px';
+          const date = record.DateOfExam || record.DateOfOp || record.EntryDate || '';
+          notice.innerHTML = `<span style="font-size:18px">✎</span><div><strong>Editing ${cfg.label}</strong>${date?' · '+new Date(date).toLocaleDateString():''}<br><span style="font-size:12px;opacity:.8">Update the fields below and click Save to apply changes.</span></div>`;
+          panel.insertBefore(notice, panel.firstChild);
+
+          // Pre-fill date field if present
+          const dateId = {hist:'h-date', exam:'e-date', op:'s-date', fup:'f-date'}[type];
+          const dateEl = panel.querySelector(`#${dateId}`) || document.getElementById(dateId);
+          if(dateEl && date) dateEl.value = date.split('T')[0];
+
+          // Scroll to panel
+          panel.scrollIntoView({behavior:'smooth', block:'start'});
+        }
+      }
+    }, 200);
+  }, 100);
+}
 
 // ─── EDIT PATIENT ───
 let _editingPID = null;
