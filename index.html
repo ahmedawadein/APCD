@@ -560,6 +560,26 @@
     .chart-bottom-body{padding:14px 16px}
     .chart-name{font-size:18px}
   }
+
+  /* ─── PHOTO DESCRIPTION MODAL ─── */
+  .photo-picker-overlay{position:fixed;inset:0;z-index:600;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.65);backdrop-filter:blur(4px)}
+  .photo-picker-sheet{background:var(--navy-mid);border:1px solid var(--border);border-radius:16px;width:calc(100% - 32px);max-width:440px;padding:22px 22px 18px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+  .photo-picker-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:14px;font-weight:500}
+  .picker-preview-strip{display:flex;gap:7px;margin-bottom:12px;overflow-x:auto}
+  .picker-preview-thumb{width:60px;height:60px;border-radius:8px;object-fit:cover;border:1px solid var(--border);flex-shrink:0}
+  .picker-file-count{font-size:11px;color:var(--text-faint);margin-bottom:10px;font-family:'DM Mono',monospace}
+  .picker-desc-label{font-size:13px;color:var(--text-dim);margin-bottom:6px;font-weight:700}
+  .picker-desc-input{width:100%;background:var(--input-bg);border:1.5px solid var(--border);border-radius:9px;color:var(--text-main);font-family:'Lato',sans-serif;font-size:15px;padding:11px 14px;outline:none;transition:border-color .15s,box-shadow .15s;margin-bottom:11px;box-sizing:border-box}
+  .picker-desc-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-glow)}
+  .picker-desc-input::placeholder{color:var(--text-faint)}
+  .picker-quick-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+  .picker-tag{padding:5px 12px;border:1px solid var(--border-dim);border-radius:20px;font-size:12.5px;font-family:'Lato',sans-serif;color:var(--text-dim);cursor:pointer;transition:all .12s;background:transparent;font-weight:700;user-select:none}
+  .picker-tag:hover,.picker-tag.sel{border-color:var(--teal);background:var(--teal-glow);color:var(--teal)}
+  .picker-desc-actions{display:flex;gap:8px}
+  .picker-upload-btn{flex:1;padding:13px;border-radius:9px;background:var(--teal);color:var(--navy);font-family:'Lato',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border:none;transition:opacity .15s}
+  .picker-upload-btn:hover{opacity:.9}
+  .picker-cancel-btn{padding:13px 18px;border-radius:9px;background:transparent;border:1px solid var(--border-dim);color:var(--text-dim);font-family:'Lato',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s}
+  .picker-cancel-btn:hover{border-color:var(--border);color:var(--text-main)}
 </style>
 </head>
 <body>
@@ -1996,20 +2016,23 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
       <div class="form-card">
         <div class="form-card-title">Upload</div>
         <div class="upload-zone" id="upload-zone-main"
-          onclick="document.getElementById('img-file-input-main').click()"
+          onclick="document.getElementById('img-file-main').click()"
           ondragover="event.preventDefault();this.classList.add('drag-over')"
           ondragleave="this.classList.remove('drag-over')"
           ondrop="handleImageDrop(event,'main')">
-          <input type="file" id="img-file-input-main" accept="image/*" multiple capture="environment"
-            onchange="handleImageSelect(event,'main')">
+          <input type="file" id="img-file-main" accept="image/*" multiple style="display:none"
+            onchange="onFilesChosen(event,'main')">
           <div class="upload-zone-icon">📷</div>
-          <div class="upload-zone-text">Tap to take photo or choose from gallery</div>
-          <div class="upload-zone-sub">JPG, PNG — multiple files supported</div>
-          <div class="upload-progress" id="upload-progress-main">
-            <div class="upload-progress-bar" id="upload-bar-main" style="width:0%"></div>
-          </div>
+          <div class="upload-zone-text">Tap to upload a photo</div>
+          <div class="upload-zone-sub">Choose from gallery, camera or hard disc</div>
         </div>
-        <div id="upload-status" style="margin-top:10px;font-size:13px;color:var(--text-dim);min-height:20px"></div>
+        <div class="form-card" id="image-grid-card-main" style="display:none;margin-top:14px">
+          <div class="form-card-title" style="display:flex;align-items:center;justify-content:space-between">
+            <span>Uploaded Images</span>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('image-grid-card-main').style.display='none';document.getElementById('upload-zone-main').style.display=''">+ Add More</button>
+          </div>
+          <div class="image-grid" id="image-grid-main"></div>
+        </div>
       </div>
     </div>
 
@@ -2165,6 +2188,21 @@ function showView(v){
   else{bar.classList.add('hidden');}
   if(v==='patients')renderPatientsTable();
   if(v==='chart'){}
+  if(v==='upload-images') setTimeout(()=>{
+    const pid=ACTIVE_PATIENT?.PID;
+    if(!pid)return;
+    const imgs=getStoredImages(pid);
+    const gc=document.getElementById('image-grid-card-main');
+    const zone=document.getElementById('upload-zone-main');
+    if(imgs.length){
+      if(gc)gc.style.display='';
+      if(zone)zone.style.display='none';
+      renderImages(pid);
+    } else {
+      if(gc)gc.style.display='none';
+      if(zone)zone.style.display='';
+    }
+  },50);
   if(v==='dashboard')renderDashboard();
   if(v==='new-patient')generatePID();
   if(['new-examination','new-surgery','new-followup','new-patient'].includes(v)){refreshExaminerSelects();refreshIOLSelect();resetFormulas();setTimeout(()=>{initDateDisplays();initMorphWidgets();const td=new Date().toISOString().split('T')[0];['e-date','f-date','s-date'].forEach(id=>{const el=document.getElementById(id);if(el&&!el.value)el.value=td;});},50);}
