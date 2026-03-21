@@ -73,8 +73,8 @@
   .checkbox-option{position:relative}
   .checkbox-option input[type=checkbox]{position:absolute;opacity:0;width:0;height:0}
   .checkbox-option label{display:block;padding:6px 13px;border:1px solid rgba(255,255,255,.2);border-radius:6px;cursor:pointer;font-size:13.5px;font-weight:700;font-family:'Lato',sans-serif;letter-spacing:0;text-transform:none;color:var(--text-main);opacity:.7;transition:all .15s;user-select:none}
-  .checkbox-option input[type=checkbox]+label::before{content:'';display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-radius:3px;margin-right:6px;vertical-align:-2px;flex-shrink:0;transition:all .15s}
-  .checkbox-option input[type=checkbox]:checked+label::before{content:'✓';background:var(--amber);border-color:var(--amber);color:var(--navy);font-size:10px;font-weight:900;line-height:11px;text-align:center}
+  .checkbox-option input[type=checkbox]+label::before{content:'';display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.35);border-radius:3px;margin-right:7px;vertical-align:-3px;flex-shrink:0;transition:all .15s}
+  .checkbox-option input[type=checkbox]:checked+label::before{content:'✓';background:var(--amber);border-color:var(--amber);color:var(--navy);font-size:11px;font-weight:900;line-height:13px;text-align:center}
   .checkbox-option input[type=checkbox]:checked+label{border-color:var(--amber);background:rgba(247,183,49,.12);color:var(--amber);opacity:1}
   .checkbox-option label:hover{border-color:rgba(247,183,49,.45);color:var(--text-main);opacity:1}
 
@@ -244,7 +244,7 @@
   .morph-option{position:relative}
   .morph-option input[type=checkbox]{position:absolute;opacity:0;width:0;height:0}
   .morph-option label{display:block;padding:4px 10px;border:1px solid rgba(255,255,255,.14);border-radius:5px;cursor:pointer;font-size:11px;color:var(--text-dim);transition:all .15s;user-select:none}
-  .morph-option input[type=checkbox]+label::before{content:'';display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-radius:3px;margin-right:6px;vertical-align:-2px;flex-shrink:0;transition:all .15s}
+  .morph-option input[type=checkbox]+label::before{content:'';display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.35);border-radius:3px;margin-right:7px;vertical-align:-3px;flex-shrink:0;transition:all .15s}
   .morph-option input[type=checkbox]:checked+label::before{content:'✓';background:var(--teal);border-color:var(--teal);color:var(--navy);font-size:10px;font-weight:900;line-height:11px;text-align:center}
   .morph-option input[type=checkbox]:checked+label{border-color:var(--teal);background:var(--teal-glow);color:var(--teal)}
   .morph-option label:hover{color:var(--text-dim)}
@@ -929,7 +929,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
 
     <!-- ═══════════════════════════════ EXAMINATION ═══ -->
     <div id="view-new-examination" class="hidden">
-      <div class="section-header"><h2>Initial Examination</h2><p>Baseline clinical findings — both eyes in one submission</p></div>
+      <div class="section-header"><h2>Preoperative Examination</h2><p>Preoperative clinical findings — both eyes in one submission</p></div>
       <form id="exam-form" onsubmit="submitExamination(event)">
         <div class="form-card">
           <div class="form-card-title">Examination Info</div>
@@ -939,7 +939,10 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
             <div class="form-group span-2"><label>Examiner</label><div class="examiner-wrap"><select id="e-examiner" onchange="handleExaminerChange('e-examiner')"></select></div></div>
             <div class="form-group span-full" style="margin-top:4px">
               <label style="display:inline-flex;align-items:center;gap:9px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:14px;font-weight:700;font-family:'Lato',sans-serif">
-                <input type="checkbox" id="e-eua" value="Yes" style="width:16px;height:16px;accent-color:var(--amber);cursor:pointer;flex-shrink:0">
+                <span class="eua-check-box" id="e-eua-box" onclick="toggleEUA('e')" style="width:20px;height:20px;border:2px solid rgba(247,183,49,.5);border-radius:4px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;background:transparent">
+                  <span id="e-eua-tick" style="display:none;color:var(--navy);font-size:13px;font-weight:900;line-height:1">✓</span>
+                </span>
+                <input type="checkbox" id="e-eua" value="Yes" style="display:none">
                 <span style="color:var(--amber)">Examination Under Anaesthesia (EUA)</span>
                 <span style="font-size:12px;color:var(--text-faint);font-weight:400">— leave unchecked if performed awake</span>
               </label>
@@ -1596,7 +1599,10 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
             <div class="form-group span-2"><label>Examiner</label><div class="examiner-wrap"><select id="f-examiner" onchange="handleExaminerChange('f-examiner')"></select></div></div>
             <div class="form-group span-full" style="margin-top:4px">
               <label style="display:inline-flex;align-items:center;gap:9px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:14px;font-weight:700;font-family:'Lato',sans-serif">
-                <input type="checkbox" id="f-eua" value="Yes" style="width:16px;height:16px;accent-color:var(--amber);cursor:pointer;flex-shrink:0">
+                <span class="eua-check-box" id="f-eua-box" onclick="toggleEUA('f')" style="width:20px;height:20px;border:2px solid rgba(247,183,49,.5);border-radius:4px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;background:transparent">
+                  <span id="f-eua-tick" style="display:none;color:var(--navy);font-size:13px;font-weight:900;line-height:1">✓</span>
+                </span>
+                <input type="checkbox" id="f-eua" value="Yes" style="display:none">
                 <span style="color:var(--amber)">Examination Under Anaesthesia (EUA)</span>
                 <span style="font-size:12px;color:var(--text-faint);font-weight:400">— leave unchecked if performed awake</span>
               </label>
@@ -2207,7 +2213,7 @@ function showView(v){
   document.getElementById('view-'+v).classList.remove('hidden');
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
   const n=document.getElementById('nav-'+v);if(n)n.classList.add('active');
-  const titles={dashboard:'Dashboard',patients:'Patients',chart:'Patient Chart','upload-images':'Upload Images','new-patient':'New Patient','new-history':'History & Systemic Diseases','new-examination':'Initial Examination','new-surgery':'Operation Record','new-followup':'Follow-up Visit','upload-images':'Upload Images',setup:'Setup & Configuration'};
+  const titles={dashboard:'Dashboard',patients:'Patients',chart:'Patient Chart','upload-images':'Upload Images','new-patient':'New Patient','new-history':'History & Systemic Diseases','new-examination':'Preoperative Examination','new-surgery':'Operation Record','new-followup':'Follow-up Visit','upload-images':'Upload Images',setup:'Setup & Configuration'};
   document.getElementById('topbar-title').textContent=titles[v]||'';
   const dataEntryViews=['new-examination','new-surgery','new-followup','new-history','upload-images'];
   const bar=document.getElementById('patient-lookup-bar');
@@ -3929,6 +3935,23 @@ function chartEditRecord(type, idx){
   }, 80);
 }
 
+
+function toggleEUA(prefix){
+  const cb = document.getElementById(prefix+'-eua');
+  const box = document.getElementById(prefix+'-eua-box');
+  const tick = document.getElementById(prefix+'-eua-tick');
+  if(!cb) return;
+  cb.checked = !cb.checked;
+  if(cb.checked){
+    box.style.background = 'var(--amber)';
+    box.style.borderColor = 'var(--amber)';
+    tick.style.display = 'block';
+  } else {
+    box.style.background = 'transparent';
+    box.style.borderColor = 'rgba(247,183,49,.5)';
+    tick.style.display = 'none';
+  }
+}
 </script>
 </body>
 </html>
