@@ -469,23 +469,19 @@
     .formula-headers{grid-template-columns:1fr 1fr 28px}
     .formula-headers span:nth-child(2){display:none}
 
-    /* Tables */
-    .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-    .data-table{min-width:500px}
+    /* Tables — hide on mobile, show card list instead */
+    #view-patients .table-wrap{display:none !important}
     .patients-toolbar{flex-wrap:wrap;gap:8px}
     .search-wrap{max-width:100%;order:3;width:100%}
 
-    /* Patient cards (mobile) — replace table */
-    .patient-card-list{display:flex;flex-direction:column;gap:8px}
+    /* Patient card list */
+    #patients-cardlist{display:flex !important;flex-direction:column;gap:8px;margin-top:0}
     .patient-card{background:var(--card);border:1px solid var(--border-dim);border-radius:var(--radius-lg);padding:13px 14px;display:flex;align-items:center;gap:12px}
-    .patient-card-avatar{width:38px;height:38px;border-radius:50%;background:var(--teal-glow);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:14px;color:var(--teal);flex-shrink:0}
+    .patient-card-avatar{width:40px;height:40px;border-radius:50%;background:var(--teal-glow);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:15px;color:var(--teal);flex-shrink:0}
     .patient-card-body{flex:1;min-width:0}
-    .patient-card-name{font-weight:700;font-size:14px;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .patient-card-meta{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-top:2px}
+    .patient-card-name{font-weight:700;font-size:15px;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .patient-card-meta{font-size:12px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-top:3px}
     .patient-card-actions{display:flex;gap:6px;flex-shrink:0}
-    /* Hide the regular table on mobile, show cards instead */
-    .table-wrap{display:none}
-    .patient-card-list{display:flex}
 
     /* Modal */
     .modal-overlay{padding:16px 10px;align-items:flex-start}
@@ -550,7 +546,7 @@
     .radio-option label{padding:5px 9px;font-size:11.5px}
   }
   /* PATIENT CARD LIST (mobile only — hidden on desktop) */
-  .patient-card-list{display:none}
+  #patients-cardlist{display:none}
 
   /* PATIENT WORKSPACE */
   .ws-patient-bar{background:var(--teal-glow);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:14px}
