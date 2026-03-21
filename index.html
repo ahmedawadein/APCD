@@ -73,6 +73,8 @@
   .checkbox-option{position:relative}
   .checkbox-option input[type=checkbox]{position:absolute;opacity:0;width:0;height:0}
   .checkbox-option label{display:block;padding:6px 13px;border:1px solid rgba(255,255,255,.2);border-radius:6px;cursor:pointer;font-size:13.5px;font-weight:700;font-family:'Lato',sans-serif;letter-spacing:0;text-transform:none;color:var(--text-main);opacity:.7;transition:all .15s;user-select:none}
+  .checkbox-option input[type=checkbox]+label::before{content:'';display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-radius:3px;margin-right:6px;vertical-align:-2px;flex-shrink:0;transition:all .15s}
+  .checkbox-option input[type=checkbox]:checked+label::before{content:'✓';background:var(--amber);border-color:var(--amber);color:var(--navy);font-size:10px;font-weight:900;line-height:11px;text-align:center}
   .checkbox-option input[type=checkbox]:checked+label{border-color:var(--amber);background:rgba(247,183,49,.12);color:var(--amber);opacity:1}
   .checkbox-option label:hover{border-color:rgba(247,183,49,.45);color:var(--text-main);opacity:1}
 
@@ -81,6 +83,8 @@
   .flag-option{position:relative}
   .flag-option input[type=checkbox]{position:absolute;opacity:0;width:0;height:0}
   .flag-option label{display:block;padding:5px 12px;border:1px solid rgba(255,255,255,.18);border-radius:5px;cursor:pointer;font-size:13px;font-weight:700;font-family:'Lato',sans-serif;letter-spacing:0;text-transform:none;color:var(--text-dim);transition:all .15s;user-select:none}
+  .flag-option input[type=checkbox]+label::before{content:'';display:inline-block;width:11px;height:11px;border:2px solid rgba(255,255,255,.25);border-radius:2px;margin-right:5px;vertical-align:-1px;flex-shrink:0;transition:all .15s}
+  .flag-option input[type=checkbox]:checked+label::before{content:'✓';background:var(--red);border-color:var(--red);color:#fff;font-size:9px;font-weight:900;line-height:10px;text-align:center}
   .flag-option input[type=checkbox]:checked+label{border-color:var(--red);background:rgba(224,82,82,.1);color:var(--red)}
   .flag-option label:hover{color:var(--text-dim)}
 
@@ -240,6 +244,8 @@
   .morph-option{position:relative}
   .morph-option input[type=checkbox]{position:absolute;opacity:0;width:0;height:0}
   .morph-option label{display:block;padding:4px 10px;border:1px solid rgba(255,255,255,.14);border-radius:5px;cursor:pointer;font-size:11px;color:var(--text-dim);transition:all .15s;user-select:none}
+  .morph-option input[type=checkbox]+label::before{content:'';display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-radius:3px;margin-right:6px;vertical-align:-2px;flex-shrink:0;transition:all .15s}
+  .morph-option input[type=checkbox]:checked+label::before{content:'✓';background:var(--teal);border-color:var(--teal);color:var(--navy);font-size:10px;font-weight:900;line-height:11px;text-align:center}
   .morph-option input[type=checkbox]:checked+label{border-color:var(--teal);background:var(--teal-glow);color:var(--teal)}
   .morph-option label:hover{color:var(--text-dim)}
 
@@ -250,6 +256,8 @@
   .iol-comp-option{position:relative}
   .iol-comp-option input[type=checkbox]{position:absolute;opacity:0;width:0;height:0}
   .iol-comp-option label{display:block;padding:4px 10px;border:1px solid rgba(255,255,255,.13);border-radius:5px;cursor:pointer;font-size:11px;color:var(--text-dim);transition:all .15s;user-select:none}
+  .iol-comp-option input[type=checkbox]+label::before{content:'';display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-radius:3px;margin-right:6px;vertical-align:-2px;flex-shrink:0;transition:all .15s}
+  .iol-comp-option input[type=checkbox]:checked+label::before{content:'✓';background:var(--red);border-color:var(--red);color:#fff;font-size:10px;font-weight:900;line-height:11px;text-align:center}
   .iol-comp-option input[type=checkbox]:checked+label{border-color:var(--red);background:rgba(224,82,82,.1);color:var(--red)}
   .iol-comp-option label:hover{color:var(--text-dim)}
 
@@ -2208,7 +2216,12 @@ function showView(v){
   if(v==='patients')renderPatientsTable();
   if(v==='dashboard')renderDashboard();
   if(v==='new-patient')generatePID();
-  if(['new-examination','new-surgery','new-followup','new-patient'].includes(v)){refreshExaminerSelects();refreshIOLSelect();resetFormulas();setTimeout(()=>{initDateDisplays();initMorphWidgets();},50);}
+  if(['new-examination','new-surgery','new-followup','new-patient'].includes(v)){refreshExaminerSelects();refreshIOLSelect();resetFormulas();setTimeout(()=>{
+    initDateDisplays();initMorphWidgets();
+    // Auto-fill today's date if field is empty
+    const today=new Date().toISOString().split('T')[0];
+    ['e-date','f-date','s-date'].forEach(id=>{const el=document.getElementById(id);if(el&&!el.value)el.value=today;});
+  },50);}
   if(v==='new-followup')setTimeout(updatePostopBadge,100);
   if(v==='upload-images') setTimeout(()=>{
     const pid = ACTIVE_PATIENT?.PID;
