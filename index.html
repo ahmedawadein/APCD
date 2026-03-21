@@ -579,8 +579,6 @@
     <div class="nav-section-label">Main</div>
     <div class="nav-item active" onclick="showView('dashboard')" id="nav-dashboard"><span class="nav-icon">⬡</span>Dashboard</div>
     <div class="nav-item" onclick="showView('patients')" id="nav-patients"><span class="nav-icon">◈</span>Patients</div>
-    <div class="nav-item" onclick="showView('new-patient')" id="nav-new-patient"><span class="nav-icon">＋</span>New Patient</div>
-    <div class="nav-item" onclick="showView('upload-images')" id="nav-upload-images"><span class="nav-icon">🖼</span>Upload Images</div>
     <div class="nav-section-label" style="margin-top:6px">System</div>
     <div class="nav-item" onclick="showView('setup')" id="nav-setup"><span class="nav-icon">◇</span>Setup</div>
   </div>
@@ -672,7 +670,6 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
       <div class="patients-toolbar">
         <div class="section-header" style="margin-bottom:0"><h2>Patients</h2></div>
         <div class="search-wrap"><span class="search-icon">⌕</span><input type="text" id="patient-search" placeholder="Search name or PID…" oninput="filterPatients()"></div>
-        <button class="btn btn-primary btn-sm" onclick="showView('new-patient')">＋ New Patient</button>
         <button class="btn btn-primary btn-sm" onclick="showView('new-patient')">＋ New Patient</button>
       </div>
       <div class="table-wrap">
@@ -2279,7 +2276,7 @@ function renderPatientsTable(filter=''){
     const oc=DB.operations.filter(x=>String(x.PID)===String(p.PID)).length;
     const fc=DB.followups.filter(x=>String(x.PID)===String(p.PID)).length;
     const age=p.DOB?calcAge(p.DOB):'—';
-    return `<tr><td class="mono">${p.PID}</td><td class="name">${p.Name||''}</td><td>${age}</td><td>${p.Sex||'—'}</td><td class="mono">${p.Phone||'—'}</td><td>${ec}</td><td>${oc}</td><td>${fc}</td><td><button class="table-action" data-pid="${p.PID}" onclick="openDetail(this.dataset.pid)">View ›</button></td></tr>`;
+    return `<tr><td class="mono">${p.PID}</td><td class="name">${p.Name||''}</td><td>${age}</td><td>${p.Sex||'—'}</td><td class="mono">${p.Phone||'—'}</td><td>${ec}</td><td>${oc}</td><td>${fc}</td><td><button class="table-action" data-pid="${p.PID}" onclick="openChart(this.dataset.pid)">Open Chart ›</button></td></tr>`;
   }).join('');
   if(cardlist) cardlist.innerHTML=!list.length
     ? '<div style="text-align:center;padding:30px;color:var(--text-faint)">No patients found</div>'
@@ -2465,7 +2462,7 @@ async function submitExamination(e){
   DB.examinations.push(row);
   showToast('Examination saved ✓','success');
   document.getElementById('exam-form').reset();
-  showView('patients');
+  if(_chartReturnPID){openChart(_chartReturnPID);}else{showView('patients');}
   pushRow('Examinations',row).catch(()=>{});
 }
 
@@ -2520,7 +2517,7 @@ async function submitSurgery(e){
   DB.operations.push(row);
   showToast('Operation saved ✓','success');
   document.getElementById('surgery-form').reset();
-  showView('patients');
+  if(_chartReturnPID){openChart(_chartReturnPID);}else{showView('patients');}
   pushRow('Operations',row).catch(()=>{});
 }
 
@@ -2571,7 +2568,7 @@ async function submitFollowup(e){
   showToast('Follow-up saved ✓','success');
   document.getElementById('followup-form').reset();
   customFupComps={od:[],os:[]};['od','os'].forEach(e=>{const cc=document.getElementById('fc-custom-comps-'+e);if(cc)cc.innerHTML='';});
-  showView('patients');
+  if(_chartReturnPID){openChart(_chartReturnPID);}else{showView('patients');}
   pushRow('Followup',row).catch(()=>{});
 }
 
@@ -3105,7 +3102,7 @@ async function submitHistory(e){
   document.getElementById('history-form').reset();
   prevSurgeries = [];
   renderPrevSurgeries();
-  showView('patients');
+  if(_chartReturnPID){openChart(_chartReturnPID);}else{showView('patients');}
   pushRow('History', row).catch(()=>{});
 }
 
