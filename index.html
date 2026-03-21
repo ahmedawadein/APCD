@@ -2187,6 +2187,21 @@ function showView(v){
   if(v==='new-patient')generatePID();
   if(['new-examination','new-surgery','new-followup','new-patient'].includes(v)){refreshExaminerSelects();refreshIOLSelect();resetFormulas();setTimeout(()=>{initDateDisplays();initMorphWidgets();},50);}
   if(v==='new-followup')setTimeout(updatePostopBadge,100);
+  if(v==='upload-images') setTimeout(()=>{
+    const pid = ACTIVE_PATIENT?.PID;
+    if(!pid) return;
+    const imgs = getStoredImages(pid);
+    const gridCard = document.getElementById('image-grid-card-main');
+    const zone = document.getElementById('upload-zone-main');
+    if(imgs.length){
+      if(gridCard) gridCard.style.display = '';
+      if(zone) zone.style.display = 'none';
+    } else {
+      if(gridCard) gridCard.style.display = 'none';
+      if(zone) zone.style.display = '';
+    }
+    renderImages(pid);
+  }, 50);
 }
 
 // ─── CONFIG ───
@@ -2317,7 +2332,7 @@ function renderPatientsTable(filter=''){
         <div class="patient-card-meta">${p.PID}${p.Sex?' · '+p.Sex:''}${age?' · '+age:''}${ec+oc+fc>0?' · '+ec+'e '+oc+'op '+fc+'fu':''}</div>
       </div>
       <div class="patient-card-actions">
-        <button class="btn btn-secondary btn-sm" onclick="openChart('${p.PID}')">Open Chart ›</button>
+        <button class="btn btn-secondary btn-sm" data-pid="${p.PID}" onclick="openChart(this.dataset.pid)">Open Chart ›</button>
       </div>
     </div>`;
   }).join('');
@@ -2486,7 +2501,7 @@ async function submitExamination(e){
   DB.examinations.push(row);
   showToast('Examination saved ✓','success');
   document.getElementById('exam-form').reset();
-  showView('patients');
+  if(_chartReturnPID){ openChart(_chartReturnPID); } else { showView('patients'); }
   pushRow('Examinations',row).catch(()=>{});
 }
 
@@ -2592,7 +2607,7 @@ async function submitFollowup(e){
   showToast('Follow-up saved ✓','success');
   document.getElementById('followup-form').reset();
   customFupComps={od:[],os:[]};['od','os'].forEach(e=>{const cc=document.getElementById('fc-custom-comps-'+e);if(cc)cc.innerHTML='';});
-  showView('patients');
+  if(_chartReturnPID){ openChart(_chartReturnPID); } else { showView('patients'); }
   pushRow('Followup',row).catch(()=>{});
 }
 
@@ -3126,7 +3141,7 @@ async function submitHistory(e){
   document.getElementById('history-form').reset();
   prevSurgeries = [];
   renderPrevSurgeries();
-  showView('patients');
+  if(_chartReturnPID){ openChart(_chartReturnPID); } else { showView('patients'); }
   pushRow('History', row).catch(()=>{});
 }
 
@@ -3787,15 +3802,13 @@ function chartShowRecord(type, record, idx){
 }
 
 function chartShowNewForm(type, pid){
-  const titles = {hist:'New History Entry',exam:'New Preoperative Examination',op:'New Operation Record',fup:'New Follow-up Visit',img:'Upload Images'};
-  document.getElementById('chart-bottom-title').textContent = titles[type]||'New Entry';
-  document.getElementById('chart-bottom-actions').innerHTML = '';
-  const body = document.getElementById('chart-bottom-body');
-
   if(type==='img'){
     const ipid = pid || _chartPID;
+    document.getElementById('chart-bottom-title').textContent = 'Upload Images';
+    document.getElementById('chart-bottom-actions').innerHTML = '';
+    const body = document.getElementById('chart-bottom-body');
     body.innerHTML=`
-      <div class="upload-zone" id="upload-zone-${ipid}"
+      <div class="upload-zone" id="upload-zone-chart-img"
         onclick="document.getElementById('img-file-chart').click()"
         ondragover="event.preventDefault();this.classList.add('drag-over')"
         ondragleave="this.classList.remove('drag-over')"
@@ -3811,37 +3824,67 @@ function chartShowNewForm(type, pid){
     return;
   }
 
-  const srcMap={hist:'view-new-history',exam:'view-new-examination',op:'view-new-surgery',fup:'view-new-followup'};
-  const src = document.getElementById(srcMap[type]);
-  if(!src){ body.innerHTML='<p style="color:var(--text-faint);padding:20px">Form unavailable.</p>'; return; }
-  body.innerHTML = src.innerHTML;
-  refreshExaminerSelects(); refreshIOLSelect(); resetFormulas();
-  setTimeout(()=>{ initDateDisplays(); initMorphWidgets(); if(type==='fup') updatePostopBadge(); }, 60);
+  // Instead of cloning (which causes duplicate IDs breaking radio/checkbox),
+  // show the actual form view with a back-to-chart button
+  const viewMap = {hist:'new-history', exam:'new-examination', op:'new-surgery', fup:'new-followup'};
+  const viewId = viewMap[type];
+  if(!viewId) return;
+
+  // Store chart state so we can return
+  _chartReturnPID = _chartPID;
+
+  // Add a "← Back to Chart" button to the form's cancel area
+  showView(viewId);
+
+  // Insert a prominent back button at top of the form
+  setTimeout(()=>{
+    const view = document.getElementById('view-'+viewId);
+    if(!view) return;
+    // Remove any existing back-btn
+    view.querySelectorAll('.chart-back-btn').forEach(el=>el.remove());
+    const backBtn = document.createElement('button');
+    backBtn.className = 'chart-back chart-back-btn';
+    backBtn.innerHTML = '← Back to Patient Chart';
+    backBtn.onclick = () => { if(_chartReturnPID) openChart(_chartReturnPID); };
+    view.insertBefore(backBtn, view.firstChild);
+  }, 30);
 }
+let _chartReturnPID = null;
 
 function chartEditRecord(type, idx){
-  const pid = _chartPID;
-  const map = {hist:'hists',exam:'exams',op:'ops',fup:'fups'};
+  const map = {hist:'hists', exam:'exams', op:'ops', fup:'fups'};
   const record = window._chartData[map[type]]?.[idx];
-  chartShowNewForm(type, pid);
+  if(!record) return;
+
+  // Navigate to real form view (avoids duplicate ID bug)
+  chartShowNewForm(type, _chartPID);
+
+  // Pre-fill date after view loads
+  const dateFieldMap = {exam:'e-date', op:'s-date', fup:'f-date'};
+  const dateVal = record.DateOfExam || record.DateOfOp || record.EntryDate || '';
+  const dateId = dateFieldMap[type];
+
   setTimeout(()=>{
-    // Pre-fill date
-    const dateFieldMap = {exam:'e-date',op:'s-date',fup:'f-date'};
-    const dateVal = record?.DateOfExam || record?.DateOfOp || record?.EntryDate || '';
-    const dateId = dateFieldMap[type];
     if(dateId && dateVal){
-      const el = document.getElementById('chart-bottom-body').querySelector('#'+dateId) || document.getElementById(dateId);
+      const el = document.getElementById(dateId);
       if(el) el.value = dateVal.split('T')[0];
     }
-    // Amber notice
-    const notice = document.createElement('div');
-    notice.style.cssText='background:rgba(247,183,49,.1);border:1px solid rgba(247,183,49,.3);border-radius:9px;padding:11px 16px;margin-bottom:16px;font-size:13.5px;color:var(--amber);display:flex;align-items:center;gap:10px';
-    notice.innerHTML='<span style="font-size:20px">✎</span><div><strong>Editing record</strong> — update the fields below and save. A corrected entry will be added.</div>';
-    const body = document.getElementById('chart-bottom-body');
-    body.insertBefore(notice, body.firstChild);
-    body.scrollIntoView({behavior:'smooth'});
-    document.getElementById('chart-bottom-title').textContent = 'Editing — ' + document.getElementById('chart-bottom-title').textContent;
-  }, 180);
+    // Show amber editing notice at top of view
+    const view = document.getElementById('view-' + {hist:'new-history',exam:'new-examination',op:'new-surgery',fup:'new-followup'}[type]);
+    if(view){
+      const existing = view.querySelector('.chart-edit-notice-bar');
+      if(!existing){
+        const notice = document.createElement('div');
+        notice.className = 'chart-edit-notice-bar';
+        notice.style.cssText = 'background:rgba(247,183,49,.1);border:1px solid rgba(247,183,49,.3);border-radius:9px;padding:11px 16px;margin-bottom:14px;font-size:13.5px;color:var(--amber);display:flex;align-items:center;gap:10px';
+        notice.innerHTML = '<span style="font-size:20px">✎</span><div><strong>Editing record from ' + (dateVal ? new Date(dateVal).toLocaleDateString() : 'unknown date') + '</strong> — update the fields and save. A corrected entry will be added.</div>';
+        // Insert after the back button if present
+        const backBtn = view.querySelector('.chart-back-btn');
+        if(backBtn) backBtn.after(notice);
+        else view.insertBefore(notice, view.firstChild);
+      }
+    }
+  }, 80);
 }
 
 </script>
