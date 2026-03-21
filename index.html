@@ -664,7 +664,7 @@
         <!-- Section tabs -->
         <div class="ws-tab-bar">
           <button class="ws-tab-btn active" onclick="wsTab('ws-panel-hist',this)">♦ History</button>
-          <button class="ws-tab-btn" onclick="wsTab('ws-panel-exam',this)">◉ Initial Exam</button>
+          <button class="ws-tab-btn" onclick="wsTab('ws-panel-exam',this)">◉ Preop Exam</button>
           <button class="ws-tab-btn" onclick="wsTab('ws-panel-surg',this)">⊕ Surgery</button>
           <button class="ws-tab-btn" onclick="wsTab('ws-panel-fup',this)">◎ Follow-up</button>
           <button class="ws-tab-btn" onclick="wsTab('ws-panel-imgs',this)">🖼 Images</button>
@@ -969,7 +969,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
 
     <!-- ═══════════════════════════════ EXAMINATION ═══ -->
     <div id="view-new-examination" class="hidden">
-      <div class="section-header"><h2>Initial Examination</h2><p>Baseline clinical findings — both eyes in one submission</p></div>
+      <div class="section-header"><h2>Preoperative Examination</h2><p>Preoperative clinical findings — both eyes in one submission</p></div>
       <form id="exam-form" onsubmit="submitExamination(event)">
         <div class="form-card">
           <div class="form-card-title">Examination Info</div>
@@ -2135,7 +2135,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
     <div class="tab-bar">
       <button class="tab-btn active" onclick="switchTab('tab-demo',this)">Demographics</button>
       <button class="tab-btn" onclick="switchTab('tab-hist',this)">History</button>
-      <button class="tab-btn" onclick="switchTab('tab-exams',this)">Examinations</button>
+      <button class="tab-btn" onclick="switchTab('tab-exams',this)">Preop Exams</button>
       <button class="tab-btn" onclick="switchTab('tab-ops',this)">Operations</button>
       <button class="tab-btn" onclick="switchTab('tab-fups',this)">Follow-ups</button>
       <button class="tab-btn" onclick="switchTab('tab-images',this)">Images</button>
@@ -2353,7 +2353,7 @@ function showView(v){
   const n=document.getElementById('nav-'+v);if(n)n.classList.add('active');
   const titles={dashboard:'Dashboard',patients:'Patients','new-patient':'New Patient',
     workspace:'Patient Workspace',
-    'new-history':'History & Systemic Diseases','new-examination':'Initial Examination',
+    'new-history':'History & Systemic Diseases','new-examination':'Preoperative Examination',
     'new-surgery':'Operation Record','new-followup':'Follow-up Visit',
     'upload-images':'Upload Images',setup:'Setup & Configuration'};
   document.getElementById('topbar-title').textContent=titles[v]||'';
@@ -2550,7 +2550,7 @@ function openDetail(pid){
     dr('Address',p.Address)+dr('Referring',p.Referring)+dr('Others',p.Others);
 
   const exams=DB.examinations.filter(x=>String(x.PID)===String(pid));
-  document.getElementById('tab-exams').innerHTML=!exams.length?empty('No examinations recorded')
+  document.getElementById('tab-exams').innerHTML=!exams.length?empty('No preoperative examinations recorded')
     :`<div class="visit-timeline">${exams.map(e=>`<div class="visit-entry"><div class="visit-card">
       <div class="visit-date">${e.DateOfExam?new Date(e.DateOfExam).toLocaleDateString():'—'}${e.EUA==='Yes'?' · <span style="color:var(--amber);font-size:10px;font-family:\'DM Mono\',monospace">EUA</span>':''}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin:8px 0 4px;border:1px solid var(--border-dim);border-radius:6px;overflow:hidden;font-size:11.5px">
@@ -2785,7 +2785,7 @@ async function submitExamination(e){
     Comments:g('e-comments').value,EntryDate:today()
   };
   DB.examinations.push(row);
-  showToast('Examination saved ✓','success');
+  showToast('Preoperative Examination saved ✓','success');
   document.getElementById('exam-form').reset();
   showView('patients');
   pushRow('Examinations',row).catch(()=>{});
