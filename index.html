@@ -938,8 +938,8 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
             <div class="form-group"><label>Date of Exam *</label><input type="date" id="e-date" required></div>
             <div class="form-group span-2"><label>Examiner</label><div class="examiner-wrap"><select id="e-examiner" onchange="handleExaminerChange('e-examiner')"></select></div></div>
             <div class="form-group span-full" style="margin-top:4px">
-              <label style="display:inline-flex;align-items:center;gap:9px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:14px;font-weight:700;font-family:'Lato',sans-serif">
-                <span class="eua-check-box" id="e-eua-box" onclick="toggleEUA('e')" style="width:20px;height:20px;border:2px solid rgba(247,183,49,.5);border-radius:4px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;background:transparent">
+              <div style="display:inline-flex;align-items:center;gap:9px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:14px;font-weight:700;font-family:'Lato',sans-serif">
+                <span class="eua-check-box" id="e-eua-box" onclick="toggleEUA('e');event.preventDefault();event.stopPropagation()" style="width:20px;height:20px;border:2px solid rgba(247,183,49,.5);border-radius:4px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;background:transparent">
                   <span id="e-eua-tick" style="display:none;color:var(--navy);font-size:13px;font-weight:900;line-height:1">✓</span>
                 </span>
                 <input type="checkbox" id="e-eua" value="Yes" style="display:none">
@@ -1598,8 +1598,8 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
             <div class="form-group"><label>Date of Exam *<span id="postop-badge" class="postop-badge" style="display:none"></span></label><input type="date" id="f-date" required oninput="updatePostopBadge()"></div>
             <div class="form-group span-2"><label>Examiner</label><div class="examiner-wrap"><select id="f-examiner" onchange="handleExaminerChange('f-examiner')"></select></div></div>
             <div class="form-group span-full" style="margin-top:4px">
-              <label style="display:inline-flex;align-items:center;gap:9px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:14px;font-weight:700;font-family:'Lato',sans-serif">
-                <span class="eua-check-box" id="f-eua-box" onclick="toggleEUA('f')" style="width:20px;height:20px;border:2px solid rgba(247,183,49,.5);border-radius:4px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;background:transparent">
+              <div style="display:inline-flex;align-items:center;gap:9px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:14px;font-weight:700;font-family:'Lato',sans-serif">
+                <span class="eua-check-box" id="f-eua-box" onclick="toggleEUA('f');event.preventDefault();event.stopPropagation()" style="width:20px;height:20px;border:2px solid rgba(247,183,49,.5);border-radius:4px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;background:transparent">
                   <span id="f-eua-tick" style="display:none;color:var(--navy);font-size:13px;font-weight:900;line-height:1">✓</span>
                 </span>
                 <input type="checkbox" id="f-eua" value="Yes" style="display:none">
