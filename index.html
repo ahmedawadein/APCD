@@ -2541,9 +2541,9 @@ async function submitExamination(e){
     Fundus_OS:r('e-fundus-os'),FundusAbnorm_OS:g('e-fundus-abn-os').value,
     CD_OS:g('e-cd-os').value,AxialLength_OS:g('e-axl-os').value,
     BioTech_OS:r('e-bio-tech-os'),K1_OS:g('e-k1-os').value,K2_OS:g('e-k2-os').value,Formulas_OS:getFormulasJSON('e','os'),
-    Syndrome:g('e-syndrome').value,Investigations:g('e-invest').value,
-    Consanguinity:g('e-consang').checked?'Yes':'No',
-    FamilyHistory:g('e-fhx').checked?'Yes':'No',FamilyHistoryDesc:g('e-fhx-desc').value,
+    Syndrome:g('e-syndrome')?.value||'',Investigations:g('e-invest')?.value||'',
+    Consanguinity:g('e-consang')?.checked?'Yes':'No',
+    FamilyHistory:g('e-fhx')?.checked?'Yes':'No',FamilyHistoryDesc:g('e-fhx-desc')?.value||'',
     Comments:g('e-comments').value,EntryDate:today()
   };
   DB.examinations.push(row);
