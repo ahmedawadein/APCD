@@ -10,13 +10,13 @@
     --navy:#0b1724;--navy-mid:#162333;--navy-light:#1e3045;
     --teal:#2dcfca;--teal-dim:#1fa8a2;--teal-glow:rgba(45,207,202,.13);
     --amber:#f7b731;--red:#f05252;--green:#4ade9a;--purple:#b09ef5;
-    --text-main:#f0f6ff;--text-dim:#c8ddf0;--text-faint:#8fb3d0;
+    --text-main:#edf4fc;--text-dim:#b8d0e8;--text-faint:#7a9ab8;
     --border:rgba(45,207,202,.22);--border-dim:rgba(255,255,255,.11);
     --card:rgba(22,35,51,.72);--input-bg:rgba(11,23,36,.85);
     --radius:10px;--radius-lg:16px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Lato',sans-serif;background:var(--navy);color:var(--text-main);min-height:100vh;overflow-x:hidden;font-size:15px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+  body{font-family:'Lato',sans-serif;background:var(--navy);color:var(--text-main);min-height:100vh;overflow-x:hidden}
   body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 10% 20%,rgba(28,184,176,.06) 0%,transparent 60%),radial-gradient(ellipse 50% 60% at 90% 80%,rgba(13,60,90,.3) 0%,transparent 60%),repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,.015) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(255,255,255,.015) 40px);pointer-events:none;z-index:0}
   #app{position:relative;z-index:1;display:flex;min-height:100vh}
 
@@ -26,8 +26,8 @@
   .logo-mark{font-family:'DM Serif Display',serif;font-size:22px;color:var(--teal);letter-spacing:-.5px}
   .logo-sub{font-size:10px;font-family:'DM Mono',monospace;color:var(--text-faint);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
   .sidebar-nav{padding:12px 10px;flex:1}
-  .nav-section-label{font-size:11.5px;font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;color:var(--text-main);font-weight:500;opacity:.9}
-  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:700;color:var(--text-dim);transition:all .15s;margin-bottom:1px;border:1px solid transparent}
+  .nav-section-label{font-size:9px;font-family:'DM Mono',monospace;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-dim);opacity:.7;padding:10px 12px 5px}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--text-dim);transition:all .15s;margin-bottom:1px;border:1px solid transparent}
   .nav-item:hover{background:var(--teal-glow);color:var(--text-main)}
   .nav-item.active{background:var(--teal-glow);color:var(--teal);border-color:var(--border)}
   .nav-item .nav-icon{font-size:14px;width:18px;text-align:center}
@@ -42,11 +42,11 @@
 
   /* FORMS */
   .section-header{margin-bottom:22px}
-  .section-header h2{font-family:'DM Serif Display',serif;font-size:27px;color:var(--text-main)}
+  .section-header h2{font-family:'DM Serif Display',serif;font-size:26px}
   .section-header p{color:var(--text-dim);font-size:13px;margin-top:3px}
   .form-card{background:var(--card);border:1px solid var(--border-dim);border-radius:var(--radius-lg);padding:22px 26px;backdrop-filter:blur(6px);margin-bottom:16px;transition:border-color .2s}
   .form-card:hover{border-color:var(--border)}
-  .form-card-title{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:16px;display:flex;align-items:center;gap:8px;font-weight:500}
+  .form-card-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--teal);margin-bottom:16px;display:flex;align-items:center;gap:8px;font-weight:500}
   .form-card-title::after{content:'';flex:1;height:1px;background:var(--border)}
   .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
   .form-grid.cols-2{grid-template-columns:repeat(2,1fr)}
@@ -57,7 +57,7 @@
   .form-group.span-3{grid-column:span 3}
   .form-group.span-full{grid-column:1/-1}
   label{font-size:10.5px;font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;color:var(--text-main);opacity:.75}
-  input,select,textarea{background:var(--input-bg);border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);color:var(--text-main);font-family:'Lato',sans-serif;font-size:15px;padding:9px 13px;width:100%;transition:border-color .15s,box-shadow .15s;outline:none;appearance:none}
+  input,select,textarea{background:var(--input-bg);border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);color:var(--text-main);font-family:'Lato',sans-serif;font-size:13.5px;padding:9px 13px;width:100%;transition:border-color .15s,box-shadow .15s;outline:none;appearance:none}
   input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-glow)}
   input::placeholder,textarea::placeholder{color:var(--text-faint)}
   select{cursor:pointer}
@@ -66,15 +66,13 @@
   .radio-group{display:flex;gap:6px;flex-wrap:wrap}
   .radio-option{position:relative}
   .radio-option input[type=radio]{position:absolute;opacity:0;width:0;height:0}
-  .radio-option label{display:block;padding:7px 14px;border:1px solid rgba(255,255,255,.2);border-radius:6px;cursor:pointer;font-size:14px;font-weight:700;font-family:'Lato',sans-serif;letter-spacing:0;text-transform:none;color:var(--text-main);opacity:.7;transition:all .15s;user-select:none}
+  .radio-option label{display:block;padding:7px 14px;border:1px solid rgba(255,255,255,.15);border-radius:6px;cursor:pointer;font-size:12.5px;font-family:'Lato',sans-serif;letter-spacing:0;text-transform:none;color:var(--text-main);opacity:.7;transition:all .15s;user-select:none}
   .radio-option input[type=radio]:checked+label{border-color:var(--teal);background:var(--teal-glow);color:var(--teal);opacity:1}
   .radio-option label:hover{border-color:rgba(45,207,202,.45);color:var(--text-main);opacity:1}
   .checkbox-group{display:flex;flex-wrap:wrap;gap:6px}
   .checkbox-option{position:relative}
   .checkbox-option input[type=checkbox]{position:absolute;opacity:0;width:0;height:0}
-  .checkbox-option label{display:block;padding:6px 13px;border:1px solid rgba(255,255,255,.2);border-radius:6px;cursor:pointer;font-size:13.5px;font-weight:700;font-family:'Lato',sans-serif;letter-spacing:0;text-transform:none;color:var(--text-main);opacity:.7;transition:all .15s;user-select:none}
-  .checkbox-option input[type=checkbox]+label::before{content:'';display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.35);border-radius:3px;margin-right:7px;vertical-align:-3px;flex-shrink:0;transition:all .15s}
-  .checkbox-option input[type=checkbox]:checked+label::before{content:'✓';background:var(--amber);border-color:var(--amber);color:var(--navy);font-size:11px;font-weight:900;line-height:13px;text-align:center}
+  .checkbox-option label{display:block;padding:5px 12px;border:1px solid rgba(255,255,255,.15);border-radius:6px;cursor:pointer;font-size:12px;font-family:'Lato',sans-serif;letter-spacing:0;text-transform:none;color:var(--text-main);opacity:.7;transition:all .15s;user-select:none}
   .checkbox-option input[type=checkbox]:checked+label{border-color:var(--amber);background:rgba(247,183,49,.12);color:var(--amber);opacity:1}
   .checkbox-option label:hover{border-color:rgba(247,183,49,.45);color:var(--text-main);opacity:1}
 
@@ -82,9 +80,7 @@
   .flag-group{display:flex;flex-wrap:wrap;gap:5px}
   .flag-option{position:relative}
   .flag-option input[type=checkbox]{position:absolute;opacity:0;width:0;height:0}
-  .flag-option label{display:block;padding:5px 12px;border:1px solid rgba(255,255,255,.18);border-radius:5px;cursor:pointer;font-size:13px;font-weight:700;font-family:'Lato',sans-serif;letter-spacing:0;text-transform:none;color:var(--text-dim);transition:all .15s;user-select:none}
-  .flag-option input[type=checkbox]+label::before{content:'';display:inline-block;width:11px;height:11px;border:2px solid rgba(255,255,255,.25);border-radius:2px;margin-right:5px;vertical-align:-1px;flex-shrink:0;transition:all .15s}
-  .flag-option input[type=checkbox]:checked+label::before{content:'✓';background:var(--red);border-color:var(--red);color:#fff;font-size:9px;font-weight:900;line-height:10px;text-align:center}
+  .flag-option label{display:block;padding:4px 11px;border:1px solid rgba(255,255,255,.13);border-radius:5px;cursor:pointer;font-size:11.5px;font-family:'Lato',sans-serif;letter-spacing:0;text-transform:none;color:var(--text-dim);transition:all .15s;user-select:none}
   .flag-option input[type=checkbox]:checked+label{border-color:var(--red);background:rgba(224,82,82,.1);color:var(--red)}
   .flag-option label:hover{color:var(--text-dim)}
 
@@ -121,7 +117,7 @@
   .table-wrap{background:var(--card);border:1px solid var(--border-dim);border-radius:var(--radius-lg);overflow:hidden;backdrop-filter:blur(6px)}
   .data-table{width:100%;border-collapse:collapse}
   .data-table th{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);opacity:.8;padding:9px 14px;text-align:left;border-bottom:1px solid var(--border-dim);white-space:nowrap}
-  .data-table td{padding:12px 14px;font-size:14px;color:var(--text-main);border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+  .data-table td{padding:11px 14px;font-size:13px;color:var(--text-main);border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
   .data-table tr:hover td{background:rgba(28,184,176,.04)}
   .data-table .mono{font-family:'DM Mono',monospace;font-size:11.5px;color:var(--text-dim)}
   .data-table .name{font-weight:700}
@@ -201,8 +197,8 @@
   .eye-col:first-child{border-right:1px solid var(--border-dim)}
   .eye-col-body{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
   .bi-field{display:flex;flex-direction:column;gap:4px}
-  .bi-field label{font-size:11.5px;font-family:'DM Mono',monospace;letter-spacing:.8px;text-transform:uppercase;color:var(--text-dim);font-weight:500}
-  .bi-field input,.bi-field select,.bi-field textarea{background:var(--input-bg);border:1px solid rgba(255,255,255,.18);border-radius:7px;color:var(--text-main);font-family:'Lato',sans-serif;font-size:15px;padding:7px 11px;width:100%;outline:none;transition:border-color .15s,box-shadow .15s;appearance:none}
+  .bi-field label{font-size:10px;font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;color:var(--text-faint)}
+  .bi-field input,.bi-field select,.bi-field textarea{background:var(--input-bg);border:1px solid rgba(255,255,255,.14);border-radius:7px;color:var(--text-main);font-family:'Lato',sans-serif;font-size:13px;padding:7px 11px;width:100%;outline:none;transition:border-color .15s,box-shadow .15s;appearance:none}
   .bi-field input:focus,.bi-field select:focus{border-color:var(--teal);box-shadow:0 0 0 2px var(--teal-glow)}
   .bi-field select option{background:var(--navy-mid)}
   .bi-radio{display:flex;gap:5px;flex-wrap:wrap}
@@ -244,8 +240,6 @@
   .morph-option{position:relative}
   .morph-option input[type=checkbox]{position:absolute;opacity:0;width:0;height:0}
   .morph-option label{display:block;padding:4px 10px;border:1px solid rgba(255,255,255,.14);border-radius:5px;cursor:pointer;font-size:11px;color:var(--text-dim);transition:all .15s;user-select:none}
-  .morph-option input[type=checkbox]+label::before{content:'';display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.35);border-radius:3px;margin-right:7px;vertical-align:-3px;flex-shrink:0;transition:all .15s}
-  .morph-option input[type=checkbox]:checked+label::before{content:'✓';background:var(--teal);border-color:var(--teal);color:var(--navy);font-size:10px;font-weight:900;line-height:11px;text-align:center}
   .morph-option input[type=checkbox]:checked+label{border-color:var(--teal);background:var(--teal-glow);color:var(--teal)}
   .morph-option label:hover{color:var(--text-dim)}
 
@@ -256,8 +250,6 @@
   .iol-comp-option{position:relative}
   .iol-comp-option input[type=checkbox]{position:absolute;opacity:0;width:0;height:0}
   .iol-comp-option label{display:block;padding:4px 10px;border:1px solid rgba(255,255,255,.13);border-radius:5px;cursor:pointer;font-size:11px;color:var(--text-dim);transition:all .15s;user-select:none}
-  .iol-comp-option input[type=checkbox]+label::before{content:'';display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-radius:3px;margin-right:6px;vertical-align:-2px;flex-shrink:0;transition:all .15s}
-  .iol-comp-option input[type=checkbox]:checked+label::before{content:'✓';background:var(--red);border-color:var(--red);color:#fff;font-size:10px;font-weight:900;line-height:11px;text-align:center}
   .iol-comp-option input[type=checkbox]:checked+label{border-color:var(--red);background:rgba(224,82,82,.1);color:var(--red)}
   .iol-comp-option label:hover{color:var(--text-dim)}
 
@@ -365,23 +357,6 @@
   .image-lightbox-close:hover{opacity:1}
   .image-caption-input{margin-top:8px;font-size:12.5px;padding:6px 10px}
 
-  /* PHOTO DESCRIPTION MODAL */
-  .photo-picker-overlay{position:fixed;inset:0;z-index:600;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);backdrop-filter:blur(3px)}
-  .photo-picker-sheet{background:var(--navy-mid);border:1px solid var(--border);border-radius:14px;width:calc(100% - 32px);max-width:420px;padding:20px 20px 18px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
-  .photo-picker-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:12px;font-weight:500}
-  .picker-preview-strip{display:flex;gap:7px;margin-bottom:11px;overflow-x:auto}
-  .picker-preview-thumb{width:58px;height:58px;border-radius:7px;object-fit:cover;border:1px solid var(--border);flex-shrink:0}
-  .picker-file-count{font-size:11px;color:var(--text-faint);margin-bottom:9px;font-family:'DM Mono',monospace}
-  .picker-desc-label{font-size:13px;color:var(--text-dim);margin-bottom:6px;font-weight:700}
-  .picker-desc-input{width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text-main);font-family:'Lato',sans-serif;font-size:15px;padding:10px 13px;outline:none;transition:border-color .15s,box-shadow .15s;margin-bottom:9px}
-  .picker-desc-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-glow)}
-  .picker-desc-input::placeholder{color:var(--text-faint)}
-  .picker-quick-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:13px}
-  .picker-tag{padding:5px 11px;border:1px solid var(--border-dim);border-radius:20px;font-size:12px;font-family:'Lato',sans-serif;color:var(--text-dim);cursor:pointer;transition:all .12s;background:transparent;font-weight:700}
-  .picker-tag:hover,.picker-tag.sel{border-color:var(--teal);background:var(--teal-glow);color:var(--teal)}
-  .picker-desc-actions{display:flex;gap:8px}
-  .picker-upload-btn{flex:1;padding:12px;border-radius:8px;background:var(--teal);color:var(--navy);font-family:'Lato',sans-serif;font-size:14px;font-weight:700;cursor:pointer;border:none}
-  .picker-cancel-btn{padding:12px 16px;border-radius:8px;background:transparent;border:1px solid var(--border-dim);color:var(--text-dim);font-family:'Lato',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
   /* PATIENT SEARCH BAR */
   #patient-lookup-bar{background:rgba(13,27,42,.95);border-bottom:1px solid var(--border);padding:12px 30px;display:flex;align-items:center;gap:12px;position:sticky;top:58px;z-index:40;backdrop-filter:blur(8px)}
   #patient-lookup-bar.hidden{display:none!important}
@@ -426,9 +401,6 @@
   /* ═══════════════════════════════════════════════
      MOBILE (≤640px)
   ═══════════════════════════════════════════════ */
-  /* Patient card list — hidden on desktop, shown on mobile */
-  #patients-cardlist{display:none}
-
   @media(max-width:640px){
     /* Sidebar — slide in/out */
     #hamburger{display:flex}
@@ -478,13 +450,11 @@
     .formula-headers{grid-template-columns:1fr 1fr 28px}
     .formula-headers span:nth-child(2){display:none}
 
-    /* Tables — hide on mobile, show cards instead */
-    #view-patients .table-wrap{display:none}
+    /* Tables */
+    .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .data-table{min-width:500px}
     .patients-toolbar{flex-wrap:wrap;gap:8px}
     .search-wrap{max-width:100%;order:3;width:100%}
-
-    /* Patient card list (mobile) */
-    #patients-cardlist{display:flex;flex-direction:column;gap:10px}
 
     /* Modal */
     .modal-overlay{padding:16px 10px;align-items:flex-start}
@@ -549,14 +519,14 @@
     .radio-option label{padding:5px 9px;font-size:11.5px}
   }
 
+  /* ─── PATIENT CHART ─── */
+  #patients-cardlist{display:none}
   .patient-card{background:var(--card);border:1px solid var(--border-dim);border-radius:var(--radius-lg);padding:14px 16px;display:flex;align-items:center;gap:13px}
   .patient-card-avatar{width:42px;height:42px;border-radius:50%;background:var(--teal-glow);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:16px;color:var(--teal);flex-shrink:0;font-weight:700}
   .patient-card-body{flex:1;min-width:0}
   .patient-card-name{font-weight:700;font-size:15px;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .patient-card-meta{font-size:12px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-top:3px}
   .patient-card-actions{flex-shrink:0}
-
-  /* ─── PATIENT CHART ─── */
   .chart-back{display:inline-flex;align-items:center;gap:6px;color:var(--text-dim);cursor:pointer;font-size:13px;font-weight:700;margin-bottom:18px;padding:7px 14px;border-radius:7px;border:1px solid var(--border-dim);background:transparent;transition:all .15s;font-family:'Lato',sans-serif}
   .chart-back:hover{color:var(--teal);border-color:var(--border)}
   .chart-demo-panel{background:var(--card);border:1px solid var(--border-dim);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:14px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
@@ -581,6 +551,8 @@
   .chart-empty-msg{font-size:14px;line-height:1.7}
   @media(max-width:900px){.chart-cats{grid-template-columns:repeat(3,1fr)}}
   @media(max-width:640px){
+    #view-patients .table-wrap{display:none}
+    #patients-cardlist{display:flex;flex-direction:column;gap:10px}
     .chart-cats{grid-template-columns:repeat(2,1fr)}
     .chart-cat-box:last-child{grid-column:span 2}
     .chart-demo-panel{padding:14px 16px;gap:12px}
@@ -607,6 +579,8 @@
     <div class="nav-section-label">Main</div>
     <div class="nav-item active" onclick="showView('dashboard')" id="nav-dashboard"><span class="nav-icon">⬡</span>Dashboard</div>
     <div class="nav-item" onclick="showView('patients')" id="nav-patients"><span class="nav-icon">◈</span>Patients</div>
+    <div class="nav-item" onclick="showView('new-patient')" id="nav-new-patient"><span class="nav-icon">＋</span>New Patient</div>
+    <div class="nav-item" onclick="showView('upload-images')" id="nav-upload-images"><span class="nav-icon">🖼</span>Upload Images</div>
     <div class="nav-section-label" style="margin-top:6px">System</div>
     <div class="nav-item" onclick="showView('setup')" id="nav-setup"><span class="nav-icon">◇</span>Setup</div>
   </div>
@@ -699,15 +673,14 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
         <div class="section-header" style="margin-bottom:0"><h2>Patients</h2></div>
         <div class="search-wrap"><span class="search-icon">⌕</span><input type="text" id="patient-search" placeholder="Search name or PID…" oninput="filterPatients()"></div>
         <button class="btn btn-primary btn-sm" onclick="showView('new-patient')">＋ New Patient</button>
+        <button class="btn btn-primary btn-sm" onclick="showView('new-patient')">＋ New Patient</button>
       </div>
-      <!-- Desktop table -->
       <div class="table-wrap">
         <table class="data-table">
           <thead><tr><th>PID</th><th>Name</th><th>DOB</th><th>Sex</th><th>Phone</th><th>Exams</th><th>Ops</th><th>Visits</th><th></th></tr></thead>
           <tbody id="patients-tbody"><tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text-faint)"><span class="spinner"></span></td></tr></tbody>
         </table>
       </div>
-      <!-- Mobile card list -->
       <div id="patients-cardlist"></div>
     </div>
 
@@ -937,15 +910,15 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
             <div class="form-group span-2"><label>Patient</label><input type="text" id="e-pid-display" readonly placeholder="Select patient using search bar above" style="background:rgba(28,184,176,.05);color:var(--teal);cursor:default"><input type="hidden" id="e-pid"></div>
             <div class="form-group"><label>Date of Exam *</label><input type="date" id="e-date" required></div>
             <div class="form-group span-2"><label>Examiner</label><div class="examiner-wrap"><select id="e-examiner" onchange="handleExaminerChange('e-examiner')"></select></div></div>
-            <div class="form-group span-full" style="margin-top:4px">
-              <div style="display:inline-flex;align-items:center;gap:9px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:14px;font-weight:700;font-family:'Lato',sans-serif">
-                <span class="eua-check-box" id="e-eua-box" onclick="toggleEUA('e');event.preventDefault();event.stopPropagation()" style="width:20px;height:20px;border:2px solid rgba(247,183,49,.5);border-radius:4px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;background:transparent">
-                  <span id="e-eua-tick" style="display:none;color:var(--navy);font-size:13px;font-weight:900;line-height:1">✓</span>
+            <div class="form-group span-full" style="margin-top:6px">
+              <div style="display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;font-weight:700;font-family:'Lato',sans-serif" onclick="toggleEUA('e')">
+                <span id="e-eua-box" style="width:20px;height:20px;border:2px solid rgba(247,183,49,.5);border-radius:4px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;background:transparent">
+                  <span id="e-eua-tick" style="display:none;color:var(--navy);font-size:13px;font-weight:900">✓</span>
                 </span>
-                <input type="checkbox" id="e-eua" value="Yes" style="display:none">
+                <input type="checkbox" id="e-eua" style="display:none">
                 <span style="color:var(--amber)">Examination Under Anaesthesia (EUA)</span>
                 <span style="font-size:12px;color:var(--text-faint);font-weight:400">— leave unchecked if performed awake</span>
-              </label>
+              </div>
             </div>
           </div>
         </div>
@@ -1029,8 +1002,8 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
                   <div class="bi-radio radio-group">
                     <div class="radio-option"><input type="radio" name="e-angle-od" id="e-angle-od-open" value="Open"><label for="e-angle-od-open">Open</label></div>
                     <div class="radio-option"><input type="radio" name="e-angle-od" id="e-angle-od-closed" value="Closed"><label for="e-angle-od-closed">Closed</label></div>
-                    <div class="radio-option"><input type="radio" name="e-angle-od" id="e-angle-od-ant-insert" value="Open with anterior iris insertion"><label for="e-angle-od-ant-insert">Open with anterior iris insertion</label></div>
-                    <div class="radio-option"><input type="radio" name="e-angle-od" id="e-angle-od-dysgenetic" value="Dysgenetic angle"><label for="e-angle-od-dysgenetic">Dysgenetic angle</label></div>
+                    <div class="radio-option"><input type="radio" name="e-angle-od" id="e-angle-od-ant" value="Open with anterior iris insertion"><label for="e-angle-od-ant">Open with anterior iris insertion</label></div>
+                    <div class="radio-option"><input type="radio" name="e-angle-od" id="e-angle-od-dys" value="Dysgenetic angle"><label for="e-angle-od-dys">Dysgenetic angle</label></div>
                   </div>
                 </div>
                 <div class="bi-field"><label>Angle Description</label><input type="text" id="e-gonio-desc-od" placeholder="describe angle findings…"></div>
@@ -1048,8 +1021,8 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
                   <div class="bi-radio radio-group">
                     <div class="radio-option"><input type="radio" name="e-angle-os" id="e-angle-os-open" value="Open"><label for="e-angle-os-open">Open</label></div>
                     <div class="radio-option"><input type="radio" name="e-angle-os" id="e-angle-os-closed" value="Closed"><label for="e-angle-os-closed">Closed</label></div>
-                    <div class="radio-option"><input type="radio" name="e-angle-os" id="e-angle-os-ant-insert" value="Open with anterior iris insertion"><label for="e-angle-os-ant-insert">Open with anterior iris insertion</label></div>
-                    <div class="radio-option"><input type="radio" name="e-angle-os" id="e-angle-os-dysgenetic" value="Dysgenetic angle"><label for="e-angle-os-dysgenetic">Dysgenetic angle</label></div>
+                    <div class="radio-option"><input type="radio" name="e-angle-os" id="e-angle-os-ant" value="Open with anterior iris insertion"><label for="e-angle-os-ant">Open with anterior iris insertion</label></div>
+                    <div class="radio-option"><input type="radio" name="e-angle-os" id="e-angle-os-dys" value="Dysgenetic angle"><label for="e-angle-os-dys">Dysgenetic angle</label></div>
                   </div>
                 </div>
                 <div class="bi-field"><label>Angle Description</label><input type="text" id="e-gonio-desc-os" placeholder="describe angle findings…"></div>
@@ -1597,15 +1570,15 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
             <div class="form-group span-2"><label>Patient</label><input type="text" id="f-pid-display" readonly placeholder="Select patient using search bar above" style="background:rgba(28,184,176,.05);color:var(--teal);cursor:default"><input type="hidden" id="f-pid"></div>
             <div class="form-group"><label>Date of Exam *<span id="postop-badge" class="postop-badge" style="display:none"></span></label><input type="date" id="f-date" required oninput="updatePostopBadge()"></div>
             <div class="form-group span-2"><label>Examiner</label><div class="examiner-wrap"><select id="f-examiner" onchange="handleExaminerChange('f-examiner')"></select></div></div>
-            <div class="form-group span-full" style="margin-top:4px">
-              <div style="display:inline-flex;align-items:center;gap:9px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:14px;font-weight:700;font-family:'Lato',sans-serif">
-                <span class="eua-check-box" id="f-eua-box" onclick="toggleEUA('f');event.preventDefault();event.stopPropagation()" style="width:20px;height:20px;border:2px solid rgba(247,183,49,.5);border-radius:4px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;background:transparent">
-                  <span id="f-eua-tick" style="display:none;color:var(--navy);font-size:13px;font-weight:900;line-height:1">✓</span>
+            <div class="form-group span-full" style="margin-top:6px">
+              <div style="display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;font-weight:700;font-family:'Lato',sans-serif" onclick="toggleEUA('f')">
+                <span id="f-eua-box" style="width:20px;height:20px;border:2px solid rgba(247,183,49,.5);border-radius:4px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;background:transparent">
+                  <span id="f-eua-tick" style="display:none;color:var(--navy);font-size:13px;font-weight:900">✓</span>
                 </span>
-                <input type="checkbox" id="f-eua" value="Yes" style="display:none">
+                <input type="checkbox" id="f-eua" style="display:none">
                 <span style="color:var(--amber)">Examination Under Anaesthesia (EUA)</span>
                 <span style="font-size:12px;color:var(--text-faint);font-weight:400">— leave unchecked if performed awake</span>
-              </label>
+              </div>
             </div>
           </div>
         </div>
@@ -1891,8 +1864,8 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
                   <div class="bi-radio radio-group">
                     <div class="radio-option"><input type="radio" name="f-angle-od" id="f-angle-od-open" value="Open"><label for="f-angle-od-open">Open</label></div>
                     <div class="radio-option"><input type="radio" name="f-angle-od" id="f-angle-od-closed" value="Closed"><label for="f-angle-od-closed">Closed</label></div>
-                    <div class="radio-option"><input type="radio" name="f-angle-od" id="f-angle-od-ant-insert" value="Open with anterior iris insertion"><label for="f-angle-od-ant-insert">Open with anterior iris insertion</label></div>
-                    <div class="radio-option"><input type="radio" name="f-angle-od" id="f-angle-od-dysgenetic" value="Dysgenetic angle"><label for="f-angle-od-dysgenetic">Dysgenetic angle</label></div>
+                    <div class="radio-option"><input type="radio" name="f-angle-od" id="f-angle-od-ant" value="Open with anterior iris insertion"><label for="f-angle-od-ant">Open with anterior iris insertion</label></div>
+                    <div class="radio-option"><input type="radio" name="f-angle-od" id="f-angle-od-dys" value="Dysgenetic angle"><label for="f-angle-od-dys">Dysgenetic angle</label></div>
                   </div>
                 </div>
                 <div class="bi-field"><label>Angle Description</label><input type="text" id="f-gonio-desc-od" placeholder="describe angle findings…"></div>
@@ -1910,8 +1883,8 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
                   <div class="bi-radio radio-group">
                     <div class="radio-option"><input type="radio" name="f-angle-os" id="f-angle-os-open" value="Open"><label for="f-angle-os-open">Open</label></div>
                     <div class="radio-option"><input type="radio" name="f-angle-os" id="f-angle-os-closed" value="Closed"><label for="f-angle-os-closed">Closed</label></div>
-                    <div class="radio-option"><input type="radio" name="f-angle-os" id="f-angle-os-ant-insert" value="Open with anterior iris insertion"><label for="f-angle-os-ant-insert">Open with anterior iris insertion</label></div>
-                    <div class="radio-option"><input type="radio" name="f-angle-os" id="f-angle-os-dysgenetic" value="Dysgenetic angle"><label for="f-angle-os-dysgenetic">Dysgenetic angle</label></div>
+                    <div class="radio-option"><input type="radio" name="f-angle-os" id="f-angle-os-ant" value="Open with anterior iris insertion"><label for="f-angle-os-ant">Open with anterior iris insertion</label></div>
+                    <div class="radio-option"><input type="radio" name="f-angle-os" id="f-angle-os-dys" value="Dysgenetic angle"><label for="f-angle-os-dys">Dysgenetic angle</label></div>
                   </div>
                 </div>
                 <div class="bi-field"><label>Angle Description</label><input type="text" id="f-gonio-desc-os" placeholder="describe angle findings…"></div>
@@ -2026,23 +1999,20 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
       <div class="form-card">
         <div class="form-card-title">Upload</div>
         <div class="upload-zone" id="upload-zone-main"
-          onclick="document.getElementById('img-file-main').click()"
+          onclick="document.getElementById('img-file-input-main').click()"
           ondragover="event.preventDefault();this.classList.add('drag-over')"
           ondragleave="this.classList.remove('drag-over')"
           ondrop="handleImageDrop(event,'main')">
-          <input type="file" id="img-file-main" accept="image/*" multiple style="display:none"
-            onchange="onFilesChosen(event,'main')">
+          <input type="file" id="img-file-input-main" accept="image/*" multiple capture="environment"
+            onchange="handleImageSelect(event,'main')">
           <div class="upload-zone-icon">📷</div>
-          <div class="upload-zone-text">Tap to upload a photo</div>
-          <div class="upload-zone-sub">Choose from gallery, camera or hard disc</div>
+          <div class="upload-zone-text">Tap to take photo or choose from gallery</div>
+          <div class="upload-zone-sub">JPG, PNG — multiple files supported</div>
+          <div class="upload-progress" id="upload-progress-main">
+            <div class="upload-progress-bar" id="upload-bar-main" style="width:0%"></div>
+          </div>
         </div>
-      </div>
-      <div class="form-card" id="image-grid-card-main" style="display:none">
-        <div class="form-card-title" style="display:flex;align-items:center;justify-content:space-between">
-          <span>Uploaded Images</span>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('image-grid-card-main').style.display='none';document.getElementById('upload-zone-main').style.display=''">+ Add More</button>
-        </div>
-        <div class="image-grid" id="image-grid-main"></div>
+        <div id="upload-status" style="margin-top:10px;font-size:13px;color:var(--text-dim);min-height:20px"></div>
       </div>
     </div>
 
@@ -2050,8 +2020,6 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
     <!-- ═══ PATIENT CHART ═══ -->
     <div id="view-chart" class="hidden">
       <button class="chart-back" onclick="showView('patients')">← All Patients</button>
-
-      <!-- TOP: Demographics -->
       <div class="chart-demo-panel">
         <div class="chart-avatar" id="chart-avatar">—</div>
         <div style="flex:1;min-width:0">
@@ -2062,47 +2030,33 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
           <button class="btn btn-secondary btn-sm" onclick="openEditPatientFromChart()">✎ Edit Demographics</button>
         </div>
       </div>
-
-      <!-- MIDDLE: 5 category boxes with dropdowns -->
       <div class="chart-cats">
         <div class="chart-cat-box">
           <div class="chart-cat-label">History</div>
           <div class="chart-cat-count" id="cc-hist-count">0</div>
-          <select class="chart-cat-select" id="cc-hist-sel" onchange="chartSelect('hist',this.value)">
-            <option value="">— select —</option>
-          </select>
+          <select class="chart-cat-select" id="cc-hist-sel" onchange="chartSelect('hist',this.value)"><option value="">— select —</option></select>
         </div>
         <div class="chart-cat-box">
           <div class="chart-cat-label">Preop Exam</div>
           <div class="chart-cat-count" id="cc-exam-count">0</div>
-          <select class="chart-cat-select" id="cc-exam-sel" onchange="chartSelect('exam',this.value)">
-            <option value="">— select —</option>
-          </select>
+          <select class="chart-cat-select" id="cc-exam-sel" onchange="chartSelect('exam',this.value)"><option value="">— select —</option></select>
         </div>
         <div class="chart-cat-box">
           <div class="chart-cat-label">Operations</div>
           <div class="chart-cat-count" id="cc-op-count">0</div>
-          <select class="chart-cat-select" id="cc-op-sel" onchange="chartSelect('op',this.value)">
-            <option value="">— select —</option>
-          </select>
+          <select class="chart-cat-select" id="cc-op-sel" onchange="chartSelect('op',this.value)"><option value="">— select —</option></select>
         </div>
         <div class="chart-cat-box">
           <div class="chart-cat-label">Follow-ups</div>
           <div class="chart-cat-count" id="cc-fup-count">0</div>
-          <select class="chart-cat-select" id="cc-fup-sel" onchange="chartSelect('fup',this.value)">
-            <option value="">— select —</option>
-          </select>
+          <select class="chart-cat-select" id="cc-fup-sel" onchange="chartSelect('fup',this.value)"><option value="">— select —</option></select>
         </div>
         <div class="chart-cat-box">
           <div class="chart-cat-label">Images</div>
           <div class="chart-cat-count" id="cc-img-count">0</div>
-          <select class="chart-cat-select" id="cc-img-sel" onchange="chartSelect('img',this.value)">
-            <option value="">— select —</option>
-          </select>
+          <select class="chart-cat-select" id="cc-img-sel" onchange="chartSelect('img',this.value)"><option value="">— select —</option></select>
         </div>
       </div>
-
-      <!-- BOTTOM: dynamic record / form panel -->
       <div class="chart-bottom">
         <div class="chart-bottom-header">
           <span class="chart-bottom-title" id="chart-bottom-title">Select a record above</span>
@@ -2123,17 +2077,13 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
 <div id="sync-bar"><div class="sync-dot"></div><span class="sync-msg" id="sync-msg"></span></div>
 </div><!-- /app -->
 
-<!-- PHOTO PICKER POPUP -->
-<!-- PHOTO DESCRIPTION MODAL -->
 <div id="photo-picker-overlay" class="photo-picker-overlay" style="display:none">
   <div class="photo-picker-sheet">
     <div class="photo-picker-title">📎 Add Photo Description</div>
     <div id="picker-preview-strip" class="picker-preview-strip"></div>
     <div id="picker-file-count" class="picker-file-count"></div>
     <div class="picker-desc-label">Short description (optional)</div>
-    <input id="picker-desc-input" class="picker-desc-input" type="text"
-      placeholder="e.g. Right biometry, Left gonioscopy…"
-      onkeydown="if(event.key==='Enter'){event.preventDefault();confirmUpload()}">
+    <input id="picker-desc-input" class="picker-desc-input" type="text" placeholder="e.g. Right biometry, Left gonioscopy…" onkeydown="if(event.key==='Enter'){event.preventDefault();confirmUpload()}">
     <div class="picker-quick-tags">
       <span class="picker-tag" onclick="setTag(this,'Right biometry')">Right biometry</span>
       <span class="picker-tag" onclick="setTag(this,'Left biometry')">Left biometry</span>
@@ -2143,9 +2093,6 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
       <span class="picker-tag" onclick="setTag(this,'Left anterior segment')">Left ant. segment</span>
       <span class="picker-tag" onclick="setTag(this,'Right fundus')">Right fundus</span>
       <span class="picker-tag" onclick="setTag(this,'Left fundus')">Left fundus</span>
-      <span class="picker-tag" onclick="setTag(this,'Right OCT')">Right OCT</span>
-      <span class="picker-tag" onclick="setTag(this,'Left OCT')">Left OCT</span>
-      <span class="picker-tag" onclick="setTag(this,'Corneal topography')">Corneal topography</span>
       <span class="picker-tag" onclick="setTag(this,'Post-op day 1')">Post-op day 1</span>
       <span class="picker-tag" onclick="setTag(this,'Post-op week 1')">Post-op week 1</span>
       <span class="picker-tag" onclick="setTag(this,'Post-op month 1')">Post-op month 1</span>
@@ -2213,37 +2160,18 @@ function showView(v){
   document.getElementById('view-'+v).classList.remove('hidden');
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
   const n=document.getElementById('nav-'+v);if(n)n.classList.add('active');
-  const titles={dashboard:'Dashboard',patients:'Patients',chart:'Patient Chart','upload-images':'Upload Images','new-patient':'New Patient','new-history':'History & Systemic Diseases','new-examination':'Preoperative Examination','new-surgery':'Operation Record','new-followup':'Follow-up Visit','upload-images':'Upload Images',setup:'Setup & Configuration'};
+  const titles={dashboard:'Dashboard',patients:'Patients',chart:'Patient Chart','new-patient':'New Patient','new-history':'History & Systemic Diseases','new-examination':'Preoperative Examination','new-surgery':'Operation Record','new-followup':'Follow-up Visit','upload-images':'Upload Images',setup:'Setup & Configuration'};
   document.getElementById('topbar-title').textContent=titles[v]||'';
   const dataEntryViews=['new-examination','new-surgery','new-followup','new-history','upload-images'];
   const bar=document.getElementById('patient-lookup-bar');
   if(dataEntryViews.includes(v)){bar.classList.remove('hidden');fillActivePatientFields();}
   else{bar.classList.add('hidden');}
   if(v==='patients')renderPatientsTable();
+  if(v==='chart'){}
   if(v==='dashboard')renderDashboard();
   if(v==='new-patient')generatePID();
-  if(['new-examination','new-surgery','new-followup','new-patient'].includes(v)){refreshExaminerSelects();refreshIOLSelect();resetFormulas();setTimeout(()=>{
-    initDateDisplays();initMorphWidgets();
-    // Auto-fill today's date if field is empty
-    const today=new Date().toISOString().split('T')[0];
-    ['e-date','f-date','s-date'].forEach(id=>{const el=document.getElementById(id);if(el&&!el.value)el.value=today;});
-  },50);}
+  if(['new-examination','new-surgery','new-followup','new-patient'].includes(v)){refreshExaminerSelects();refreshIOLSelect();resetFormulas();setTimeout(()=>{initDateDisplays();initMorphWidgets();const td=new Date().toISOString().split('T')[0];['e-date','f-date','s-date'].forEach(id=>{const el=document.getElementById(id);if(el&&!el.value)el.value=td;});},50);}
   if(v==='new-followup')setTimeout(updatePostopBadge,100);
-  if(v==='upload-images') setTimeout(()=>{
-    const pid = ACTIVE_PATIENT?.PID;
-    if(!pid) return;
-    const imgs = getStoredImages(pid);
-    const gridCard = document.getElementById('image-grid-card-main');
-    const zone = document.getElementById('upload-zone-main');
-    if(imgs.length){
-      if(gridCard) gridCard.style.display = '';
-      if(zone) zone.style.display = 'none';
-    } else {
-      if(gridCard) gridCard.style.display = 'none';
-      if(zone) zone.style.display = '';
-    }
-    renderImages(pid);
-  }, 50);
 }
 
 // ─── CONFIG ───
@@ -2271,15 +2199,10 @@ function updateConnectionBadge(){
 // ─── DATA ───
 async function loadAll(){
   if(!CONFIG.webAppUrl)return;
-  // Show loading spinners while fetching
-  const tbody = document.getElementById('patients-tbody');
-  const cardlist = document.getElementById('patients-cardlist');
-  if(tbody) tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text-faint)"><span class="spinner"></span> Loading patients…</td></tr>';
-  if(cardlist) cardlist.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-faint)"><span class="spinner"></span><div style="margin-top:10px;font-size:14px">Loading patients…</div></div>';
   const[p,e,o,f,h]=await Promise.all([fetchSheet('Patients'),fetchSheet('Examinations'),fetchSheet('Operations'),fetchSheet('Followup'),fetchSheet('History')]);
   DB.patients=p;DB.examinations=e;DB.operations=o;DB.followups=f;DB.history=h;
   renderDashboard();
-  renderPatientsTable(); // refresh patients list whenever data arrives
+  renderPatientsTable();
 }
 async function fetchSheet(name){
   const res=await fetch(`${CONFIG.webAppUrl}?sheet=${name}`);
@@ -2346,44 +2269,37 @@ function renderDashboard(){
 
 // ─── PATIENTS TABLE ───
 function renderPatientsTable(filter=''){
-  const tbody = document.getElementById('patients-tbody');
-  const cardlist = document.getElementById('patients-cardlist');
-  let list = DB.patients;
+  const tbody=document.getElementById('patients-tbody');
+  const cardlist=document.getElementById('patients-cardlist');
+  let list=DB.patients;
   if(filter){const q=filter.toLowerCase();list=list.filter(p=>(String(p.PID||'').toLowerCase().includes(q)||(p.Name||'').toLowerCase().includes(q)||(p.NationalID||'').toLowerCase().includes(q)));}
-
-  if(!list.length){
-    tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state" style="padding:30px"><div class="empty-icon">◈</div><h3>No patients found</h3></div></td></tr>`;
-    if(cardlist) cardlist.innerHTML=`<div class="empty-state" style="padding:30px;text-align:center"><div class="empty-icon">◈</div><p style="color:var(--text-faint)">No patients found</p></div>`;
-    return;
-  }
-
-  // Desktop table
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state" style="padding:30px"><div class="empty-icon">◈</div><h3>No patients found</h3></div></td></tr>`;return;}
   tbody.innerHTML=list.map(p=>{
     const ec=DB.examinations.filter(x=>String(x.PID)===String(p.PID)).length;
     const oc=DB.operations.filter(x=>String(x.PID)===String(p.PID)).length;
     const fc=DB.followups.filter(x=>String(x.PID)===String(p.PID)).length;
     const age=p.DOB?calcAge(p.DOB):'—';
-    return `<tr><td class="mono">${p.PID}</td><td class="name">${p.Name||''}</td><td>${age}</td><td>${p.Sex||'—'}</td><td class="mono">${p.Phone||'—'}</td><td>${ec}</td><td>${oc}</td><td>${fc}</td><td><button class="table-action" data-pid="${p.PID}" onclick="openChart(this.dataset.pid)">Open Chart ›</button></td></tr>`;
+    return `<tr><td class="mono">${p.PID}</td><td class="name">${p.Name||''}</td><td>${age}</td><td>${p.Sex||'—'}</td><td class="mono">${p.Phone||'—'}</td><td>${ec}</td><td>${oc}</td><td>${fc}</td><td><button class="table-action" data-pid="${p.PID}" onclick="openDetail(this.dataset.pid)">View ›</button></td></tr>`;
   }).join('');
-
-  // Mobile cards
-  if(cardlist) cardlist.innerHTML=list.map(p=>{
-    const ec=DB.examinations.filter(x=>String(x.PID)===String(p.PID)).length;
-    const oc=DB.operations.filter(x=>String(x.PID)===String(p.PID)).length;
-    const fc=DB.followups.filter(x=>String(x.PID)===String(p.PID)).length;
-    const age=p.DOB?calcAge(p.DOB):'';
-    const initials=(p.Name||'?').split(' ').map(w=>w[0]||'').slice(0,2).join('').toUpperCase();
-    return `<div class="patient-card">
-      <div class="patient-card-avatar">${initials}</div>
-      <div class="patient-card-body">
-        <div class="patient-card-name">${p.Name||p.PID}</div>
-        <div class="patient-card-meta">${p.PID}${p.Sex?' · '+p.Sex:''}${age?' · '+age:''}${ec+oc+fc>0?' · '+ec+'e '+oc+'op '+fc+'fu':''}</div>
-      </div>
-      <div class="patient-card-actions">
-        <button class="btn btn-secondary btn-sm" data-pid="${p.PID}" onclick="openChart(this.dataset.pid)">Open Chart ›</button>
-      </div>
-    </div>`;
-  }).join('');
+  if(cardlist) cardlist.innerHTML=!list.length
+    ? '<div style="text-align:center;padding:30px;color:var(--text-faint)">No patients found</div>'
+    : list.map(p=>{
+        const ec=DB.examinations.filter(x=>String(x.PID)===String(p.PID)).length;
+        const oc=DB.operations.filter(x=>String(x.PID)===String(p.PID)).length;
+        const fc=DB.followups.filter(x=>String(x.PID)===String(p.PID)).length;
+        const age=p.DOB?calcAge(p.DOB):'';
+        const initials=(p.Name||'?').split(' ').map(w=>w[0]||'').slice(0,2).join('').toUpperCase();
+        return `<div class="patient-card">
+          <div class="patient-card-avatar">${initials}</div>
+          <div class="patient-card-body">
+            <div class="patient-card-name">${p.Name||p.PID}</div>
+            <div class="patient-card-meta">${p.PID}${p.Sex?' · '+p.Sex:''}${age?' · '+age:''}${ec+oc+fc>0?' · '+ec+'ex '+oc+'op '+fc+'fu':''}</div>
+          </div>
+          <div class="patient-card-actions">
+            <button class="btn btn-secondary btn-sm" data-pid="${p.PID}" onclick="openChart(this.dataset.pid)">Open Chart ›</button>
+          </div>
+        </div>`;
+      }).join('');
 }
 function filterPatients(){renderPatientsTable(document.getElementById('patient-search').value);}
 function calcAge(dob){
@@ -2549,7 +2465,7 @@ async function submitExamination(e){
   DB.examinations.push(row);
   showToast('Examination saved ✓','success');
   document.getElementById('exam-form').reset();
-  if(_chartReturnPID){ openChart(_chartReturnPID); } else { showView('patients'); }
+  showView('patients');
   pushRow('Examinations',row).catch(()=>{});
 }
 
@@ -2655,7 +2571,7 @@ async function submitFollowup(e){
   showToast('Follow-up saved ✓','success');
   document.getElementById('followup-form').reset();
   customFupComps={od:[],os:[]};['od','os'].forEach(e=>{const cc=document.getElementById('fc-custom-comps-'+e);if(cc)cc.innerHTML='';});
-  if(_chartReturnPID){ openChart(_chartReturnPID); } else { showView('patients'); }
+  showView('patients');
   pushRow('Followup',row).catch(()=>{});
 }
 
@@ -3189,7 +3105,7 @@ async function submitHistory(e){
   document.getElementById('history-form').reset();
   prevSurgeries = [];
   renderPrevSurgeries();
-  if(_chartReturnPID){ openChart(_chartReturnPID); } else { showView('patients'); }
+  showView('patients');
   pushRow('History', row).catch(()=>{});
 }
 
@@ -3323,40 +3239,6 @@ function getFupComplications(eye){
 }
 
 
-// ─── PHOTO PICKER ───
-let _photoPickerZoneId = 'main';
-
-function showPhotoPicker(zoneId){
-  _photoPickerZoneId = zoneId || 'main';
-  document.getElementById('photo-picker-overlay').style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-}
-
-function closePhotoPicker(){
-  document.getElementById('photo-picker-overlay').style.display = 'none';
-  document.body.style.overflow = '';
-}
-
-function triggerCamera(){
-  closePhotoPicker();
-  // Use camera-specific input (with capture attribute)
-  const cameraInput = document.getElementById('img-file-input-'+_photoPickerZoneId+'-camera');
-  if(cameraInput){ cameraInput.value=''; cameraInput.click(); return; }
-  // Fallback for modal zone IDs (e.g. pid-based)
-  const fallback = document.getElementById('img-file-input-cam-'+_photoPickerZoneId);
-  if(fallback){ fallback.value=''; fallback.click(); }
-}
-
-function triggerGallery(){
-  closePhotoPicker();
-  // Use gallery input (no capture attribute, supports multiple)
-  const galleryInput = document.getElementById('img-file-input-'+_photoPickerZoneId+'-gallery');
-  if(galleryInput){ galleryInput.value=''; galleryInput.click(); return; }
-  // Fallback for modal zone IDs
-  const fallback = document.getElementById('img-file-input-gal-'+_photoPickerZoneId);
-  if(fallback){ fallback.value=''; fallback.click(); }
-}
-
 // ─── IMAGE UPLOAD ───
 let currentImagePID = null;
 
@@ -3364,19 +3246,14 @@ function openImagesTab(pid){
   currentImagePID = pid;
   const tab = document.getElementById('tab-images');
   if(!tab) return;
-  const imgs = getStoredImages(pid);
-  if(!imgs.length){
-    tab.innerHTML = '<div class="empty-state" style="padding:30px"><div class="empty-icon">🖼️</div><h3>No images</h3><p>Upload photos from the Upload Images section in the sidebar.</p></div>';
-    return;
-  }
-  tab.innerHTML = '<div class="image-grid" style="margin-top:4px">'+
-    imgs.map(img=>`
-      <div class="image-thumb">
-        <img src="${img.dataUrl}" onclick="openLightbox('${img.dataUrl}')" alt="${img.desc||img.name}">
-        <div class="image-thumb-label" title="${img.desc||img.name}">${img.desc||img.name}</div>
-      </div>`).join('')+'</div>';
+  tab.innerHTML = `
+    <div id="image-grid-${pid}" style="margin-top:4px">
+      <div style="text-align:center;padding:24px;color:var(--text-faint);font-size:12.5px">
+        <span class="spinner"></span> Loading images…
+      </div>
+    </div>`;
+  loadPatientImages(pid);
 }
-
 
 async function loadPatientImages(pid){
   const grid = document.getElementById('image-grid-'+pid);
@@ -3399,185 +3276,71 @@ async function loadPatientImages(pid){
   }
 }
 
-// ─── IMAGE STORAGE (localStorage) ───
-function getStoredImages(pid){
-  try{ return JSON.parse(localStorage.getItem('pedicat_imgs_'+pid)||'[]'); }catch(e){ return []; }
-}
-function saveStoredImages(pid, imgs){
-  try{ localStorage.setItem('pedicat_imgs_'+pid, JSON.stringify(imgs)); }
-  catch(e){ console.warn('Storage full'); }
-}
-function addStoredImage(pid, name, desc, thumb){
-  const imgs = getStoredImages(pid);
-  imgs.push({name, desc, dataUrl: thumb, savedAt: new Date().toISOString()});
-  saveStoredImages(pid, imgs);
-}
-function renderImages(pid){
-  const grid = document.getElementById('image-grid-'+pid) || document.getElementById('image-grid-main');
-  if(!grid) return;
-  const imgs = getStoredImages(pid);
-  if(!imgs.length){
-    grid.innerHTML = '<div style="text-align:center;padding:28px;color:var(--text-faint);font-size:13px;grid-column:1/-1">No images yet — tap above to upload</div>';
-    return;
-  }
-  grid.innerHTML = imgs.map((img,i) => `
-    <div class="image-thumb">
-      <img src="${img.dataUrl}" onclick="openLightbox('${img.dataUrl}')" alt="${img.desc||img.name}">
-      <div class="image-thumb-label" title="${img.desc||img.name}">${img.desc||img.name}</div>
-      <button onclick="deleteStoredImage('${pid}',${i},event)" title="Remove"
-        style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.65);border:none;color:#fff;
-               border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;line-height:1">✕</button>
-    </div>`).join('');
-}
-function deleteStoredImage(pid, idx, event){
-  event.stopPropagation();
-  if(!confirm('Remove this image?')) return;
-  const imgs = getStoredImages(pid);
-  imgs.splice(idx, 1);
-  saveStoredImages(pid, imgs);
-  renderImages(pid);
-  showToast('Image removed','success');
-}
-
-// ─── PENDING FILES (description modal) ───
-let _pendingFiles = [];
-let _pendingZone = 'main';
-
-function onFilesChosen(event, zoneId){
-  const files = [...event.target.files].filter(f => f.type.startsWith('image/'));
-  event.target.value = '';
-  if(!files.length) return;
-  openDescModal(files, zoneId);
-}
-
-function handleImageDrop(event, zoneId){
+function handleImageDrop(event, pid){
   event.preventDefault();
-  document.getElementById('upload-zone-'+zoneId)?.classList.remove('drag-over');
-  const files = [...event.dataTransfer.files].filter(f => f.type.startsWith('image/'));
-  if(!files.length) return;
-  openDescModal(files, zoneId);
+  document.getElementById('upload-zone-'+pid)?.classList.remove('drag-over');
+  const files = [...event.dataTransfer.files].filter(f=>f.type.startsWith('image/'));
+  const targetPid = pid==='main' ? ACTIVE_PATIENT?.PID : pid;
+  if(!targetPid){showToast('Please select a patient first','error');return;}
+  if(files.length) uploadImages(files, targetPid, pid);
 }
 
 function handleImageSelect(event, pid){
-  onFilesChosen(event, pid);
+  const files = [...event.target.files];
+  const targetPid = pid==='main' ? ACTIVE_PATIENT?.PID : pid;
+  if(!targetPid){showToast('Please select a patient first','error');event.target.value='';return;}
+  if(files.length) uploadImages(files, targetPid, pid);
 }
 
-function openDescModal(files, zoneId){
-  const targetPid = zoneId === 'main' ? ACTIVE_PATIENT?.PID : zoneId;
-  if(!targetPid){ showToast('Please select a patient first','error'); return; }
-  _pendingFiles = files;
-  _pendingZone = zoneId;
-  const strip = document.getElementById('picker-preview-strip');
-  if(strip){
-    strip.innerHTML = '';
-    files.slice(0,5).forEach(f => {
-      const img = document.createElement('img');
-      img.className = 'picker-preview-thumb';
-      img.src = URL.createObjectURL(f);
-      strip.appendChild(img);
-    });
-  }
-  const cnt = document.getElementById('picker-file-count');
-  if(cnt) cnt.textContent = files.length === 1 ? '1 photo selected' : files.length + ' photos — one description applies to all';
-  document.getElementById('picker-desc-input').value = '';
-  document.querySelectorAll('.picker-tag').forEach(t => t.classList.remove('sel'));
-  document.getElementById('photo-picker-overlay').style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-  setTimeout(() => document.getElementById('picker-desc-input').focus(), 80);
-}
-
-function setTag(el, text){
-  document.querySelectorAll('.picker-tag').forEach(t => t.classList.remove('sel'));
-  el.classList.add('sel');
-  document.getElementById('picker-desc-input').value = text;
-}
-
-function cancelUpload(){
-  _pendingFiles = [];
-  document.getElementById('photo-picker-overlay').style.display = 'none';
-  document.body.style.overflow = '';
-}
-
-function confirmUpload(){
-  if(!_pendingFiles.length) return;
-  const desc = document.getElementById('picker-desc-input').value.trim();
-  const zid = _pendingZone;
-  const pid = zid === 'main' ? ACTIVE_PATIENT?.PID : zid;
-  if(!pid){ showToast('Please select a patient first','error'); cancelUpload(); return; }
-  document.getElementById('photo-picker-overlay').style.display = 'none';
-  document.body.style.overflow = '';
-  saveImages([..._pendingFiles], pid, zid, desc);
-  _pendingFiles = [];
-}
-
-async function saveImages(files, pid, zid, description){
-  const desc = (description||'').trim();
-  let saved = 0;
-  // Show saving indicator
-  const zone = document.getElementById('upload-zone-'+zid);
-  if(zone){ zone.querySelector('.upload-zone-icon').textContent = '⏳'; zone.querySelector('.upload-zone-text').textContent = 'Saving…'; }
-
-  for(let i = 0; i < files.length; i++){
-    const file = files[i];
-    try{
-      const dataUrl = await new Promise((res, rej) => {
-        const fr = new FileReader();
-        fr.onload = e => res(e.target.result);
-        fr.onerror = () => rej(new Error('Read failed'));
-        fr.readAsDataURL(file);
+async function uploadImages(files, pid, zoneId){
+  const zid = zoneId || pid;
+  const progress = document.getElementById('upload-progress-'+zid);
+  const bar = document.getElementById('upload-bar-'+zid);
+  const statusEl = document.getElementById('upload-status');
+  if(statusEl) statusEl.textContent = 'Uploading '+files.length+' image'+(files.length!==1?'s':'')+'…';
+  if(progress) progress.style.display = 'block';
+  let done = 0;
+  for(const file of files){
+    try {
+      const b64 = await fileToBase64(file);
+      const caption = document.getElementById('img-caption')?.value.trim() || '';
+      await fetch(CONFIG.webAppUrl, {
+        method:'POST',
+        mode:'no-cors',
+        body: JSON.stringify({
+          action:'uploadImage',
+          pid: pid,
+          filename: (caption ? caption+'_' : '') + file.name,
+          mimeType: file.type,
+          data: b64
+        })
       });
-      // Resize to thumbnail for storage
-      const thumb = await new Promise(res => {
-        const img = new Image();
-        img.onload = () => {
-          const MAX = 400, scale = Math.min(1, MAX/Math.max(img.width||1, img.height||1));
-          const w = Math.max(1,Math.round(img.width*scale)), h = Math.max(1,Math.round(img.height*scale));
-          try{
-            const cv = document.createElement('canvas');
-            cv.width=w; cv.height=h;
-            cv.getContext('2d').drawImage(img,0,0,w,h);
-            res(cv.toDataURL('image/jpeg',0.8));
-          }catch(e){ res(dataUrl); }
-        };
-        img.onerror = () => res(dataUrl);
-        img.src = dataUrl;
-      });
-
-      const label = desc ? (files.length>1 ? desc+' ('+(i+1)+')' : desc) : file.name.replace(/\.[^.]+$/,'');
-      addStoredImage(pid, file.name, label, thumb);
-      saved++;
-
-      // Show grid immediately after each file
-      renderImages(pid);
-      const gc = document.getElementById('image-grid-card-main');
-      if(gc) gc.style.display = '';
-      if(zone) zone.style.display = 'none';
-
-      // Also refresh chart image dropdown if chart is open
-      if(_chartPID === pid) chartBuildDropdowns(pid);
-
-      // Fire-and-forget to Google Drive
-      const b64 = dataUrl.split(',')[1]||'';
-      fetch(CONFIG.webAppUrl,{method:'POST',mode:'no-cors',body:JSON.stringify({
-        action:'uploadImage', pid, filename:label, originalFilename:file.name, mimeType:file.type, data:b64
-      })}).catch(()=>{});
-
-    }catch(err){
-      console.error('saveImages error:', file.name, err);
-      showToast('Could not save '+file.name,'error');
-      // Always restore zone on error
-      if(zone){ zone.querySelector('.upload-zone-icon').textContent = '📷'; zone.querySelector('.upload-zone-text').textContent = 'Tap to upload a photo'; zone.style.display = ''; }
+      done++;
+      if(bar) bar.style.width = Math.round(done/files.length*100)+'%';
+    } catch(e) {
+      console.error('Upload failed',e);
     }
   }
+  // wait briefly then reload grid
+  await new Promise(r=>setTimeout(r, 2000));
+  if(progress) progress.style.display = 'none';
+  if(bar) bar.style.width = '0%';
+  const statusEl2 = document.getElementById('upload-status');
+  if(statusEl2) statusEl2.textContent = '';
+  const captionEl = document.getElementById('img-caption');
+  if(captionEl) captionEl.value = '';
+  // if modal is open on this patient, refresh image grid
+  if(currentImagePID === pid) loadPatientImages(pid);
+  showToast(done+' image'+(done!==1?'s':'')+' uploaded ✓','success');
+}
 
-  // Restore zone for modal (compact add-more)
-  if(zone && zid !== 'main'){
-    zone.style.display = '';
-    zone.querySelector('.upload-zone-icon').textContent = '➕';
-    zone.querySelector('.upload-zone-text').textContent = 'Tap to add more photos';
-  }
-
-  if(saved > 0) showToast(saved+' photo'+(saved!==1?'s':'')+' saved ✓','success');
+function fileToBase64(file){
+  return new Promise((res,rej)=>{
+    const r = new FileReader();
+    r.onload = ()=> res(r.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
 }
 
 function openLightbox(url){
@@ -3618,6 +3381,7 @@ document.querySelectorAll('.nav-item').forEach(el=>{
 
 // ─── PATIENT CHART ENGINE ───
 let _chartPID = null;
+let _chartReturnPID = null;
 window._chartData = {};
 
 function openChart(pid){
@@ -3626,8 +3390,6 @@ function openChart(pid){
   _chartPID = pid;
   ACTIVE_PATIENT = p;
   fillActivePatientFields();
-
-  // Demographics panel
   const age = p.DOB ? calcAge(p.DOB) : '—';
   const initials = (p.Name||'?').split(' ').map(w=>w[0]||'').slice(0,2).join('').toUpperCase();
   document.getElementById('chart-avatar').textContent = initials;
@@ -3636,322 +3398,247 @@ function openChart(pid){
   if(p.DOB) meta += ' · DOB: '+new Date(p.DOB).toLocaleDateString();
   if(p.Phone) meta += '<br>📞 '+p.Phone;
   if(p.NationalID) meta += ' · ID: '+p.NationalID;
-  if(p.Referring) meta += ' · Ref: '+p.Referring;
-  if(p.Address) meta += '<br>📍 '+p.Address;
   document.getElementById('chart-meta').innerHTML = meta;
-
-  // Build dropdowns
   chartBuildDropdowns(pid);
-
-  // Reset bottom panel
   chartResetBottom();
   showView('chart');
 }
 
+function chartBuildDropdowns(pid){
+  const hists=(DB.history||[]).filter(x=>String(x.PID)===String(pid)).sort((a,b)=>new Date(b.EntryDate)-new Date(a.EntryDate));
+  const exams=DB.examinations.filter(x=>String(x.PID)===String(pid)).sort((a,b)=>new Date(b.DateOfExam)-new Date(a.DateOfExam));
+  const ops=DB.operations.filter(x=>String(x.PID)===String(pid)).sort((a,b)=>new Date(b.DateOfOp)-new Date(a.DateOfOp));
+  const fups=DB.followups.filter(x=>String(x.PID)===String(pid)).sort((a,b)=>new Date(b.DateOfExam)-new Date(a.DateOfExam));
+  const imgs=JSON.parse(localStorage.getItem('pedicat_imgs_'+pid)||'[]');
+  window._chartData={hists,exams,ops,fups,imgs};
+  const fmt=d=>d?new Date(d).toLocaleDateString():'No date';
+  function build(selId,cntId,records,labelFn){
+    const sel=document.getElementById(selId);
+    const cnt=document.getElementById(cntId);
+    if(!sel||!cnt)return;
+    cnt.textContent=records.length;
+    sel.innerHTML='<option value="">— select —</option>'+
+      records.map((r,i)=>`<option value="${i}">${labelFn(r,i)}</option>`).join('')+
+      '<option value="__new__">＋ Add New</option>';
+    sel.value='';
+  }
+  build('cc-hist-sel','cc-hist-count',hists,r=>fmt(r.EntryDate));
+  build('cc-exam-sel','cc-exam-count',exams,r=>fmt(r.DateOfExam)+(r.EUA==='Yes'?' (EUA)':''));
+  build('cc-op-sel','cc-op-count',ops,r=>fmt(r.DateOfOp)+(r.Eye?' · '+r.Eye:'')+(r.OperationName?' · '+r.OperationName:''));
+  build('cc-fup-sel','cc-fup-count',fups,r=>fmt(r.DateOfExam)+(r.VisitType?' · '+r.VisitType:''));
+  build('cc-img-sel','cc-img-count',imgs,(r,i)=>r.desc||r.name||('Image '+(i+1)));
+}
+
+function chartResetBottom(){
+  document.getElementById('chart-bottom-title').textContent='Select a record above';
+  document.getElementById('chart-bottom-actions').innerHTML='';
+  document.getElementById('chart-bottom-body').innerHTML=`<div class="chart-empty"><div class="chart-empty-icon">☝️</div><div class="chart-empty-msg">Choose a date from any box above to view that record,<br>or select <strong>＋ Add New</strong> to enter new data.</div></div>`;
+  ['cc-hist-sel','cc-exam-sel','cc-op-sel','cc-fup-sel','cc-img-sel'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+}
+
+function chartSelect(type,val){
+  if(!val)return;
+  if(val==='__new__'){chartShowNewForm(type,_chartPID);return;}
+  const idx=parseInt(val);
+  const map={hist:'hists',exam:'exams',op:'ops',fup:'fups',img:'imgs'};
+  const record=window._chartData[map[type]]?.[idx];
+  if(!record)return;
+  chartShowRecord(type,record,idx);
+}
+
+function chartShowRecord(type,record,idx){
+  const titles={hist:'History Entry',exam:'Preoperative Examination',op:'Operation Record',fup:'Follow-up Visit',img:'Clinical Image'};
+  document.getElementById('chart-bottom-title').textContent=titles[type]||type;
+  document.getElementById('chart-bottom-actions').innerHTML=type!=='img'
+    ?`<button class="btn btn-secondary btn-sm" style="color:var(--amber);border-color:rgba(247,183,49,.4)" onclick="chartEditRecord('${type}',${idx})">✎ Edit / Correct</button>`:'';
+  const body=document.getElementById('chart-bottom-body');
+  const drL=pairs=>pairs.filter(([,v])=>v).map(([k,v])=>dr(k,v)).join('');
+  if(type==='img'){
+    body.innerHTML=`<div style="text-align:center;padding:20px"><img src="${record.dataUrl}" style="max-width:100%;max-height:55vh;border-radius:10px;cursor:zoom-in;box-shadow:0 4px 24px rgba(0,0,0,.4)" onclick="openLightbox('${record.dataUrl}')"><div style="margin-top:8px;font-size:13px;color:var(--text-dim)">${record.desc||record.name||''}</div></div>`;
+    return;
+  }
+  if(type==='hist'){
+    body.innerHTML=drL([['Consanguinity',record.Consanguinity],['Family History',record.FamilyHistory],['Family Members',record.FamilyHistoryDesc],['Blunt Trauma',record.BluntTrauma],['Penetrating Trauma',record.PenetratingTrauma],['Previous Surgeries',record.PreviousSurgeries],['Subluxation Syndrome',record.SubluxationSyndrome==='Yes'?record.SubluxSyndromeDetails||'Yes':''],['Cardiac',record.CardiacDisease==='Yes'?record.CardiacDetails:''],['Neurological',record.NeurologicalDisease==='Yes'?record.NeurologicalDetails:''],['Hepatic',record.HepaticDisease==='Yes'?record.HepaticDetails:''],['Renal',record.RenalDisease==='Yes'?record.RenalDetails:''],['Medications',record.Medications]]);
+  } else if(type==='exam'){
+    body.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border-dim);border-radius:8px;overflow:hidden;margin-bottom:14px"><div style="padding:10px 14px;border-right:1px solid var(--border-dim);background:rgba(247,183,49,.04)"><div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--amber);margin-bottom:8px">OD — RIGHT</div>${drL([['VA',record.VA_OD],['IOP',record.IOP_OD?record.IOP_OD+' mmHg':''],['Cornea',record.CorneaOpacity_OD],['Lens',record.LensStatus_OD],['Axial Length',record.AxialLength_OD?record.AxialLength_OD+' mm':''],['Angle',record.Angle]])}</div><div style="padding:10px 14px;background:rgba(100,160,255,.04)"><div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:#7ab4ff;margin-bottom:8px">OS — LEFT</div>${drL([['VA',record.VA_OS],['IOP',record.IOP_OS?record.IOP_OS+' mmHg':''],['Cornea',record.CorneaOpacity_OS],['Lens',record.LensStatus_OS],['Axial Length',record.AxialLength_OS?record.AxialLength_OS+' mm':''],['Angle',record.AngleOS]])}</div></div>${drL([['EUA',record.EUA],['Examiner',record.Examiner],['Comments',record.Comments]])}`;
+  } else if(type==='op'){
+    body.innerHTML=drL([['Date',record.DateOfOp?new Date(record.DateOfOp).toLocaleDateString():''],['Eye',record.Eye],['Operation',record.OperationName],['Surgeon',record.Examiner],['Anterior Capsule',record.AnteriorCapsule],['Posterior Capsule',record.PosteriorCapsule],['IOL',record.IOL==='Yes'?`${record.IOLType||''} ${record.IOLPower?record.IOLPower+'D':''}`:'Aphakic'],['Complications',record.OtherComplications],['Comments',record.Comments]]);
+  } else if(type==='fup'){
+    body.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border-dim);border-radius:8px;overflow:hidden;margin-bottom:14px"><div style="padding:10px 14px;border-right:1px solid var(--border-dim);background:rgba(247,183,49,.04)"><div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--amber);margin-bottom:8px">OD — RIGHT</div>${drL([['VA',record.VA_OD],['IOP',record.IOP_OD?record.IOP_OD+' mmHg':''],['Lens',record.LensStatus_OD]])}</div><div style="padding:10px 14px;background:rgba(100,160,255,.04)"><div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:#7ab4ff;margin-bottom:8px">OS — LEFT</div>${drL([['VA',record.VA_OS],['IOP',record.IOP_OS?record.IOP_OS+' mmHg':''],['Lens',record.LensStatus_OS]])}</div></div>${drL([['EUA',record.EUA],['Visit Type',record.VisitType],['Examiner',record.Examiner],['Comments',record.Comments]])}`;
+  }
+}
+
+function chartShowNewForm(type,pid){
+  if(type==='img'){
+    const ipid=pid||_chartPID;
+    document.getElementById('chart-bottom-title').textContent='Upload Images';
+    document.getElementById('chart-bottom-actions').innerHTML='';
+    document.getElementById('chart-bottom-body').innerHTML=`<div class="upload-zone" onclick="document.getElementById('img-file-chart').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleImageDrop(event,'${ipid}')"><input type="file" id="img-file-chart" accept="image/*" multiple style="display:none" onchange="onFilesChosen(event,'${ipid}')"><div class="upload-zone-icon">📷</div><div class="upload-zone-text">Tap to upload a photo</div></div><div class="image-grid" id="image-grid-${ipid}" style="margin-top:12px"></div>`;
+    renderImages(ipid);
+    return;
+  }
+  const viewMap={hist:'new-history',exam:'new-examination',op:'new-surgery',fup:'new-followup'};
+  _chartReturnPID=_chartPID;
+  showView(viewMap[type]);
+  setTimeout(()=>{
+    const view=document.getElementById('view-'+viewMap[type]);
+    if(!view)return;
+    view.querySelectorAll('.chart-back-btn').forEach(el=>el.remove());
+    const btn=document.createElement('button');
+    btn.className='chart-back chart-back-btn';
+    btn.innerHTML='← Back to Patient Chart';
+    btn.onclick=()=>{if(_chartReturnPID)openChart(_chartReturnPID);};
+    view.insertBefore(btn,view.firstChild);
+  },30);
+}
+
+function chartEditRecord(type,idx){
+  const map={hist:'hists',exam:'exams',op:'ops',fup:'fups'};
+  const record=window._chartData[map[type]]?.[idx];
+  if(!record)return;
+  chartShowNewForm(type,_chartPID);
+  const dateMap={exam:'e-date',op:'s-date',fup:'f-date'};
+  const dateVal=record.DateOfExam||record.DateOfOp||record.EntryDate||'';
+  setTimeout(()=>{
+    if(dateMap[type]&&dateVal){const el=document.getElementById(dateMap[type]);if(el)el.value=dateVal.split('T')[0];}
+    const viewMap={hist:'view-new-history',exam:'view-new-examination',op:'view-new-surgery',fup:'view-new-followup'};
+    const view=document.getElementById(viewMap[type]);
+    if(view&&!view.querySelector('.chart-edit-notice')){
+      const n=document.createElement('div');
+      n.className='chart-edit-notice';
+      n.style.cssText='background:rgba(247,183,49,.1);border:1px solid rgba(247,183,49,.3);border-radius:9px;padding:11px 16px;margin-bottom:14px;font-size:13px;color:var(--amber);display:flex;align-items:center;gap:10px';
+      n.innerHTML=`<span style="font-size:18px">✎</span><div>Editing record from ${dateVal?new Date(dateVal).toLocaleDateString():''}. Update fields and save.</div>`;
+      const back=view.querySelector('.chart-back-btn');
+      if(back)back.after(n);else view.insertBefore(n,view.firstChild);
+    }
+  },100);
+}
+
 function openEditPatientFromChart(){
-  if(!_chartPID) return;
-  // Simple inline edit: show edit modal
-  const p = DB.patients.find(x=>String(x.PID)===String(_chartPID));
-  if(!p) return;
-  // Build a quick edit form in the bottom panel
-  document.getElementById('chart-bottom-title').textContent = 'Edit Patient Demographics';
-  document.getElementById('chart-bottom-actions').innerHTML = '';
-  document.getElementById('chart-bottom-body').innerHTML = `
+  if(!_chartPID)return;
+  const p=DB.patients.find(x=>String(x.PID)===String(_chartPID));
+  if(!p)return;
+  document.getElementById('chart-bottom-title').textContent='Edit Patient Demographics';
+  document.getElementById('chart-bottom-actions').innerHTML='';
+  document.getElementById('chart-bottom-body').innerHTML=`
     <div class="form-grid cols-3" style="margin-bottom:14px">
-      <div class="form-group span-2"><label>Full Name</label><input type="text" id="ce-name" value="${p.Name||''}" placeholder="Full name"></div>
+      <div class="form-group span-2"><label>Full Name</label><input type="text" id="ce-name" value="${p.Name||''}"></div>
       <div class="form-group"><label>National ID</label><input type="text" id="ce-natid" value="${p.NationalID||''}"></div>
       <div class="form-group"><label>Date of Birth</label><input type="date" id="ce-dob" value="${p.DOB||''}"></div>
-      <div class="form-group"><label>Sex</label>
-        <div class="radio-group">
-          <div class="radio-option"><input type="radio" name="ce-sex" id="ce-sex-m" value="Male" ${p.Sex==='Male'?'checked':''}><label for="ce-sex-m">Male</label></div>
-          <div class="radio-option"><input type="radio" name="ce-sex" id="ce-sex-f" value="Female" ${p.Sex==='Female'?'checked':''}><label for="ce-sex-f">Female</label></div>
-        </div>
-      </div>
-      <div class="form-group"><label>Date of Registration</label><input type="date" id="ce-regdate" value="${p.DateOfRegistration||''}"></div>
+      <div class="form-group"><label>Sex</label><div class="radio-group"><div class="radio-option"><input type="radio" name="ce-sex" id="ce-sex-m" value="Male" ${p.Sex==='Male'?'checked':''}><label for="ce-sex-m">Male</label></div><div class="radio-option"><input type="radio" name="ce-sex" id="ce-sex-f" value="Female" ${p.Sex==='Female'?'checked':''}><label for="ce-sex-f">Female</label></div></div></div>
       <div class="form-group"><label>Phone</label><input type="tel" id="ce-phone" value="${p.Phone||''}"></div>
       <div class="form-group"><label>Alternate Phone</label><input type="tel" id="ce-phone2" value="${p.AlternatePhone||''}"></div>
-      <div class="form-group"><label>Referring Physician</label><input type="text" id="ce-referring" value="${p.Referring||''}"></div>
       <div class="form-group span-2"><label>Address</label><input type="text" id="ce-address" value="${p.Address||''}"></div>
-      <div class="form-group"><label>Notes</label><input type="text" id="ce-others" value="${p.Others||''}"></div>
+      <div class="form-group"><label>Referring</label><input type="text" id="ce-referring" value="${p.Referring||''}"></div>
     </div>
-    <div class="form-actions" style="margin-top:0;padding-top:14px">
+    <div style="display:flex;gap:8px;margin-top:4px">
       <button class="btn btn-secondary" onclick="chartResetBottom()">Cancel</button>
       <button class="btn btn-primary" onclick="chartSaveDemographics()">Save Changes</button>
     </div>`;
 }
 
 function chartSaveDemographics(){
-  const pid = _chartPID;
-  const idx = DB.patients.findIndex(x=>String(x.PID)===String(pid));
-  if(idx<0) return;
-  const sexEl = document.querySelector('input[name="ce-sex"]:checked');
-  DB.patients[idx] = {...DB.patients[idx],
-    Name: document.getElementById('ce-name').value.trim(),
-    NationalID: document.getElementById('ce-natid').value.trim(),
-    DOB: document.getElementById('ce-dob').value,
-    DateOfRegistration: document.getElementById('ce-regdate').value,
-    Sex: sexEl ? sexEl.value : DB.patients[idx].Sex,
-    Phone: document.getElementById('ce-phone').value.trim(),
-    AlternatePhone: document.getElementById('ce-phone2').value.trim(),
-    Referring: document.getElementById('ce-referring').value.trim(),
-    Address: document.getElementById('ce-address').value.trim(),
-    Others: document.getElementById('ce-others').value.trim(),
+  const pid=_chartPID;
+  const idx=DB.patients.findIndex(x=>String(x.PID)===String(pid));
+  if(idx<0)return;
+  const sexEl=document.querySelector('input[name="ce-sex"]:checked');
+  DB.patients[idx]={...DB.patients[idx],
+    Name:document.getElementById('ce-name').value.trim(),
+    NationalID:document.getElementById('ce-natid').value.trim(),
+    DOB:document.getElementById('ce-dob').value,
+    Sex:sexEl?sexEl.value:DB.patients[idx].Sex,
+    Phone:document.getElementById('ce-phone').value.trim(),
+    AlternatePhone:document.getElementById('ce-phone2').value.trim(),
+    Address:document.getElementById('ce-address').value.trim(),
+    Referring:document.getElementById('ce-referring').value.trim(),
   };
-  pushRow('Patients_Update', DB.patients[idx]).catch(()=>{});
+  pushRow('Patients_Update',DB.patients[idx]).catch(()=>{});
   showToast('Patient updated ✓','success');
-  openChart(pid); // refresh
+  openChart(pid);
 }
-
-function chartBuildDropdowns(pid){
-  const hists = (DB.history||[]).filter(x=>String(x.PID)===String(pid)).sort((a,b)=>new Date(b.EntryDate)-new Date(a.EntryDate));
-  const exams = DB.examinations.filter(x=>String(x.PID)===String(pid)).sort((a,b)=>new Date(b.DateOfExam)-new Date(a.DateOfExam));
-  const ops   = DB.operations.filter(x=>String(x.PID)===String(pid)).sort((a,b)=>new Date(b.DateOfOp)-new Date(a.DateOfOp));
-  const fups  = DB.followups.filter(x=>String(x.PID)===String(pid)).sort((a,b)=>new Date(b.DateOfExam)-new Date(a.DateOfExam));
-  const imgs  = JSON.parse(localStorage.getItem('pedicat_imgs_'+pid)||'[]');
-  window._chartData = {hists, exams, ops, fups, imgs};
-
-  const fmt = d => d ? new Date(d).toLocaleDateString() : 'No date';
-
-  function build(selId, cntId, records, labelFn){
-    const sel = document.getElementById(selId);
-    const cnt = document.getElementById(cntId);
-    if(!sel||!cnt) return;
-    cnt.textContent = records.length;
-    sel.innerHTML = '<option value="">— select —</option>' +
-      records.map((r,i)=>`<option value="${i}">${labelFn(r,i)}</option>`).join('') +
-      '<option value="__new__">＋ Add New</option>';
-    sel.value = '';
-  }
-
-  build('cc-hist-sel','cc-hist-count', hists, r => fmt(r.EntryDate));
-  build('cc-exam-sel','cc-exam-count', exams, r => fmt(r.DateOfExam)+(r.EUA==='Yes'?' (EUA)':''));
-  build('cc-op-sel',  'cc-op-count',   ops,   r => fmt(r.DateOfOp)+(r.Eye?' · '+r.Eye:'')+(r.OperationName?' · '+r.OperationName:''));
-  build('cc-fup-sel', 'cc-fup-count',  fups,  r => fmt(r.DateOfExam)+(r.VisitType?' · '+r.VisitType:''));
-  build('cc-img-sel', 'cc-img-count',  imgs,  (r,i)=>r.desc||r.name||('Image '+(i+1)));
-}
-
-function chartResetBottom(){
-  document.getElementById('chart-bottom-title').textContent = 'Select a record above';
-  document.getElementById('chart-bottom-actions').innerHTML = '';
-  document.getElementById('chart-bottom-body').innerHTML = `
-    <div class="chart-empty">
-      <div class="chart-empty-icon">☝️</div>
-      <div class="chart-empty-msg">Choose a date from any box above to view that record,<br>or select <strong>＋ Add New</strong> to enter new data.</div>
-    </div>`;
-  // Reset all dropdowns
-  ['cc-hist-sel','cc-exam-sel','cc-op-sel','cc-fup-sel','cc-img-sel'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
-  });
-}
-
-function chartSelect(type, val){
-  if(!val) return;
-  const pid = _chartPID;
-  if(val === '__new__'){
-    chartShowNewForm(type, pid);
-    return;
-  }
-  const idx = parseInt(val);
-  const map = {hist:'hists',exam:'exams',op:'ops',fup:'fups',img:'imgs'};
-  const record = window._chartData[map[type]]?.[idx];
-  if(!record) return;
-  chartShowRecord(type, record, idx);
-}
-
-function chartShowRecord(type, record, idx){
-  const titles = {hist:'History Entry',exam:'Preoperative Examination',op:'Operation Record',fup:'Follow-up Visit',img:'Clinical Image'};
-  document.getElementById('chart-bottom-title').textContent = titles[type]||type;
-  document.getElementById('chart-bottom-actions').innerHTML = type!=='img'
-    ? `<button class="btn btn-secondary btn-sm" style="color:var(--amber);border-color:rgba(247,183,49,.4)" onclick="chartEditRecord('${type}',${idx})">✎ Edit / Correct</button>` : '';
-
-  const body = document.getElementById('chart-bottom-body');
-
-  if(type==='img'){
-    const ipid2 = _chartPID;
-    body.innerHTML=`
-      <div style="text-align:center;padding:10px 0 16px">
-        <img src="${record.dataUrl}" style="max-width:100%;max-height:55vh;border-radius:10px;cursor:zoom-in;box-shadow:0 4px 24px rgba(0,0,0,.4)" onclick="openLightbox('${record.dataUrl}')">
-        <div style="margin-top:8px;font-size:13.5px;color:var(--text-dim);font-family:'DM Mono',monospace">${record.desc||record.name||''}</div>
-      </div>
-      <div style="border-top:1px solid var(--border-dim);padding-top:14px;margin-top:4px">
-        <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:10px">Upload Another Photo</div>
-        <div class="upload-zone" id="upload-zone-${ipid2}"
-          onclick="document.getElementById('img-file-chart-view').click()"
-          ondragover="event.preventDefault();this.classList.add('drag-over')"
-          ondragleave="this.classList.remove('drag-over')"
-          ondrop="handleImageDrop(event,'${ipid2}')">
-          <input type="file" id="img-file-chart-view" accept="image/*" multiple style="display:none"
-            onchange="onFilesChosen(event,'${ipid2}')">
-          <div class="upload-zone-icon">➕</div>
-          <div class="upload-zone-text">Tap to add more photos</div>
-          <div class="upload-zone-sub">Choose from gallery, camera or hard disc</div>
-        </div>
-      </div>`;
-    return;
-  }
-
-  const drL = pairs => pairs.filter(([,v])=>v).map(([k,v])=>dr(k,v)).join('');
-
-  if(type==='hist'){
-    body.innerHTML = drL([
-      ['Consanguinity',record.Consanguinity],['Family History',record.FamilyHistory],
-      ['Family Members',record.FamilyHistoryMembers],['Blunt Trauma',record.BluntTrauma],
-      ['Penetrating Trauma',record.PenetratingTrauma],['Previous Surgeries',record.PreviousSurgeries],
-      ['Subluxation Syndrome',record.SubluxationSyndrome==='Yes'?record.SubluxSyndromeDetails||'Yes':''],
-      ['Cardiac',record.CardiacDisease==='Yes'?record.CardiacDetails:''],
-      ['Neurological',record.NeurologicalDisease==='Yes'?record.NeurologicalDetails:''],
-      ['Hepatic',record.HepaticDisease==='Yes'?record.HepaticDetails:''],
-      ['Renal',record.RenalDisease==='Yes'?record.RenalDetails:''],
-      ['Haematological',record.HaematologicalDisease==='Yes'?record.HaematologicalDetails:''],
-      ['Chest',record.ChestDisease==='Yes'?record.ChestDetails:''],
-      ['Other Systemic',record.OtherSystemicDisease==='Yes'?record.OtherSystemicDetails:''],
-      ['Medications',record.Medications],
-    ]);
-  } else if(type==='exam'){
-    body.innerHTML = `
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border-dim);border-radius:8px;overflow:hidden;margin-bottom:14px">
-        <div style="padding:12px 16px;border-right:1px solid var(--border-dim);background:rgba(247,183,49,.04)">
-          <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--amber);margin-bottom:10px;font-weight:500">OD — RIGHT EYE</div>
-          ${drL([['VA',record.VA_OD],['IOP',record.IOP_OD?record.IOP_OD+' mmHg':''],['Cornea',record.CorneaOpacity_OD],['Cornea Ø',record.CorneaDiamH_OD&&record.CorneaDiamV_OD?record.CorneaDiamH_OD+'×'+record.CorneaDiamV_OD+' mm':''],['CCT',record.CCT_OD?record.CCT_OD+' μm':''],['Lens',record.LensStatus_OD],['Lens Morphology',record.LensMorphology_OD],['Subluxation',record.Subluxation_OD],['Axial Length',record.AxialLength_OD?record.AxialLength_OD+' mm':''],['Fundus',record.Fundus_OD],['C/D',record.CD_OD],['Angle',record.AngleOD]])}
-        </div>
-        <div style="padding:12px 16px;background:rgba(100,160,255,.04)">
-          <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:#7ab4ff;margin-bottom:10px;font-weight:500">OS — LEFT EYE</div>
-          ${drL([['VA',record.VA_OS],['IOP',record.IOP_OS?record.IOP_OS+' mmHg':''],['Cornea',record.CorneaOpacity_OS],['Cornea Ø',record.CorneaDiamH_OS&&record.CorneaDiamV_OS?record.CorneaDiamH_OS+'×'+record.CorneaDiamV_OS+' mm':''],['CCT',record.CCT_OS?record.CCT_OS+' μm':''],['Lens',record.LensStatus_OS],['Lens Morphology',record.LensMorphology_OS],['Subluxation',record.Subluxation_OS],['Axial Length',record.AxialLength_OS?record.AxialLength_OS+' mm':''],['Fundus',record.Fundus_OS],['C/D',record.CD_OS],['Angle',record.AngleOS]])}
-        </div>
-      </div>
-      ${drL([['EUA',record.EUA],['Examiner',record.Examiner],['Syndrome',record.Syndrome],['Comments',record.Comments]])}`;
-  } else if(type==='op'){
-    body.innerHTML = drL([
-      ['Date',record.DateOfOp?new Date(record.DateOfOp).toLocaleDateString():''],
-      ['Eye',record.Eye],['Type',record.SurgeryCategory||'Cataract'],
-      ['Operation',record.OperationName],['Surgeon',record.Examiner],
-      ['Anterior Capsule',record.AnteriorCapsule],['Posterior Capsule',record.PosteriorCapsule],
-      ['Anterior Vitrectomy',record.AnteriorVitrectomy],
-      ['IOL',record.IOL==='Yes'?`${record.IOLType||''} ${record.IOLPower?record.IOLPower+'D':''} — ${record.IOLPlace||''}`:'Aphakic'],
-      ['Target Refraction',record.TargetRefraction],
-      ['Complications',record.OtherComplications],
-      ['Duration',record.Duration?record.Duration+' min':''],
-      ['Comments',record.Comments],
-    ]);
-  } else if(type==='fup'){
-    body.innerHTML = `
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border-dim);border-radius:8px;overflow:hidden;margin-bottom:14px">
-        <div style="padding:12px 16px;border-right:1px solid var(--border-dim);background:rgba(247,183,49,.04)">
-          <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--amber);margin-bottom:10px;font-weight:500">OD — RIGHT EYE</div>
-          ${drL([['VA',record.VA_OD],['Refraction',record.Sphere_OD||record.Cylinder_OD?record.Sphere_OD+' / '+record.Cylinder_OD+' × '+record.Axis_OD:''],['IOP',record.IOP_OD?record.IOP_OD+' mmHg':''],['Cornea',record.Cornea_OD],['Lens',record.LensStatus_OD],['Opacification',record.Opacification_OD],['Fundus',record.Fundus_OD],['C/D',record.CD_OD],['Angle',record.AngleOD]])}
-        </div>
-        <div style="padding:12px 16px;background:rgba(100,160,255,.04)">
-          <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:#7ab4ff;margin-bottom:10px;font-weight:500">OS — LEFT EYE</div>
-          ${drL([['VA',record.VA_OS],['Refraction',record.Sphere_OS||record.Cylinder_OS?record.Sphere_OS+' / '+record.Cylinder_OS+' × '+record.Axis_OS:''],['IOP',record.IOP_OS?record.IOP_OS+' mmHg':''],['Cornea',record.Cornea_OS],['Lens',record.LensStatus_OS],['Opacification',record.Opacification_OS],['Fundus',record.Fundus_OS],['C/D',record.CD_OS],['Angle',record.AngleOS]])}
-        </div>
-      </div>
-      ${drL([['EUA',record.EUA],['Visit Type',record.VisitType],['Examiner',record.Examiner],['Comments',record.Comments]])}`;
-  }
-}
-
-function chartShowNewForm(type, pid){
-  if(type==='img'){
-    const ipid = pid || _chartPID;
-    document.getElementById('chart-bottom-title').textContent = 'Upload Images';
-    document.getElementById('chart-bottom-actions').innerHTML = '';
-    const body = document.getElementById('chart-bottom-body');
-    body.innerHTML=`
-      <div class="upload-zone" id="upload-zone-chart-img"
-        onclick="document.getElementById('img-file-chart').click()"
-        ondragover="event.preventDefault();this.classList.add('drag-over')"
-        ondragleave="this.classList.remove('drag-over')"
-        ondrop="handleImageDrop(event,'${ipid}')">
-        <input type="file" id="img-file-chart" accept="image/*" multiple style="display:none"
-          onchange="onFilesChosen(event,'${ipid}')">
-        <div class="upload-zone-icon">📷</div>
-        <div class="upload-zone-text">Tap to upload a photo</div>
-        <div class="upload-zone-sub">Choose from gallery, camera or hard disc</div>
-      </div>
-      <div class="image-grid" id="image-grid-${ipid}" style="margin-top:12px"></div>`;
-    renderImages(ipid);
-    return;
-  }
-
-  // Instead of cloning (which causes duplicate IDs breaking radio/checkbox),
-  // show the actual form view with a back-to-chart button
-  const viewMap = {hist:'new-history', exam:'new-examination', op:'new-surgery', fup:'new-followup'};
-  const viewId = viewMap[type];
-  if(!viewId) return;
-
-  // Store chart state so we can return
-  _chartReturnPID = _chartPID;
-
-  // Add a "← Back to Chart" button to the form's cancel area
-  showView(viewId);
-
-  // Insert a prominent back button at top of the form
-  setTimeout(()=>{
-    const view = document.getElementById('view-'+viewId);
-    if(!view) return;
-    // Remove any existing back-btn
-    view.querySelectorAll('.chart-back-btn').forEach(el=>el.remove());
-    const backBtn = document.createElement('button');
-    backBtn.className = 'chart-back chart-back-btn';
-    backBtn.innerHTML = '← Back to Patient Chart';
-    backBtn.onclick = () => { if(_chartReturnPID) openChart(_chartReturnPID); };
-    view.insertBefore(backBtn, view.firstChild);
-  }, 30);
-}
-let _chartReturnPID = null;
-
-function chartEditRecord(type, idx){
-  const map = {hist:'hists', exam:'exams', op:'ops', fup:'fups'};
-  const record = window._chartData[map[type]]?.[idx];
-  if(!record) return;
-
-  // Navigate to real form view (avoids duplicate ID bug)
-  chartShowNewForm(type, _chartPID);
-
-  // Pre-fill date after view loads
-  const dateFieldMap = {exam:'e-date', op:'s-date', fup:'f-date'};
-  const dateVal = record.DateOfExam || record.DateOfOp || record.EntryDate || '';
-  const dateId = dateFieldMap[type];
-
-  setTimeout(()=>{
-    if(dateId && dateVal){
-      const el = document.getElementById(dateId);
-      if(el) el.value = dateVal.split('T')[0];
-    }
-    // Show amber editing notice at top of view
-    const view = document.getElementById('view-' + {hist:'new-history',exam:'new-examination',op:'new-surgery',fup:'new-followup'}[type]);
-    if(view){
-      const existing = view.querySelector('.chart-edit-notice-bar');
-      if(!existing){
-        const notice = document.createElement('div');
-        notice.className = 'chart-edit-notice-bar';
-        notice.style.cssText = 'background:rgba(247,183,49,.1);border:1px solid rgba(247,183,49,.3);border-radius:9px;padding:11px 16px;margin-bottom:14px;font-size:13.5px;color:var(--amber);display:flex;align-items:center;gap:10px';
-        notice.innerHTML = '<span style="font-size:20px">✎</span><div><strong>Editing record from ' + (dateVal ? new Date(dateVal).toLocaleDateString() : 'unknown date') + '</strong> — update the fields and save. A corrected entry will be added.</div>';
-        // Insert after the back button if present
-        const backBtn = view.querySelector('.chart-back-btn');
-        if(backBtn) backBtn.after(notice);
-        else view.insertBefore(notice, view.firstChild);
-      }
-    }
-  }, 80);
-}
-
 
 function toggleEUA(prefix){
-  const cb = document.getElementById(prefix+'-eua');
-  const box = document.getElementById(prefix+'-eua-box');
-  const tick = document.getElementById(prefix+'-eua-tick');
-  if(!cb) return;
-  cb.checked = !cb.checked;
-  if(cb.checked){
-    box.style.background = 'var(--amber)';
-    box.style.borderColor = 'var(--amber)';
-    tick.style.display = 'block';
-  } else {
-    box.style.background = 'transparent';
-    box.style.borderColor = 'rgba(247,183,49,.5)';
-    tick.style.display = 'none';
-  }
+  const cb=document.getElementById(prefix+'-eua');
+  const box=document.getElementById(prefix+'-eua-box');
+  const tick=document.getElementById(prefix+'-eua-tick');
+  if(!cb)return;
+  cb.checked=!cb.checked;
+  if(cb.checked){box.style.background='var(--amber)';box.style.borderColor='var(--amber)';tick.style.display='block';}
+  else{box.style.background='transparent';box.style.borderColor='rgba(247,183,49,.5)';tick.style.display='none';}
 }
+
+// Image storage
+function getStoredImages(pid){try{return JSON.parse(localStorage.getItem('pedicat_imgs_'+pid)||'[]');}catch(e){return[];}}
+function saveStoredImages(pid,imgs){try{localStorage.setItem('pedicat_imgs_'+pid,JSON.stringify(imgs));}catch(e){}}
+function addStoredImage(pid,name,desc,thumb){const imgs=getStoredImages(pid);imgs.push({name,desc,dataUrl:thumb,savedAt:new Date().toISOString()});saveStoredImages(pid,imgs);}
+function renderImages(pid){
+  const grid=document.getElementById('image-grid-'+pid)||document.getElementById('image-grid-main');
+  if(!grid)return;
+  const imgs=getStoredImages(pid);
+  if(!imgs.length){grid.innerHTML='<div style="text-align:center;padding:28px;color:var(--text-faint);font-size:13px;grid-column:1/-1">No images yet</div>';return;}
+  grid.innerHTML=imgs.map((img,i)=>`<div class="image-thumb"><img src="${img.dataUrl}" onclick="openLightbox('${img.dataUrl}')" alt="${img.desc||img.name}"><div class="image-thumb-label">${img.desc||img.name}</div><button onclick="deleteStoredImage('${pid}',${i},event)" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.65);border:none;color:#fff;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer">✕</button></div>`).join('');
+}
+function deleteStoredImage(pid,idx,event){
+  event.stopPropagation();
+  if(!confirm('Remove this image?'))return;
+  const imgs=getStoredImages(pid);imgs.splice(idx,1);saveStoredImages(pid,imgs);renderImages(pid);
+  showToast('Image removed','success');
+}
+let _pendingFiles=[];let _pendingZone='main';
+function onFilesChosen(event,zoneId){
+  const files=[...event.target.files].filter(f=>f.type.startsWith('image/'));
+  event.target.value='';if(!files.length)return;
+  _pendingFiles=files;_pendingZone=zoneId;
+  const pid=zoneId==='main'?ACTIVE_PATIENT?.PID:zoneId;
+  if(!pid){showToast('Please select a patient first','error');return;}
+  openDescModal(files,zoneId);
+}
+function handleImageDrop(event,zoneId){
+  event.preventDefault();
+  const files=[...event.dataTransfer.files].filter(f=>f.type.startsWith('image/'));
+  if(!files.length)return;openDescModal(files,zoneId);
+}
+function openDescModal(files,zoneId){
+  _pendingFiles=files;_pendingZone=zoneId;
+  const strip=document.getElementById('picker-preview-strip');
+  if(strip){strip.innerHTML='';files.slice(0,5).forEach(f=>{const img=document.createElement('img');img.className='picker-preview-thumb';img.src=URL.createObjectURL(f);strip.appendChild(img);});}
+  const cnt=document.getElementById('picker-file-count');
+  if(cnt)cnt.textContent=files.length===1?'1 photo selected':files.length+' photos selected';
+  const di=document.getElementById('picker-desc-input');if(di)di.value='';
+  document.querySelectorAll('.picker-tag').forEach(t=>t.classList.remove('sel'));
+  document.getElementById('photo-picker-overlay').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function setTag(el,text){document.querySelectorAll('.picker-tag').forEach(t=>t.classList.remove('sel'));el.classList.add('sel');document.getElementById('picker-desc-input').value=text;}
+function cancelUpload(){_pendingFiles=[];document.getElementById('photo-picker-overlay').style.display='none';document.body.style.overflow='';}
+function confirmUpload(){
+  if(!_pendingFiles.length)return;
+  const desc=document.getElementById('picker-desc-input').value.trim();
+  const pid=_pendingZone==='main'?ACTIVE_PATIENT?.PID:_pendingZone;
+  if(!pid){showToast('Please select a patient first','error');cancelUpload();return;}
+  document.getElementById('photo-picker-overlay').style.display='none';document.body.style.overflow='';
+  saveImages([..._pendingFiles],pid,_pendingZone,desc);_pendingFiles=[];
+}
+async function saveImages(files,pid,zid,description){
+  const desc=(description||'').trim();let saved=0;
+  for(let i=0;i<files.length;i++){
+    const file=files[i];
+    try{
+      const dataUrl=await new Promise((res,rej)=>{const fr=new FileReader();fr.onload=e=>res(e.target.result);fr.onerror=()=>rej();fr.readAsDataURL(file);});
+      const thumb=await new Promise(res=>{const img=new Image();img.onload=()=>{const MAX=400,scale=Math.min(1,MAX/Math.max(img.width||1,img.height||1));const w=Math.max(1,Math.round(img.width*scale)),h=Math.max(1,Math.round(img.height*scale));try{const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);res(cv.toDataURL('image/jpeg',.8));}catch(e){res(dataUrl);}};img.onerror=()=>res(dataUrl);img.src=dataUrl;});
+      const label=desc?(files.length>1?desc+' ('+(i+1)+')':desc):file.name.replace(/\.[^.]+$/,'');
+      addStoredImage(pid,file.name,label,thumb);saved++;
+      renderImages(pid);
+      if(_chartPID===pid)chartBuildDropdowns(pid);
+      const gc=document.getElementById('image-grid-card-main');
+      const zone=document.getElementById('upload-zone-main');
+      if(gc)gc.style.display='';if(zone&&zid==='main')zone.style.display='none';
+      fetch(CONFIG.webAppUrl,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'uploadImage',pid,filename:label,mimeType:file.type,data:dataUrl.split(',')[1]||''})}).catch(()=>{});
+    }catch(err){console.error('Save error',err);}
+  }
+  if(saved>0)showToast(saved+' photo'+(saved!==1?'s':'')+' saved ✓','success');
+}
+
 </script>
 </body>
 </html>
