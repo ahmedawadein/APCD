@@ -467,11 +467,13 @@
     .formula-headers{grid-template-columns:1fr 1fr 28px}
     .formula-headers span:nth-child(2){display:none}
 
-    /* Tables */
-    .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-    .data-table{min-width:500px}
+    /* Tables — hide on mobile, show cards instead */
+    #view-patients .table-wrap{display:none}
     .patients-toolbar{flex-wrap:wrap;gap:8px}
     .search-wrap{max-width:100%;order:3;width:100%}
+
+    /* Patient card list (mobile) */
+    #patients-cardlist{display:flex;flex-direction:column;gap:10px}
 
     /* Modal */
     .modal-overlay{padding:16px 10px;align-items:flex-start}
@@ -535,6 +537,15 @@
     .eye-col-header{font-size:10px}
     .radio-option label{padding:5px 9px;font-size:11.5px}
   }
+
+  /* Patient card list — hidden on desktop, shown on mobile */
+  #patients-cardlist{display:none}
+  .patient-card{background:var(--card);border:1px solid var(--border-dim);border-radius:var(--radius-lg);padding:14px 16px;display:flex;align-items:center;gap:13px}
+  .patient-card-avatar{width:42px;height:42px;border-radius:50%;background:var(--teal-glow);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:16px;color:var(--teal);flex-shrink:0;font-weight:700}
+  .patient-card-body{flex:1;min-width:0}
+  .patient-card-name{font-weight:700;font-size:15px;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .patient-card-meta{font-size:12px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-top:3px}
+  .patient-card-actions{flex-shrink:0}
 
   /* ─── PATIENT CHART ─── */
   .chart-back{display:inline-flex;align-items:center;gap:6px;color:var(--text-dim);cursor:pointer;font-size:13px;font-weight:700;margin-bottom:18px;padding:7px 14px;border-radius:7px;border:1px solid var(--border-dim);background:transparent;transition:all .15s;font-family:'Lato',sans-serif}
@@ -680,12 +691,15 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
         <div class="search-wrap"><span class="search-icon">⌕</span><input type="text" id="patient-search" placeholder="Search name or PID…" oninput="filterPatients()"></div>
         <button class="btn btn-primary btn-sm" onclick="showView('new-patient')">＋ New Patient</button>
       </div>
+      <!-- Desktop table -->
       <div class="table-wrap">
         <table class="data-table">
           <thead><tr><th>PID</th><th>Name</th><th>DOB</th><th>Sex</th><th>Phone</th><th>Exams</th><th>Ops</th><th>Visits</th><th></th></tr></thead>
           <tbody id="patients-tbody"><tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text-faint)"><span class="spinner"></span></td></tr></tbody>
         </table>
       </div>
+      <!-- Mobile card list -->
+      <div id="patients-cardlist"></div>
     </div>
 
     <!-- ═══════════════════════════════ NEW PATIENT ═══ -->
@@ -2269,16 +2283,43 @@ function renderDashboard(){
 
 // ─── PATIENTS TABLE ───
 function renderPatientsTable(filter=''){
-  const tbody=document.getElementById('patients-tbody');
-  let list=DB.patients;
+  const tbody = document.getElementById('patients-tbody');
+  const cardlist = document.getElementById('patients-cardlist');
+  let list = DB.patients;
   if(filter){const q=filter.toLowerCase();list=list.filter(p=>(String(p.PID||'').toLowerCase().includes(q)||(p.Name||'').toLowerCase().includes(q)||(p.NationalID||'').toLowerCase().includes(q)));}
-  if(!list.length){tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state" style="padding:30px"><div class="empty-icon">◈</div><h3>No patients found</h3></div></td></tr>`;return;}
+
+  if(!list.length){
+    tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state" style="padding:30px"><div class="empty-icon">◈</div><h3>No patients found</h3></div></td></tr>`;
+    if(cardlist) cardlist.innerHTML=`<div class="empty-state" style="padding:30px;text-align:center"><div class="empty-icon">◈</div><p style="color:var(--text-faint)">No patients found</p></div>`;
+    return;
+  }
+
+  // Desktop table
   tbody.innerHTML=list.map(p=>{
     const ec=DB.examinations.filter(x=>String(x.PID)===String(p.PID)).length;
     const oc=DB.operations.filter(x=>String(x.PID)===String(p.PID)).length;
     const fc=DB.followups.filter(x=>String(x.PID)===String(p.PID)).length;
     const age=p.DOB?calcAge(p.DOB):'—';
     return `<tr><td class="mono">${p.PID}</td><td class="name">${p.Name||''}</td><td>${age}</td><td>${p.Sex||'—'}</td><td class="mono">${p.Phone||'—'}</td><td>${ec}</td><td>${oc}</td><td>${fc}</td><td><button class="table-action" data-pid="${p.PID}" onclick="openChart(this.dataset.pid)">Open Chart ›</button></td></tr>`;
+  }).join('');
+
+  // Mobile cards
+  if(cardlist) cardlist.innerHTML=list.map(p=>{
+    const ec=DB.examinations.filter(x=>String(x.PID)===String(p.PID)).length;
+    const oc=DB.operations.filter(x=>String(x.PID)===String(p.PID)).length;
+    const fc=DB.followups.filter(x=>String(x.PID)===String(p.PID)).length;
+    const age=p.DOB?calcAge(p.DOB):'';
+    const initials=(p.Name||'?').split(' ').map(w=>w[0]||'').slice(0,2).join('').toUpperCase();
+    return `<div class="patient-card">
+      <div class="patient-card-avatar">${initials}</div>
+      <div class="patient-card-body">
+        <div class="patient-card-name">${p.Name||p.PID}</div>
+        <div class="patient-card-meta">${p.PID}${p.Sex?' · '+p.Sex:''}${age?' · '+age:''}${ec+oc+fc>0?' · '+ec+'e '+oc+'op '+fc+'fu':''}</div>
+      </div>
+      <div class="patient-card-actions">
+        <button class="btn btn-secondary btn-sm" onclick="openChart('${p.PID}')">Open Chart ›</button>
+      </div>
+    </div>`;
   }).join('');
 }
 function filterPatients(){renderPatientsTable(document.getElementById('patient-search').value);}
