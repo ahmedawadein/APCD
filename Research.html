@@ -119,6 +119,17 @@ tbody td.dim{color:var(--text-dim)}
   .topbar{flex-wrap:wrap}
   .topbar-actions{width:100%;justify-content:flex-end}
 }
+
+  /* ── DISPLAY MODE TOGGLE ── */
+  .mode-toggle{display:flex;gap:0;border:1px solid var(--border-dim);border-radius:10px;overflow:hidden;margin-top:14px}
+  .mode-btn{flex:1;padding:10px 8px;background:transparent;border:none;color:var(--text-faint);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.5px;cursor:pointer;transition:all .15s;text-align:center;line-height:1.4;border-right:1px solid var(--border-dim)}
+  .mode-btn:last-child{border-right:none}
+  .mode-btn:hover{color:var(--text-dim);background:rgba(255,255,255,.03)}
+  .mode-btn.active{background:var(--teal-glow);color:var(--teal);font-weight:700}
+  .mode-label{font-size:13px;color:var(--text-faint);font-family:'DM Mono',monospace;margin-top:10px;padding:8px 12px;background:rgba(0,0,0,.15);border-radius:8px;border-left:3px solid var(--teal)}
+  /* Row striping for expanded modes */
+  .group-first td{border-top:2px solid rgba(45,207,202,.2)!important}
+  .group-row td:first-child{color:var(--text-faint);font-style:italic;font-size:12px}
 </style>
 </head>
 <body>
@@ -468,7 +479,17 @@ tbody td.dim{color:var(--text-dim)}
       </div>
     </div>
 
-    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+    <div style="margin-top:18px">
+      <div style="font-size:11px;font-family:'DM Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px">Display Mode</div>
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="mode-btn-summary"   onclick="setMode('summary')">📋 Summary<br><span style="font-size:10px;opacity:.7">1 row / patient</span></button>
+        <button class="mode-btn"        id="mode-btn-per-exam"  onclick="setMode('per-exam')">🔬 Per Examination<br><span style="font-size:10px;opacity:.7">1 row / visit</span></button>
+        <button class="mode-btn"        id="mode-btn-per-op"    onclick="setMode('per-op')">⚕ Per Operation<br><span style="font-size:10px;opacity:.7">1 row / surgery</span></button>
+        <button class="mode-btn"        id="mode-btn-per-fup"   onclick="setMode('per-fup')">📅 Per Follow-up<br><span style="font-size:10px;opacity:.7">1 row / visit</span></button>
+      </div>
+      <div id="mode-desc" class="mode-label">Summary — one row per patient showing the first matching record from each category.</div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
       <button class="btn btn-primary" onclick="runQuery()">🔍 Run Query</button>
       <button class="btn btn-secondary" onclick="clearFilters()">✕ Clear Filters</button>
     </div>
@@ -523,6 +544,7 @@ let DB = {patients:[], examinations:[], operations:[], followups:[], history:[]}
 
 // ── RESULTS STATE ──
 let RESULTS = [];
+let DISPLAY_MODE = 'summary'; // summary | per-exam | per-op | per-fup
 let SORT_COL = null;
 let SORT_DIR = 1;
 let PAGE = 1;
@@ -649,13 +671,31 @@ async function fetchSheet(name){
   return data.rows || [];
 }
 
+
+// ── DISPLAY MODE ──
+const MODE_DESCS = {
+  'summary':  'Summary — one row per patient, showing the first matching record from each category.',
+  'per-exam': 'Per Examination — each preoperative examination is its own row. A patient with 3 exams appears 3 times.',
+  'per-op':   'Per Operation — each surgical procedure is its own row. A patient with 3 operations appears 3 times.',
+  'per-fup':  'Per Follow-up — each follow-up visit is its own row. A patient with 5 visits appears 5 times.',
+};
+
+function setMode(mode){
+  DISPLAY_MODE = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('mode-btn-'+mode).classList.add('active');
+  document.getElementById('mode-desc').textContent = MODE_DESCS[mode];
+  // Re-run if we already have results
+  if(RESULTS.length) runQuery();
+}
+
 // ── QUERY ENGINE ──
 function runQuery(){
   if(!DB.patients.length){ showToast('No data loaded — check Setup','error'); return; }
 
   const g = id => document.getElementById(id).value;
   const fSex = g('f-sex');
-  const fAgeMin = parseFloat(g('f-age-min')); 
+  const fAgeMin = parseFloat(g('f-age-min'));
   const fAgeMax = parseFloat(g('f-age-max'));
   const fConsang = g('f-consang');
   const fFhx = g('f-fhx');
@@ -695,6 +735,101 @@ function runQuery(){
   const fFupVaOD = g('f-fup-va-od');
   const fVisitType = g('f-visit-type');
 
+  // Helper: does an exam record pass exam filters?
+  function examMatches(e){
+    if(fLensOD && !(e.LensStatus_OD||'').toLowerCase().includes(fLensOD.toLowerCase())) return false;
+    if(fLensOS && !(e.LensStatus_OS||'').toLowerCase().includes(fLensOS.toLowerCase())) return false;
+    if(fGonioOD && e.Gonioscopy_OD !== fGonioOD) return false;
+    if(fAngleOD && e.AngleOD !== fAngleOD) return false;
+    if(fSyndrome && !(e.Syndrome||'').toLowerCase().includes(fSyndrome)) return false;
+    if(fEuaExam && e.EUA !== fEuaExam) return false;
+    if(fLensStatusOD && !(e.LensStatus_OD||'').includes(fLensStatusOD)) return false;
+    if(fLensStatusOS && !(e.LensStatus_OS||'').includes(fLensStatusOS)) return false;
+    if(fLensMorphOD && !(e.LensMorphology_OD||'').includes(fLensMorphOD)) return false;
+    if(fLensMorphOS && !(e.LensMorphology_OS||'').includes(fLensMorphOS)) return false;
+    if(fSubluxOD && e.Subluxation_OD !== fSubluxOD) return false;
+    if(fSubluxOS && e.Subluxation_OS !== fSubluxOS) return false;
+    if(fPhpvOD && e.PHPV_OD !== fPhpvOD) return false;
+    if(fPhpvOS && e.PHPV_OS !== fPhpvOS) return false;
+    if(fSpherOD && e.Spherophakia_OD !== fSpherOD) return false;
+    if(fSpherOS && e.Spherophakia_OS !== fSpherOS) return false;
+    if(fPpcdOD && e.PPCD_OD !== fPpcdOD) return false;
+    if(fPpcdOS && e.PPCD_OS !== fPpcdOS) return false;
+    const axl = parseFloat(e.AxialLength_OD);
+    if(!isNaN(fAxlODMin) && (isNaN(axl) || axl < fAxlODMin)) return false;
+    if(!isNaN(fAxlODMax) && (isNaN(axl) || axl > fAxlODMax)) return false;
+    const iop = parseFloat(e.IOP_OD);
+    if(!isNaN(fIopODMin) && (isNaN(iop) || iop < fIopODMin)) return false;
+    if(!isNaN(fIopODMax) && (isNaN(iop) || iop > fIopODMax)) return false;
+    return true;
+  }
+
+  function opMatches(o){
+    if(fIol && o.IOL !== fIol) return false;
+    if(fAntCap && !(o.AnteriorCapsule||'').toLowerCase().includes(fAntCap.toLowerCase())) return false;
+    if(fPostCap && !(o.PosteriorCapsule||'').toLowerCase().includes(fPostCap.toLowerCase())) return false;
+    if(fAntVit && o.AnteriorVitrectomy !== fAntVit) return false;
+    if(fEye && o.Eye !== fEye) return false;
+    if(fOptype && !(o.OperationName||'').toLowerCase().includes(fOptype.toLowerCase())) return false;
+    if(fIolType && !(o.IOLType||'').toLowerCase().includes(fIolType)) return false;
+    const pow = parseFloat(o.IOLPower);
+    if(!isNaN(fIolPowMin) && (isNaN(pow) || pow < fIolPowMin)) return false;
+    if(!isNaN(fIolPowMax) && (isNaN(pow) || pow > fIolPowMax)) return false;
+    return true;
+  }
+
+  function fupMatches(f){
+    if(fFupLensOD && !(f.LensStatus_OD||'').toLowerCase().includes(fFupLensOD.toLowerCase())) return false;
+    if(fOpacOD && !(f.Opacification_OD||'').toLowerCase().includes(fOpacOD.toLowerCase())) return false;
+    if(fFupVaOD && f.VA_OD !== fFupVaOD) return false;
+    if(fVisitType && !(f.VisitType||'').includes(fVisitType)) return false;
+    return true;
+  }
+
+  // Helper: build a full result row from patient + optional records
+  function buildRow(p, hist, exam, op, fup, extraLabel){
+    const age = p.DOB ? ((new Date()-new Date(p.DOB))/(1000*60*60*24*365.25)).toFixed(1)+'y' : '—';
+    exam = exam || {};  op = op || {};  fup = fup || {};  hist = hist || {};
+    return {
+      _label: extraLabel||'',
+      PID: p.PID, Name: p.Name, Sex: p.Sex, Age: age,
+      DOB: p.DOB ? new Date(p.DOB).toLocaleDateString() : '',
+      Phone: p.Phone||'', Referring: p.Referring||'',
+      Consanguinity: hist.Consanguinity||'', FamilyHistory: hist.FamilyHistory||'',
+      DateOfExam: exam.DateOfExam ? new Date(exam.DateOfExam).toLocaleDateString() : '',
+      EUA: exam.EUA||'', Examiner_exam: exam.Examiner||'',
+      LensStatus_OD: exam.LensStatus_OD||'', LensStatus_OS: exam.LensStatus_OS||'',
+      LensStatus_OD_exam: exam.LensStatus_OD||'', LensStatus_OS_exam: exam.LensStatus_OS||'',
+      LensMorphology_OD: exam.LensMorphology_OD||'', LensMorphology_OS: exam.LensMorphology_OS||'',
+      Subluxation_OD: exam.Subluxation_OD||'', Subluxation_OS: exam.Subluxation_OS||'',
+      PHPV_OD: exam.PHPV_OD||'', PHPV_OS: exam.PHPV_OS||'',
+      Spherophakia_OD: exam.Spherophakia_OD||'', Spherophakia_OS: exam.Spherophakia_OS||'',
+      PPCD_OD: exam.PPCD_OD||'', PPCD_OS: exam.PPCD_OS||'',
+      AxialLength_OD: exam.AxialLength_OD||'', AxialLength_OS: exam.AxialLength_OS||'',
+      IOP_OD: exam.IOP_OD||'', IOP_OS: exam.IOP_OS||'',
+      Gonioscopy_OD: exam.Gonioscopy_OD||'', AngleOD: exam.AngleOD||'',
+      Gonioscopy_OS: exam.Gonioscopy_OS||'', AngleOS: exam.AngleOS||'',
+      Syndrome: exam.Syndrome||'',
+      DateOfOp: op.DateOfOp ? new Date(op.DateOfOp).toLocaleDateString() : '',
+      Eye: op.Eye||'', OperationName: op.OperationName||'',
+      AnteriorCapsule: op.AnteriorCapsule||'', PosteriorCapsule: op.PosteriorCapsule||'',
+      AnteriorVitrectomy: op.AnteriorVitrectomy||'',
+      IOL: op.IOL||'', IOLType: op.IOLType||'', IOLPower: op.IOLPower||'',
+      OtherComplications: op.OtherComplications||'',
+      DateOfFup: fup.DateOfExam ? new Date(fup.DateOfExam).toLocaleDateString() : '',
+      VisitType: fup.VisitType||'',
+      VA_OD_fup: fup.VA_OD||'', VA_OS_fup: fup.VA_OS||'',
+      Opacification_OD: fup.Opacification_OD||'', Opacification_OS: fup.Opacification_OS||'',
+    };
+  }
+
+  const hasExamFilter = !!(fLensOD||fLensOS||fGonioOD||fAngleOD||fSyndrome||
+    !isNaN(fAxlODMin)||!isNaN(fAxlODMax)||fEuaExam||!isNaN(fIopODMin)||!isNaN(fIopODMax)||
+    fLensStatusOD||fLensStatusOS||fLensMorphOD||fLensMorphOS||
+    fSubluxOD||fSubluxOS||fPhpvOD||fPhpvOS||fSpherOD||fSpherOS||fPpcdOD||fPpcdOS);
+  const hasOpFilter   = !!(fIol||fAntCap||fPostCap||fAntVit||fEye||fOptype||fIolType||!isNaN(fIolPowMin)||!isNaN(fIolPowMax));
+  const hasFupFilter  = !!(fFupLensOD||fOpacOD||fFupVaOD||fVisitType);
+
   const rows = [];
 
   for(const p of DB.patients){
@@ -702,155 +837,65 @@ function runQuery(){
 
     // Patient-level filters
     if(fSex && p.Sex !== fSex) continue;
-
-    // Age filter
     if(!isNaN(fAgeMin) || !isNaN(fAgeMax)){
-      const ageYrs = p.DOB ? (new Date() - new Date(p.DOB)) / (1000*60*60*24*365.25) : null;
-      if(ageYrs === null) continue;
+      const ageYrs = p.DOB ? (new Date()-new Date(p.DOB))/(1000*60*60*24*365.25) : null;
+      if(ageYrs===null) continue;
       if(!isNaN(fAgeMin) && ageYrs < fAgeMin) continue;
       if(!isNaN(fAgeMax) && ageYrs > fAgeMax) continue;
     }
 
-    // History filters
     const hist = DB.history.find(h => String(h.PID)===pid) || {};
     if(fConsang && hist.Consanguinity !== fConsang) continue;
     if(fFhx && hist.FamilyHistory !== fFhx) continue;
 
-    // Examination filters
-    const exams = DB.examinations.filter(e => String(e.PID)===pid);
-    let matchExam = null;
-    if(fLensOD||fLensOS||fGonioOD||fAngleOD||fSyndrome||
-       !isNaN(fAxlODMin)||!isNaN(fAxlODMax)||fEuaExam||
-       !isNaN(fIopODMin)||!isNaN(fIopODMax)||
-       fLensStatusOD||fLensStatusOS||fLensMorphOD||fLensMorphOS||
-       fSubluxOD||fSubluxOS||fPhpvOD||fPhpvOS||
-       fSpherOD||fSpherOS||fPpcdOD||fPpcdOS){
-      matchExam = exams.find(e => {
-        if(fLensOD && !(e.LensStatus_OD||'').toLowerCase().includes(fLensOD.toLowerCase())) return false;
-        if(fLensOS && !(e.LensStatus_OS||'').toLowerCase().includes(fLensOS.toLowerCase())) return false;
-        if(fGonioOD && e.Gonioscopy_OD !== fGonioOD) return false;
-        if(fAngleOD && e.AngleOD !== fAngleOD) return false;
-        if(fSyndrome && !(e.Syndrome||'').toLowerCase().includes(fSyndrome)) return false;
-        if(fEuaExam && e.EUA !== fEuaExam) return false;
-        if(fLensStatusOD && !(e.LensStatus_OD||'').includes(fLensStatusOD)) return false;
-        if(fLensStatusOS && !(e.LensStatus_OS||'').includes(fLensStatusOS)) return false;
-        if(fLensMorphOD && !(e.LensMorphology_OD||'').includes(fLensMorphOD)) return false;
-        if(fLensMorphOS && !(e.LensMorphology_OS||'').includes(fLensMorphOS)) return false;
-        if(fSubluxOD && e.Subluxation_OD !== fSubluxOD) return false;
-        if(fSubluxOS && e.Subluxation_OS !== fSubluxOS) return false;
-        if(fPhpvOD && e.PHPV_OD !== fPhpvOD) return false;
-        if(fPhpvOS && e.PHPV_OS !== fPhpvOS) return false;
-        if(fSpherOD && e.Spherophakia_OD !== fSpherOD) return false;
-        if(fSpherOS && e.Spherophakia_OS !== fSpherOS) return false;
-        if(fPpcdOD && e.PPCD_OD !== fPpcdOD) return false;
-        if(fPpcdOS && e.PPCD_OS !== fPpcdOS) return false;
-        const axl = parseFloat(e.AxialLength_OD);
-        if(!isNaN(fAxlODMin) && (isNaN(axl) || axl < fAxlODMin)) return false;
-        if(!isNaN(fAxlODMax) && (isNaN(axl) || axl > fAxlODMax)) return false;
-        const iop = parseFloat(e.IOP_OD);
-        if(!isNaN(fIopODMin) && (isNaN(iop) || iop < fIopODMin)) return false;
-        if(!isNaN(fIopODMax) && (isNaN(iop) || iop > fIopODMax)) return false;
-        return true;
-      });
-      if(!matchExam) continue;
-    } else {
-      matchExam = exams[0] || {};
-    }
+    const allExams = DB.examinations.filter(e => String(e.PID)===pid).sort((a,b)=>new Date(a.DateOfExam)-new Date(b.DateOfExam));
+    const allOps   = DB.operations.filter(o => String(o.PID)===pid).sort((a,b)=>new Date(a.DateOfOp)-new Date(b.DateOfOp));
+    const allFups  = DB.followups.filter(f => String(f.PID)===pid).sort((a,b)=>new Date(a.DateOfExam)-new Date(b.DateOfExam));
 
-    // Operation filters
-    const ops = DB.operations.filter(o => String(o.PID)===pid);
-    let matchOp = null;
-    if(fIol||fAntCap||fPostCap||fAntVit||fEye||fOptype||fIolType||
-       !isNaN(fIolPowMin)||!isNaN(fIolPowMax)){
-      matchOp = ops.find(o => {
-        if(fIol && o.IOL !== fIol) return false;
-        if(fAntCap && !(o.AnteriorCapsule||'').toLowerCase().includes(fAntCap.toLowerCase())) return false;
-        if(fPostCap && !(o.PosteriorCapsule||'').toLowerCase().includes(fPostCap.toLowerCase())) return false;
-        if(fAntVit && o.AnteriorVitrectomy !== fAntVit) return false;
-        if(fEye && o.Eye !== fEye) return false;
-        if(fOptype && !(o.OperationName||'').toLowerCase().includes(fOptype.toLowerCase())) return false;
-        if(fIolType && !(o.IOLType||'').toLowerCase().includes(fIolType)) return false;
-        const pow = parseFloat(o.IOLPower);
-        if(!isNaN(fIolPowMin) && (isNaN(pow) || pow < fIolPowMin)) return false;
-        if(!isNaN(fIolPowMax) && (isNaN(pow) || pow > fIolPowMax)) return false;
-        return true;
-      });
-      if(!matchOp) continue;
-    } else {
-      matchOp = ops[0] || {};
-    }
+    const matchExams = hasExamFilter ? allExams.filter(examMatches) : allExams;
+    const matchOps   = hasOpFilter   ? allOps.filter(opMatches)     : allOps;
+    const matchFups  = hasFupFilter  ? allFups.filter(fupMatches)   : allFups;
 
-    // Follow-up filters
-    const fups = DB.followups.filter(f => String(f.PID)===pid);
-    let matchFup = null;
-    if(fFupLensOD||fOpacOD||fFupVaOD||fVisitType){
-      matchFup = fups.find(f => {
-        if(fFupLensOD && !(f.LensStatus_OD||'').toLowerCase().includes(fFupLensOD.toLowerCase())) return false;
-        if(fOpacOD && !(f.Opacification_OD||'').toLowerCase().includes(fOpacOD.toLowerCase())) return false;
-        if(fFupVaOD && f.VA_OD !== fFupVaOD) return false;
-        if(fVisitType && !(f.VisitType||'').includes(fVisitType)) return false;
-        return true;
-      });
-      if(!matchFup) continue;
-    } else {
-      matchFup = fups[fups.length-1] || {};
-    }
+    // If any filter active and no match in that category — skip patient
+    if(hasExamFilter && matchExams.length===0) continue;
+    if(hasOpFilter   && matchOps.length===0)   continue;
+    if(hasFupFilter  && matchFups.length===0)  continue;
 
-    // Build result row
-    const age = p.DOB ? ((new Date()-new Date(p.DOB))/(1000*60*60*24*365.25)).toFixed(1)+'y' : '—';
-    rows.push({
-      // Patient
-      PID: p.PID, Name: p.Name, Sex: p.Sex, Age: age,
-      DOB: p.DOB ? new Date(p.DOB).toLocaleDateString() : '',
-      Phone: p.Phone, Referring: p.Referring,
-      // Exam
-      DateOfExam: matchExam.DateOfExam ? new Date(matchExam.DateOfExam).toLocaleDateString() : '',
-      EUA: matchExam.EUA||'',
-      Examiner_exam: matchExam.Examiner||'',
-      LensStatus_OD: matchExam.LensStatus_OD||'',
-      LensStatus_OS: matchExam.LensStatus_OS||'',
-      AxialLength_OD: matchExam.AxialLength_OD||'',
-      AxialLength_OS: matchExam.AxialLength_OS||'',
-      IOP_OD: matchExam.IOP_OD||'',
-      IOP_OS: matchExam.IOP_OS||'',
-      Gonioscopy_OD: matchExam.Gonioscopy_OD||'',
-      AngleOD: matchExam.AngleOD||'',
-      Gonioscopy_OS: matchExam.Gonioscopy_OS||'',
-      AngleOS: matchExam.AngleOS||'',
-      Syndrome: matchExam.Syndrome||'',
-      LensStatus_OD_exam: matchExam.LensStatus_OD||'',
-      LensStatus_OS_exam: matchExam.LensStatus_OS||'',
-      LensMorphology_OD: matchExam.LensMorphology_OD||'',
-      LensMorphology_OS: matchExam.LensMorphology_OS||'',
-      Subluxation_OD: matchExam.Subluxation_OD||'',
-      Subluxation_OS: matchExam.Subluxation_OS||'',
-      PHPV_OD: matchExam.PHPV_OD||'',
-      PHPV_OS: matchExam.PHPV_OS||'',
-      Spherophakia_OD: matchExam.Spherophakia_OD||'',
-      Spherophakia_OS: matchExam.Spherophakia_OS||'',
-      PPCD_OD: matchExam.PPCD_OD||'',
-      PPCD_OS: matchExam.PPCD_OS||'',
-      Consanguinity: hist.Consanguinity||'',
-      FamilyHistory: hist.FamilyHistory||'',
-      // Surgery
-      DateOfOp: matchOp.DateOfOp ? new Date(matchOp.DateOfOp).toLocaleDateString() : '',
-      Eye: matchOp.Eye||'',
-      OperationName: matchOp.OperationName||'',
-      AnteriorCapsule: matchOp.AnteriorCapsule||'',
-      PosteriorCapsule: matchOp.PosteriorCapsule||'',
-      AnteriorVitrectomy: matchOp.AnteriorVitrectomy||'',
-      IOL: matchOp.IOL||'',
-      IOLType: matchOp.IOLType||'',
-      IOLPower: matchOp.IOLPower||'',
-      OtherComplications: matchOp.OtherComplications||'',
-      // Follow-up
-      DateOfFup: matchFup.DateOfExam ? new Date(matchFup.DateOfExam).toLocaleDateString() : '',
-      VisitType: matchFup.VisitType||'',
-      VA_OD_fup: matchFup.VA_OD||'',
-      VA_OS_fup: matchFup.VA_OS||'',
-      Opacification_OD: matchFup.Opacification_OD||'',
-      Opacification_OS: matchFup.Opacification_OS||'',
-    });
+    // Pick representative records for non-expanded categories
+    const repExam = matchExams[0] || {};
+    const repOp   = matchOps[0]   || {};
+    const repFup  = matchFups[matchFups.length-1] || {};
+
+    if(DISPLAY_MODE === 'summary'){
+      rows.push(buildRow(p, hist, repExam, repOp, repFup));
+
+    } else if(DISPLAY_MODE === 'per-exam'){
+      const list = matchExams.length ? matchExams : [null];
+      list.forEach((exam, i) => {
+        const r = buildRow(p, hist, exam, repOp, repFup, i>0 ? '' : null);
+        r._groupFirst = i===0;
+        r._groupPid = pid;
+        rows.push(r);
+      });
+
+    } else if(DISPLAY_MODE === 'per-op'){
+      const list = matchOps.length ? matchOps : [null];
+      list.forEach((op, i) => {
+        const r = buildRow(p, hist, repExam, op, repFup, i>0 ? '' : null);
+        r._groupFirst = i===0;
+        r._groupPid = pid;
+        rows.push(r);
+      });
+
+    } else if(DISPLAY_MODE === 'per-fup'){
+      const list = matchFups.length ? matchFups : [null];
+      list.forEach((fup, i) => {
+        const r = buildRow(p, hist, repExam, repOp, fup, i>0 ? '' : null);
+        r._groupFirst = i===0;
+        r._groupPid = pid;
+        rows.push(r);
+      });
+    }
   }
 
   RESULTS = rows;
@@ -874,12 +919,15 @@ function renderResults(){
 
   // Stats
   const stats = document.getElementById('stats-row');
+  const uniquePids = new Set(RESULTS.map(r=>r.PID)).size;
   const iolCount = RESULTS.filter(r=>r.IOL==='Yes').length;
   const maleCount = RESULTS.filter(r=>r.Sex==='Male').length;
+  const modeLabel = {summary:'patients','per-exam':'exam records','per-op':'operation records','per-fup':'follow-up records'}[DISPLAY_MODE]||'rows';
   stats.innerHTML = `
-    <div class="stat-chip"><div class="stat-chip-val">${RESULTS.length}</div><div class="stat-chip-lbl">Patients</div></div>
-    <div class="stat-chip"><div class="stat-chip-val">${maleCount}</div><div class="stat-chip-lbl">Male</div></div>
-    <div class="stat-chip"><div class="stat-chip-val">${RESULTS.length-maleCount}</div><div class="stat-chip-lbl">Female</div></div>
+    <div class="stat-chip"><div class="stat-chip-val">${RESULTS.length}</div><div class="stat-chip-lbl">${modeLabel}</div></div>
+    ${DISPLAY_MODE!=='summary'?`<div class="stat-chip"><div class="stat-chip-val">${uniquePids}</div><div class="stat-chip-lbl">Unique patients</div></div>`:''}
+    <div class="stat-chip"><div class="stat-chip-val">${maleCount}</div><div class="stat-chip-lbl">Male rows</div></div>
+    <div class="stat-chip"><div class="stat-chip-val">${RESULTS.length-maleCount}</div><div class="stat-chip-lbl">Female rows</div></div>
     <div class="stat-chip"><div class="stat-chip-val">${iolCount}</div><div class="stat-chip-lbl">IOL</div></div>
     <div class="stat-chip"><div class="stat-chip-val">${RESULTS.length-iolCount}</div><div class="stat-chip-lbl">Aphakic</div></div>
   `;
@@ -912,13 +960,17 @@ function renderResults(){
   if(!pageRows.length){
     tbody.innerHTML = '<tr><td colspan="'+activeCols.length+'" style="text-align:center;padding:30px;color:var(--text-faint)">No results</td></tr>';
   } else {
-    tbody.innerHTML = pageRows.map(row =>
-      '<tr>' + activeCols.map(col => {
+    tbody.innerHTML = pageRows.map((row,i) => {
+    const isFirst = row._groupFirst || DISPLAY_MODE==='summary';
+    const prevRow = i>0 ? pageRows[i-1] : null;
+    const newGroup = isFirst && prevRow && prevRow._groupPid === row._groupPid;
+    const trClass = newGroup ? 'class="group-first"' : '';
+    return '<tr '+trClass+'>' + activeCols.map(col => {
         const v = row[col.key] || '';
         const cls = col.key==='PID'?'mono':(col.key==='Age'||col.key==='DateOfExam'||col.key==='DateOfOp'?'dim':'');
         return `<td class="${cls}">${v}</td>`;
-      }).join('') + '</tr>'
-    ).join('');
+      }).join('') + '</tr>';
+  }).join('');
   }
 
   // Count
