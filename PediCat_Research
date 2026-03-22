@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PediCat Research</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0b1724;--navy-mid:#162333;--navy-light:#1e3045;
+  --teal:#2dcfca;--teal-glow:rgba(45,207,202,.13);
+  --amber:#f7b731;--red:#f05252;--green:#4ade9a;--purple:#b09ef5;
+  --text-main:#f0f6ff;--text-dim:#c8ddf0;--text-faint:#8fb3d0;
+  --border:rgba(45,207,202,.22);--border-dim:rgba(255,255,255,.11);
+  --card:rgba(22,35,51,.85);--input-bg:rgba(11,23,36,.8);
+  --radius:8px;--radius-lg:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Lato',sans-serif;background:var(--navy);color:var(--text-main);min-height:100vh;font-size:15px;-webkit-font-smoothing:antialiased}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 10% 20%,rgba(28,184,176,.06) 0%,transparent 60%),radial-gradient(ellipse 50% 60% at 90% 80%,rgba(13,60,90,.3) 0%,transparent 60%);pointer-events:none;z-index:0}
+
+/* ── LAYOUT ── */
+#app{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:24px 28px 60px}
+.topbar{display:flex;align-items:center;gap:16px;margin-bottom:28px;padding-bottom:18px;border-bottom:1px solid var(--border-dim)}
+.logo-mark{font-family:'DM Serif Display',serif;font-size:22px;color:var(--teal)}
+.logo-sub{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-faint);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.logo-badge{background:rgba(176,158,245,.15);border:1px solid rgba(176,158,245,.3);color:var(--purple);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border-radius:20px;margin-left:6px}
+.topbar-actions{margin-left:auto;display:flex;gap:10px;align-items:center}
+#connection-badge{font-size:12px;font-family:'DM Mono',monospace;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid var(--border-dim);color:var(--text-faint)}
+#connection-badge.connected{background:rgba(74,222,154,.1);border-color:rgba(74,222,154,.3);color:var(--green)}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border-dim);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:16px;backdrop-filter:blur(6px)}
+.card-title{font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:16px;font-weight:500;display:flex;align-items:center;gap:10px}
+.card-title::after{content:'';flex:1;height:1px;background:var(--border-dim)}
+
+/* ── FILTER GRID ── */
+.filter-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:16px}
+.filter-group{display:flex;flex-direction:column;gap:5px}
+.filter-label{font-size:11px;font-family:'DM Mono',monospace;letter-spacing:.8px;text-transform:uppercase;color:var(--text-dim);font-weight:500}
+.filter-input{background:var(--input-bg);border:1.5px solid rgba(255,255,255,.15);border-radius:var(--radius);color:var(--text-main);font-family:'Lato',sans-serif;font-size:14px;padding:9px 12px;outline:none;transition:border-color .15s,box-shadow .15s;width:100%}
+.filter-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-glow)}
+.filter-input option{background:var(--navy-mid)}
+.filter-section-head{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--amber);margin:18px 0 10px;display:flex;align-items:center;gap:8px;font-weight:500}
+.filter-section-head::after{content:'';flex:1;height:1px;background:rgba(247,183,49,.2)}
+
+/* ── RANGE FILTER ── */
+.range-wrap{display:flex;gap:6px;align-items:center}
+.range-wrap input{flex:1}
+.range-sep{color:var(--text-faint);font-size:12px;flex-shrink:0}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:var(--radius);font-family:'Lato',sans-serif;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .15s}
+.btn-primary{background:var(--teal);color:var(--navy)}
+.btn-primary:hover{opacity:.9}
+.btn-secondary{background:transparent;border:1px solid var(--border);color:var(--text-dim)}
+.btn-secondary:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-glow)}
+.btn-green{background:rgba(74,222,154,.15);border:1px solid rgba(74,222,154,.3);color:var(--green)}
+.btn-green:hover{background:rgba(74,222,154,.25)}
+.btn-amber{background:rgba(247,183,49,.12);border:1px solid rgba(247,183,49,.3);color:var(--amber)}
+.btn-amber:hover{background:rgba(247,183,49,.2)}
+.btn-sm{padding:7px 14px;font-size:13px}
+.action-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+
+/* ── STATS ROW ── */
+.stats-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.stat-chip{background:var(--navy-mid);border:1px solid var(--border-dim);border-radius:8px;padding:10px 16px;font-family:'DM Mono',monospace}
+.stat-chip-val{font-family:'DM Serif Display',serif;font-size:22px;color:var(--teal)}
+.stat-chip-lbl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-faint);margin-top:2px}
+
+/* ── RESULTS TABLE ── */
+.table-wrap{overflow-x:auto;border-radius:var(--radius-lg);border:1px solid var(--border-dim)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+thead tr{background:rgba(0,0,0,.3)}
+thead th{padding:11px 14px;text-align:left;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-faint);font-weight:500;white-space:nowrap;cursor:pointer;user-select:none;border-bottom:1px solid var(--border-dim)}
+thead th:hover{color:var(--teal)}
+thead th.sort-asc::after{content:' ▲';color:var(--teal)}
+thead th.sort-desc::after{content:' ▼';color:var(--teal)}
+tbody tr{border-bottom:1px solid rgba(255,255,255,.05);transition:background .1s}
+tbody tr:hover{background:rgba(45,207,202,.04)}
+tbody td{padding:10px 14px;color:var(--text-main);vertical-align:top}
+tbody td.mono{font-family:'DM Mono',monospace;font-size:12.5px;color:var(--teal)}
+tbody td.dim{color:var(--text-dim)}
+.empty-state{text-align:center;padding:50px 20px;color:var(--text-faint)}
+.empty-icon{font-size:36px;margin-bottom:10px}
+
+/* ── COLUMN PICKER ── */
+.col-picker{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.col-chip{padding:5px 12px;border:1px solid var(--border-dim);border-radius:20px;font-size:12px;font-family:'DM Mono',monospace;color:var(--text-faint);cursor:pointer;transition:all .12s;user-select:none}
+.col-chip.active{border-color:var(--teal);background:var(--teal-glow);color:var(--teal)}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast-item{background:var(--navy-mid);border:1px solid var(--border);border-radius:10px;padding:12px 18px;font-size:13.5px;font-weight:700;box-shadow:0 8px 28px rgba(0,0,0,.5);animation:slideIn .2s ease;pointer-events:auto}
+.toast-item.success{border-color:rgba(74,222,154,.4);color:var(--green)}
+.toast-item.error{border-color:rgba(240,82,82,.4);color:var(--red)}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── SPINNER ── */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(45,207,202,.3);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-3px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── PAGINATION ── */
+.pagination{display:flex;align-items:center;gap:8px;margin-top:14px;flex-wrap:wrap}
+.page-btn{padding:6px 12px;border-radius:6px;background:var(--navy-mid);border:1px solid var(--border-dim);color:var(--text-dim);cursor:pointer;font-size:13px;font-family:'Lato',sans-serif;font-weight:700;transition:all .12s}
+.page-btn:hover{border-color:var(--teal);color:var(--teal)}
+.page-btn.active{background:var(--teal);color:var(--navy);border-color:var(--teal)}
+.page-info{font-size:12.5px;color:var(--text-faint);font-family:'DM Mono',monospace}
+
+/* ── SETUP PANEL ── */
+#setup-panel{background:rgba(247,183,49,.07);border:1px solid rgba(247,183,49,.25);border-radius:var(--radius-lg);padding:18px 22px;margin-bottom:20px}
+.url-row{display:flex;gap:10px;margin-top:10px}
+.url-row input{flex:1;background:var(--input-bg);border:1.5px solid var(--border);border-radius:var(--radius);color:var(--text-main);font-family:'DM Mono',monospace;font-size:13px;padding:10px 14px;outline:none}
+.url-row input:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(247,183,49,.15)}
+
+@media(max-width:640px){
+  #app{padding:14px 12px 60px}
+  .filter-grid{grid-template-columns:1fr}
+  .topbar{flex-wrap:wrap}
+  .topbar-actions{width:100%;justify-content:flex-end}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div>
+      <div class="logo-mark">PediCat <span class="logo-badge">Research</span></div>
+      <div class="logo-sub">Pediatric Cataract Registry — Data Query Tool</div>
+    </div>
+    <div class="topbar-actions">
+      <div id="connection-badge">⬤ Not connected</div>
+      <button class="btn btn-secondary btn-sm" onclick="toggleSetup()">⚙ Setup</button>
+    </div>
+  </div>
+
+  <!-- SETUP PANEL -->
+  <div id="setup-panel" style="display:none">
+    <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--amber);margin-bottom:6px">Google Sheets Connection</div>
+    <div style="font-size:13px;color:var(--text-dim)">Paste the same Google Apps Script Web App URL used in PediCat.</div>
+    <div class="url-row">
+      <input type="url" id="url-input" placeholder="https://script.google.com/macros/s/…/exec">
+      <button class="btn btn-amber" onclick="saveAndConnect()">Connect & Load</button>
+    </div>
+    <div id="connect-status" style="margin-top:8px;font-size:12.5px;color:var(--text-faint)"></div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="card">
+    <div class="card-title">Patient Filters</div>
+    <div class="filter-grid">
+      <div class="filter-group">
+        <div class="filter-label">Sex</div>
+        <select class="filter-input" id="f-sex">
+          <option value="">Any</option>
+          <option>Male</option>
+          <option>Female</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Age at registration (years)</div>
+        <div class="range-wrap">
+          <input type="number" class="filter-input" id="f-age-min" placeholder="Min" min="0" max="18">
+          <span class="range-sep">–</span>
+          <input type="number" class="filter-input" id="f-age-max" placeholder="Max" min="0" max="18">
+        </div>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Consanguinity</div>
+        <select class="filter-input" id="f-consang">
+          <option value="">Any</option>
+          <option>Yes</option>
+          <option>No</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Family History of Cataract</div>
+        <select class="filter-input" id="f-fhx">
+          <option value="">Any</option>
+          <option>Yes</option>
+          <option>No</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="filter-section-head">Preoperative Examination</div>
+    <div class="filter-grid">
+      <div class="filter-group">
+        <div class="filter-label">Lens Status OD</div>
+        <select class="filter-input" id="f-lens-od">
+          <option value="">Any</option>
+          <option>Cataract</option><option>Clear</option><option>Aphakia</option>
+          <option>Pseudophakia</option><option>Subluxated</option><option>Absent</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Lens Status OS</div>
+        <select class="filter-input" id="f-lens-os">
+          <option value="">Any</option>
+          <option>Cataract</option><option>Clear</option><option>Aphakia</option>
+          <option>Pseudophakia</option><option>Subluxated</option><option>Absent</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Gonioscopy OD</div>
+        <select class="filter-input" id="f-gonio-od">
+          <option value="">Any</option>
+          <option>Yes</option><option>No</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Angle OD</div>
+        <select class="filter-input" id="f-angle-od">
+          <option value="">Any</option>
+          <option>Open</option><option>Closed</option>
+          <option>Open with anterior iris insertion</option>
+          <option>Dysgenetic angle</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Syndrome</div>
+        <input type="text" class="filter-input" id="f-syndrome" placeholder="e.g. Marfan, Down…">
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Axial Length OD (mm)</div>
+        <div class="range-wrap">
+          <input type="number" class="filter-input" id="f-axl-od-min" placeholder="Min" step="0.1">
+          <span class="range-sep">–</span>
+          <input type="number" class="filter-input" id="f-axl-od-max" placeholder="Max" step="0.1">
+        </div>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">EUA</div>
+        <select class="filter-input" id="f-eua-exam">
+          <option value="">Any</option>
+          <option>Yes</option><option>No</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">IOP OD (mmHg)</div>
+        <div class="range-wrap">
+          <input type="number" class="filter-input" id="f-iop-od-min" placeholder="Min">
+          <span class="range-sep">–</span>
+          <input type="number" class="filter-input" id="f-iop-od-max" placeholder="Max">
+        </div>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Lens Status OD</div>
+        <select class="filter-input" id="f-lens-status-od">
+          <option value="">Any</option>
+          <option>Cataract</option>
+          <option>Clear lens</option>
+          <option>Aphakia</option>
+          <option>Pseudophakia</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Lens Status OS</div>
+        <select class="filter-input" id="f-lens-status-os">
+          <option value="">Any</option>
+          <option>Cataract</option>
+          <option>Clear lens</option>
+          <option>Aphakia</option>
+          <option>Pseudophakia</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Lens Morphology OD</div>
+        <select class="filter-input" id="f-lens-morph-od">
+          <option value="">Any</option>
+          <option>Total</option>
+          <option>Nuclear</option>
+          <option>Cortical</option>
+          <option>Posterior Subcapsular</option>
+          <option>Anterior Polar</option>
+          <option>Posterior Polar</option>
+          <option>Lamellar</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Lens Morphology OS</div>
+        <select class="filter-input" id="f-lens-morph-os">
+          <option value="">Any</option>
+          <option>Total</option>
+          <option>Nuclear</option>
+          <option>Cortical</option>
+          <option>Posterior Subcapsular</option>
+          <option>Anterior Polar</option>
+          <option>Posterior Polar</option>
+          <option>Lamellar</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Subluxation OD</div>
+        <select class="filter-input" id="f-sublux-od">
+          <option value="">Any</option>
+          <option value="Yes">Present</option>
+          <option value="No">Absent</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Subluxation OS</div>
+        <select class="filter-input" id="f-sublux-os">
+          <option value="">Any</option>
+          <option value="Yes">Present</option>
+          <option value="No">Absent</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">PHPV OD</div>
+        <select class="filter-input" id="f-phpv-od">
+          <option value="">Any</option>
+          <option>Present</option>
+          <option>Absent</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">PHPV OS</div>
+        <select class="filter-input" id="f-phpv-os">
+          <option value="">Any</option>
+          <option>Present</option>
+          <option>Absent</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Spherophakia OD</div>
+        <select class="filter-input" id="f-spher-od">
+          <option value="">Any</option>
+          <option>Present</option>
+          <option>Absent</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Spherophakia OS</div>
+        <select class="filter-input" id="f-spher-os">
+          <option value="">Any</option>
+          <option>Present</option>
+          <option>Absent</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Pre-existing Post. Capsular Defect OD</div>
+        <select class="filter-input" id="f-ppcd-od">
+          <option value="">Any</option>
+          <option>Present</option>
+          <option>Absent</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Pre-existing Post. Capsular Defect OS</div>
+        <select class="filter-input" id="f-ppcd-os">
+          <option value="">Any</option>
+          <option>Present</option>
+          <option>Absent</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="filter-section-head">Operations</div>
+    <div class="filter-grid">
+      <div class="filter-group">
+        <div class="filter-label">IOL</div>
+        <select class="filter-input" id="f-iol">
+          <option value="">Any</option>
+          <option>Yes</option><option>No</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Anterior Capsule</div>
+        <select class="filter-input" id="f-ant-cap">
+          <option value="">Any</option>
+          <option>Intact</option><option>CCC</option><option>Anterior Vitrectomy</option>
+          <option>Torn</option><option>Absent</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Posterior Capsule</div>
+        <select class="filter-input" id="f-post-cap">
+          <option value="">Any</option>
+          <option>Intact</option><option>Primary posterior CCC</option>
+          <option>Torn</option><option>Absent</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Anterior Vitrectomy</div>
+        <select class="filter-input" id="f-ant-vit">
+          <option value="">Any</option>
+          <option>Yes</option><option>No</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Eye Operated</div>
+        <select class="filter-input" id="f-eye">
+          <option value="">Any</option>
+          <option>OD</option><option>OS</option><option>Both</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Surgical Procedure</div>
+        <select class="filter-input" id="f-optype">
+          <option value="">Any</option>
+          <option>Anterior Lensectomy</option>
+          <option>Posterior Lensectomy</option>
+          <option>Irrigation/Aspiration</option>
+          <option>Secondary Implantation</option>
+          <option>IOL Explantation</option>
+          <option>IOL Exchange</option>
+          <option>IOL Repositioning</option>
+          <option>Membranectomy</option>
+          <option>Removal of sutures</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">IOL Type</div>
+        <input type="text" class="filter-input" id="f-iol-type" placeholder="e.g. Acrylic, PMMA…">
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">IOL Power (D)</div>
+        <div class="range-wrap">
+          <input type="number" class="filter-input" id="f-iol-pow-min" placeholder="Min" step="0.5">
+          <span class="range-sep">–</span>
+          <input type="number" class="filter-input" id="f-iol-pow-max" placeholder="Max" step="0.5">
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-section-head">Follow-up</div>
+    <div class="filter-grid">
+      <div class="filter-group">
+        <div class="filter-label">Lens Status OD (post-op)</div>
+        <select class="filter-input" id="f-fup-lens-od">
+          <option value="">Any</option>
+          <option>Clear</option><option>Aphakia</option><option>Pseudophakia</option>
+          <option>Opacified</option><option>Subluxated</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Opacification OD</div>
+        <select class="filter-input" id="f-opacity-od">
+          <option value="">Any</option>
+          <option>None</option><option>Mild</option><option>Moderate</option><option>Severe</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">VA OD (post-op)</div>
+        <select class="filter-input" id="f-fup-va-od">
+          <option value="">Any</option>
+          <option>Cannot be measured</option><option>Cannot Fix or Follow</option>
+          <option>NOPL</option><option>PLBP</option><option>PLGP</option>
+          <option>HMBP</option><option>HMGP</option>
+          <option>1/60</option><option>2/60</option><option>3/60</option>
+          <option>0.1</option><option>0.2</option><option>0.3</option>
+          <option>0.4</option><option>0.5</option><option>0.6</option>
+          <option>0.8</option><option>1.0</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Visit Type</div>
+        <select class="filter-input" id="f-visit-type">
+          <option value="">Any</option>
+          <option>Post-op day 1</option><option>Post-op week 1</option>
+          <option>Post-op month 1</option><option>Post-op month 3</option>
+          <option>Post-op month 6</option><option>Post-op year 1</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="runQuery()">🔍 Run Query</button>
+      <button class="btn btn-secondary" onclick="clearFilters()">✕ Clear Filters</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results-section" style="display:none">
+    <div class="stats-row" id="stats-row"></div>
+
+    <div class="card">
+      <div class="card-title">Results</div>
+
+      <!-- Column picker -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:12px;color:var(--text-faint);font-family:'DM Mono',monospace;margin-bottom:8px;letter-spacing:1px;text-transform:uppercase">Columns to display</div>
+        <div class="col-picker" id="col-picker"></div>
+      </div>
+
+      <div class="action-bar">
+        <button class="btn btn-green btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+        <button class="btn btn-amber btn-sm" onclick="exportExcel()">⬇ Export Excel</button>
+        <span id="result-count" style="font-size:13px;color:var(--text-faint);font-family:'DM Mono',monospace;margin-left:auto"></span>
+      </div>
+
+      <div class="table-wrap">
+        <table id="results-table">
+          <thead id="results-thead"><tr></tr></thead>
+          <tbody id="results-tbody"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+
+  <div id="empty-msg" style="display:none" class="empty-state">
+    <div class="empty-icon">🔬</div>
+    <div style="font-size:15px;margin-bottom:6px">No patients match the selected filters</div>
+    <div style="font-size:13px">Try broadening your criteria</div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── CONFIG ──
+let CONFIG = {webAppUrl:''};
+const SAVED_KEY = 'pedicat_research_config';
+
+// ── DATABASE ──
+let DB = {patients:[], examinations:[], operations:[], followups:[], history:[]};
+
+// ── RESULTS STATE ──
+let RESULTS = [];
+let SORT_COL = null;
+let SORT_DIR = 1;
+let PAGE = 1;
+const PAGE_SIZE = 50;
+
+// Active columns
+const ALL_COLS = [
+  {key:'PID',       label:'PID',        sheet:'patients'},
+  {key:'Name',      label:'Name',       sheet:'patients'},
+  {key:'Sex',       label:'Sex',        sheet:'patients'},
+  {key:'Age',       label:'Age',        sheet:'patients'},
+  {key:'DOB',       label:'DOB',        sheet:'patients'},
+  {key:'Phone',     label:'Phone',      sheet:'patients'},
+  {key:'Referring', label:'Referring',  sheet:'patients'},
+  // Exam
+  {key:'DateOfExam',    label:'Exam Date',   sheet:'examinations'},
+  {key:'EUA',           label:'EUA',         sheet:'examinations'},
+  {key:'Examiner_exam', label:'Examiner',    sheet:'examinations'},
+  {key:'LensStatus_OD', label:'Lens OD',     sheet:'examinations'},
+  {key:'LensStatus_OS', label:'Lens OS',     sheet:'examinations'},
+  {key:'AxialLength_OD',label:'AXL OD',      sheet:'examinations'},
+  {key:'AxialLength_OS',label:'AXL OS',      sheet:'examinations'},
+  {key:'IOP_OD',        label:'IOP OD',      sheet:'examinations'},
+  {key:'IOP_OS',        label:'IOP OS',      sheet:'examinations'},
+  {key:'Gonioscopy_OD', label:'Gonio OD',    sheet:'examinations'},
+  {key:'AngleOD',       label:'Angle OD',    sheet:'examinations'},
+  {key:'Gonioscopy_OS', label:'Gonio OS',    sheet:'examinations'},
+  {key:'AngleOS',       label:'Angle OS',    sheet:'examinations'},
+  {key:'Syndrome',      label:'Syndrome',    sheet:'examinations'},
+  {key:'Consanguinity', label:'Consanguinity',sheet:'history'},
+  {key:'FamilyHistory', label:'Family Hx',   sheet:'history'},
+  // Surgery
+  {key:'DateOfOp',         label:'Op Date',       sheet:'operations'},
+  {key:'Eye',              label:'Eye',           sheet:'operations'},
+  {key:'OperationName',    label:'Operation',     sheet:'operations'},
+  {key:'AnteriorCapsule',  label:'Ant. Capsule',  sheet:'operations'},
+  {key:'PosteriorCapsule', label:'Post. Capsule', sheet:'operations'},
+  {key:'AnteriorVitrectomy',label:'Ant. Vitrect.',sheet:'operations'},
+  {key:'IOL',              label:'IOL',           sheet:'operations'},
+  {key:'IOLType',          label:'IOL Type',      sheet:'operations'},
+  {key:'IOLPower',         label:'IOL Power',     sheet:'operations'},
+  {key:'OtherComplications',label:'Complications',sheet:'operations'},
+  // Exam extra
+  {key:'LensStatus_OD_exam', label:'Lens Status OD', sheet:'examinations'},
+  {key:'LensStatus_OS_exam', label:'Lens Status OS', sheet:'examinations'},
+  {key:'LensMorphology_OD',  label:'Lens Morph OD',  sheet:'examinations'},
+  {key:'LensMorphology_OS',  label:'Lens Morph OS',  sheet:'examinations'},
+  {key:'Subluxation_OD',     label:'Sublux OD',      sheet:'examinations'},
+  {key:'Subluxation_OS',     label:'Sublux OS',      sheet:'examinations'},
+  {key:'PHPV_OD',            label:'PHPV OD',        sheet:'examinations'},
+  {key:'PHPV_OS',            label:'PHPV OS',        sheet:'examinations'},
+  {key:'Spherophakia_OD',    label:'Spherophakia OD',sheet:'examinations'},
+  {key:'Spherophakia_OS',    label:'Spherophakia OS',sheet:'examinations'},
+  {key:'PPCD_OD',            label:'PPCD OD',        sheet:'examinations'},
+  {key:'PPCD_OS',            label:'PPCD OS',        sheet:'examinations'},
+  // Followup
+  {key:'DateOfFup',      label:'Follow-up Date', sheet:'followups'},
+  {key:'VisitType',      label:'Visit Type',     sheet:'followups'},
+  {key:'VA_OD_fup',      label:'VA OD (fup)',    sheet:'followups'},
+  {key:'VA_OS_fup',      label:'VA OS (fup)',    sheet:'followups'},
+  {key:'Opacification_OD',label:'Opacity OD',   sheet:'followups'},
+  {key:'Opacification_OS',label:'Opacity OS',   sheet:'followups'},
+];
+
+let ACTIVE_COLS = ['PID','Name','Sex','Age','DateOfExam','LensStatus_OD','LensStatus_OS',
+                   'DateOfOp','Eye','PosteriorCapsule','IOL','IOLType','DateOfFup','VA_OD_fup'];
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem(SAVED_KEY);
+  if(saved){ CONFIG = JSON.parse(saved); }
+  // Try to use PediCat's URL if available
+  if(!CONFIG.webAppUrl){
+    const pc = localStorage.getItem('pedicat_v2_config');
+    if(pc){ try{ CONFIG.webAppUrl = JSON.parse(pc).webAppUrl||''; }catch(e){} }
+  }
+  if(!CONFIG.webAppUrl){
+    CONFIG.webAppUrl = 'https://script.google.com/macros/s/AKfycbwBRx8ViEtjwVpZkjvZD8hhUDTnbncO96zsTGtT9dR9qyzQVJ5_lHe7U_ehrZTJ6VKOUA/exec';
+  }
+  document.getElementById('url-input').value = CONFIG.webAppUrl;
+  buildColPicker();
+  loadAll();
+});
+
+function toggleSetup(){
+  const p = document.getElementById('setup-panel');
+  p.style.display = p.style.display==='none' ? '' : 'none';
+}
+
+async function saveAndConnect(){
+  const url = document.getElementById('url-input').value.trim();
+  if(!url){ showToast('Please enter the Web App URL','error'); return; }
+  CONFIG.webAppUrl = url;
+  localStorage.setItem(SAVED_KEY, JSON.stringify(CONFIG));
+  await loadAll();
+}
+
+// ── DATA LOADING ──
+async function loadAll(){
+  if(!CONFIG.webAppUrl) return;
+  const badge = document.getElementById('connection-badge');
+  badge.textContent = '⬤ Loading…';
+  badge.className = '';
+  try{
+    const [p,e,o,f,h] = await Promise.all([
+      fetchSheet('Patients'), fetchSheet('Examinations'),
+      fetchSheet('Operations'), fetchSheet('Followup'), fetchSheet('History')
+    ]);
+    DB.patients=p; DB.examinations=e; DB.operations=o; DB.followups=f; DB.history=h;
+    badge.textContent = `⬤ ${p.length} patients loaded`;
+    badge.className = 'connected';
+    showToast(`Loaded: ${p.length} patients, ${e.length} exams, ${o.length} ops, ${f.length} follow-ups`,'success');
+  } catch(err){
+    badge.textContent = '⬤ Connection failed';
+    badge.className = '';
+    showToast('Could not load data — check the URL in Setup','error');
+    document.getElementById('setup-panel').style.display = '';
+  }
+}
+
+async function fetchSheet(name){
+  const res = await fetch(`${CONFIG.webAppUrl}?sheet=${name}`);
+  const data = await res.json();
+  return data.rows || [];
+}
+
+// ── QUERY ENGINE ──
+function runQuery(){
+  if(!DB.patients.length){ showToast('No data loaded — check Setup','error'); return; }
+
+  const g = id => document.getElementById(id).value;
+  const fSex = g('f-sex');
+  const fAgeMin = parseFloat(g('f-age-min')); 
+  const fAgeMax = parseFloat(g('f-age-max'));
+  const fConsang = g('f-consang');
+  const fFhx = g('f-fhx');
+  const fLensOD = g('f-lens-od');
+  const fLensOS = g('f-lens-os');
+  const fLensStatusOD = g('f-lens-status-od');
+  const fLensStatusOS = g('f-lens-status-os');
+  const fLensMorphOD = g('f-lens-morph-od');
+  const fLensMorphOS = g('f-lens-morph-os');
+  const fSubluxOD = g('f-sublux-od');
+  const fSubluxOS = g('f-sublux-os');
+  const fPhpvOD = g('f-phpv-od');
+  const fPhpvOS = g('f-phpv-os');
+  const fSpherOD = g('f-spher-od');
+  const fSpherOS = g('f-spher-os');
+  const fPpcdOD = g('f-ppcd-od');
+  const fPpcdOS = g('f-ppcd-os');
+  const fGonioOD = g('f-gonio-od');
+  const fAngleOD = g('f-angle-od');
+  const fSyndrome = g('f-syndrome').toLowerCase();
+  const fAxlODMin = parseFloat(g('f-axl-od-min'));
+  const fAxlODMax = parseFloat(g('f-axl-od-max'));
+  const fEuaExam = g('f-eua-exam');
+  const fIopODMin = parseFloat(g('f-iop-od-min'));
+  const fIopODMax = parseFloat(g('f-iop-od-max'));
+  const fIol = g('f-iol');
+  const fAntCap = g('f-ant-cap');
+  const fPostCap = g('f-post-cap');
+  const fAntVit = g('f-ant-vit');
+  const fEye = g('f-eye');
+  const fOptype = g('f-optype').toLowerCase();
+  const fIolType = g('f-iol-type').toLowerCase();
+  const fIolPowMin = parseFloat(g('f-iol-pow-min'));
+  const fIolPowMax = parseFloat(g('f-iol-pow-max'));
+  const fFupLensOD = g('f-fup-lens-od');
+  const fOpacOD = g('f-opacity-od');
+  const fFupVaOD = g('f-fup-va-od');
+  const fVisitType = g('f-visit-type');
+
+  const rows = [];
+
+  for(const p of DB.patients){
+    const pid = String(p.PID);
+
+    // Patient-level filters
+    if(fSex && p.Sex !== fSex) continue;
+
+    // Age filter
+    if(!isNaN(fAgeMin) || !isNaN(fAgeMax)){
+      const ageYrs = p.DOB ? (new Date() - new Date(p.DOB)) / (1000*60*60*24*365.25) : null;
+      if(ageYrs === null) continue;
+      if(!isNaN(fAgeMin) && ageYrs < fAgeMin) continue;
+      if(!isNaN(fAgeMax) && ageYrs > fAgeMax) continue;
+    }
+
+    // History filters
+    const hist = DB.history.find(h => String(h.PID)===pid) || {};
+    if(fConsang && hist.Consanguinity !== fConsang) continue;
+    if(fFhx && hist.FamilyHistory !== fFhx) continue;
+
+    // Examination filters
+    const exams = DB.examinations.filter(e => String(e.PID)===pid);
+    let matchExam = null;
+    if(fLensOD||fLensOS||fGonioOD||fAngleOD||fSyndrome||
+       !isNaN(fAxlODMin)||!isNaN(fAxlODMax)||fEuaExam||
+       !isNaN(fIopODMin)||!isNaN(fIopODMax)||
+       fLensStatusOD||fLensStatusOS||fLensMorphOD||fLensMorphOS||
+       fSubluxOD||fSubluxOS||fPhpvOD||fPhpvOS||
+       fSpherOD||fSpherOS||fPpcdOD||fPpcdOS){
+      matchExam = exams.find(e => {
+        if(fLensOD && !(e.LensStatus_OD||'').toLowerCase().includes(fLensOD.toLowerCase())) return false;
+        if(fLensOS && !(e.LensStatus_OS||'').toLowerCase().includes(fLensOS.toLowerCase())) return false;
+        if(fGonioOD && e.Gonioscopy_OD !== fGonioOD) return false;
+        if(fAngleOD && e.AngleOD !== fAngleOD) return false;
+        if(fSyndrome && !(e.Syndrome||'').toLowerCase().includes(fSyndrome)) return false;
+        if(fEuaExam && e.EUA !== fEuaExam) return false;
+        if(fLensStatusOD && !(e.LensStatus_OD||'').includes(fLensStatusOD)) return false;
+        if(fLensStatusOS && !(e.LensStatus_OS||'').includes(fLensStatusOS)) return false;
+        if(fLensMorphOD && !(e.LensMorphology_OD||'').includes(fLensMorphOD)) return false;
+        if(fLensMorphOS && !(e.LensMorphology_OS||'').includes(fLensMorphOS)) return false;
+        if(fSubluxOD && e.Subluxation_OD !== fSubluxOD) return false;
+        if(fSubluxOS && e.Subluxation_OS !== fSubluxOS) return false;
+        if(fPhpvOD && e.PHPV_OD !== fPhpvOD) return false;
+        if(fPhpvOS && e.PHPV_OS !== fPhpvOS) return false;
+        if(fSpherOD && e.Spherophakia_OD !== fSpherOD) return false;
+        if(fSpherOS && e.Spherophakia_OS !== fSpherOS) return false;
+        if(fPpcdOD && e.PPCD_OD !== fPpcdOD) return false;
+        if(fPpcdOS && e.PPCD_OS !== fPpcdOS) return false;
+        const axl = parseFloat(e.AxialLength_OD);
+        if(!isNaN(fAxlODMin) && (isNaN(axl) || axl < fAxlODMin)) return false;
+        if(!isNaN(fAxlODMax) && (isNaN(axl) || axl > fAxlODMax)) return false;
+        const iop = parseFloat(e.IOP_OD);
+        if(!isNaN(fIopODMin) && (isNaN(iop) || iop < fIopODMin)) return false;
+        if(!isNaN(fIopODMax) && (isNaN(iop) || iop > fIopODMax)) return false;
+        return true;
+      });
+      if(!matchExam) continue;
+    } else {
+      matchExam = exams[0] || {};
+    }
+
+    // Operation filters
+    const ops = DB.operations.filter(o => String(o.PID)===pid);
+    let matchOp = null;
+    if(fIol||fAntCap||fPostCap||fAntVit||fEye||fOptype||fIolType||
+       !isNaN(fIolPowMin)||!isNaN(fIolPowMax)){
+      matchOp = ops.find(o => {
+        if(fIol && o.IOL !== fIol) return false;
+        if(fAntCap && !(o.AnteriorCapsule||'').toLowerCase().includes(fAntCap.toLowerCase())) return false;
+        if(fPostCap && !(o.PosteriorCapsule||'').toLowerCase().includes(fPostCap.toLowerCase())) return false;
+        if(fAntVit && o.AnteriorVitrectomy !== fAntVit) return false;
+        if(fEye && o.Eye !== fEye) return false;
+        if(fOptype && !(o.OperationName||'').toLowerCase().includes(fOptype.toLowerCase())) return false;
+        if(fIolType && !(o.IOLType||'').toLowerCase().includes(fIolType)) return false;
+        const pow = parseFloat(o.IOLPower);
+        if(!isNaN(fIolPowMin) && (isNaN(pow) || pow < fIolPowMin)) return false;
+        if(!isNaN(fIolPowMax) && (isNaN(pow) || pow > fIolPowMax)) return false;
+        return true;
+      });
+      if(!matchOp) continue;
+    } else {
+      matchOp = ops[0] || {};
+    }
+
+    // Follow-up filters
+    const fups = DB.followups.filter(f => String(f.PID)===pid);
+    let matchFup = null;
+    if(fFupLensOD||fOpacOD||fFupVaOD||fVisitType){
+      matchFup = fups.find(f => {
+        if(fFupLensOD && !(f.LensStatus_OD||'').toLowerCase().includes(fFupLensOD.toLowerCase())) return false;
+        if(fOpacOD && !(f.Opacification_OD||'').toLowerCase().includes(fOpacOD.toLowerCase())) return false;
+        if(fFupVaOD && f.VA_OD !== fFupVaOD) return false;
+        if(fVisitType && !(f.VisitType||'').includes(fVisitType)) return false;
+        return true;
+      });
+      if(!matchFup) continue;
+    } else {
+      matchFup = fups[fups.length-1] || {};
+    }
+
+    // Build result row
+    const age = p.DOB ? ((new Date()-new Date(p.DOB))/(1000*60*60*24*365.25)).toFixed(1)+'y' : '—';
+    rows.push({
+      // Patient
+      PID: p.PID, Name: p.Name, Sex: p.Sex, Age: age,
+      DOB: p.DOB ? new Date(p.DOB).toLocaleDateString() : '',
+      Phone: p.Phone, Referring: p.Referring,
+      // Exam
+      DateOfExam: matchExam.DateOfExam ? new Date(matchExam.DateOfExam).toLocaleDateString() : '',
+      EUA: matchExam.EUA||'',
+      Examiner_exam: matchExam.Examiner||'',
+      LensStatus_OD: matchExam.LensStatus_OD||'',
+      LensStatus_OS: matchExam.LensStatus_OS||'',
+      AxialLength_OD: matchExam.AxialLength_OD||'',
+      AxialLength_OS: matchExam.AxialLength_OS||'',
+      IOP_OD: matchExam.IOP_OD||'',
+      IOP_OS: matchExam.IOP_OS||'',
+      Gonioscopy_OD: matchExam.Gonioscopy_OD||'',
+      AngleOD: matchExam.AngleOD||'',
+      Gonioscopy_OS: matchExam.Gonioscopy_OS||'',
+      AngleOS: matchExam.AngleOS||'',
+      Syndrome: matchExam.Syndrome||'',
+      LensStatus_OD_exam: matchExam.LensStatus_OD||'',
+      LensStatus_OS_exam: matchExam.LensStatus_OS||'',
+      LensMorphology_OD: matchExam.LensMorphology_OD||'',
+      LensMorphology_OS: matchExam.LensMorphology_OS||'',
+      Subluxation_OD: matchExam.Subluxation_OD||'',
+      Subluxation_OS: matchExam.Subluxation_OS||'',
+      PHPV_OD: matchExam.PHPV_OD||'',
+      PHPV_OS: matchExam.PHPV_OS||'',
+      Spherophakia_OD: matchExam.Spherophakia_OD||'',
+      Spherophakia_OS: matchExam.Spherophakia_OS||'',
+      PPCD_OD: matchExam.PPCD_OD||'',
+      PPCD_OS: matchExam.PPCD_OS||'',
+      Consanguinity: hist.Consanguinity||'',
+      FamilyHistory: hist.FamilyHistory||'',
+      // Surgery
+      DateOfOp: matchOp.DateOfOp ? new Date(matchOp.DateOfOp).toLocaleDateString() : '',
+      Eye: matchOp.Eye||'',
+      OperationName: matchOp.OperationName||'',
+      AnteriorCapsule: matchOp.AnteriorCapsule||'',
+      PosteriorCapsule: matchOp.PosteriorCapsule||'',
+      AnteriorVitrectomy: matchOp.AnteriorVitrectomy||'',
+      IOL: matchOp.IOL||'',
+      IOLType: matchOp.IOLType||'',
+      IOLPower: matchOp.IOLPower||'',
+      OtherComplications: matchOp.OtherComplications||'',
+      // Follow-up
+      DateOfFup: matchFup.DateOfExam ? new Date(matchFup.DateOfExam).toLocaleDateString() : '',
+      VisitType: matchFup.VisitType||'',
+      VA_OD_fup: matchFup.VA_OD||'',
+      VA_OS_fup: matchFup.VA_OS||'',
+      Opacification_OD: matchFup.Opacification_OD||'',
+      Opacification_OS: matchFup.Opacification_OS||'',
+    });
+  }
+
+  RESULTS = rows;
+  SORT_COL = null;
+  PAGE = 1;
+  renderResults();
+}
+
+// ── RENDER RESULTS ──
+function renderResults(){
+  const section = document.getElementById('results-section');
+  const emptyMsg = document.getElementById('empty-msg');
+
+  if(!RESULTS.length){
+    section.style.display = 'none';
+    emptyMsg.style.display = '';
+    return;
+  }
+  section.style.display = '';
+  emptyMsg.style.display = 'none';
+
+  // Stats
+  const stats = document.getElementById('stats-row');
+  const iolCount = RESULTS.filter(r=>r.IOL==='Yes').length;
+  const maleCount = RESULTS.filter(r=>r.Sex==='Male').length;
+  stats.innerHTML = `
+    <div class="stat-chip"><div class="stat-chip-val">${RESULTS.length}</div><div class="stat-chip-lbl">Patients</div></div>
+    <div class="stat-chip"><div class="stat-chip-val">${maleCount}</div><div class="stat-chip-lbl">Male</div></div>
+    <div class="stat-chip"><div class="stat-chip-val">${RESULTS.length-maleCount}</div><div class="stat-chip-lbl">Female</div></div>
+    <div class="stat-chip"><div class="stat-chip-val">${iolCount}</div><div class="stat-chip-lbl">IOL</div></div>
+    <div class="stat-chip"><div class="stat-chip-val">${RESULTS.length-iolCount}</div><div class="stat-chip-lbl">Aphakic</div></div>
+  `;
+
+  // Sort
+  let sorted = [...RESULTS];
+  if(SORT_COL){
+    sorted.sort((a,b)=>{
+      const av=a[SORT_COL]||'', bv=b[SORT_COL]||'';
+      return SORT_DIR * av.toString().localeCompare(bv.toString(), undefined, {numeric:true});
+    });
+  }
+
+  // Paginate
+  const total = sorted.length;
+  const totalPages = Math.ceil(total/PAGE_SIZE);
+  PAGE = Math.min(PAGE, totalPages);
+  const pageRows = sorted.slice((PAGE-1)*PAGE_SIZE, PAGE*PAGE_SIZE);
+
+  // Headers
+  const thead = document.getElementById('results-thead');
+  const activeCols = ALL_COLS.filter(c => ACTIVE_COLS.includes(c.key));
+  thead.innerHTML = '<tr>' + activeCols.map(col => {
+    const cls = SORT_COL===col.key ? (SORT_DIR===1?'sort-asc':'sort-desc') : '';
+    return `<th class="${cls}" onclick="sortBy('${col.key}')">${col.label}</th>`;
+  }).join('') + '</tr>';
+
+  // Body
+  const tbody = document.getElementById('results-tbody');
+  if(!pageRows.length){
+    tbody.innerHTML = '<tr><td colspan="'+activeCols.length+'" style="text-align:center;padding:30px;color:var(--text-faint)">No results</td></tr>';
+  } else {
+    tbody.innerHTML = pageRows.map(row =>
+      '<tr>' + activeCols.map(col => {
+        const v = row[col.key] || '';
+        const cls = col.key==='PID'?'mono':(col.key==='Age'||col.key==='DateOfExam'||col.key==='DateOfOp'?'dim':'');
+        return `<td class="${cls}">${v}</td>`;
+      }).join('') + '</tr>'
+    ).join('');
+  }
+
+  // Count
+  document.getElementById('result-count').textContent = `${total} patients · page ${PAGE}/${totalPages}`;
+
+  // Pagination
+  const pag = document.getElementById('pagination');
+  if(totalPages <= 1){ pag.innerHTML=''; return; }
+  let btns = '';
+  if(PAGE>1) btns += `<button class="page-btn" onclick="goPage(${PAGE-1})">← Prev</button>`;
+  for(let i=Math.max(1,PAGE-2); i<=Math.min(totalPages,PAGE+2); i++){
+    btns += `<button class="page-btn${i===PAGE?' active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  if(PAGE<totalPages) btns += `<button class="page-btn" onclick="goPage(${PAGE+1})">Next →</button>`;
+  btns += `<span class="page-info">${total} total</span>`;
+  pag.innerHTML = btns;
+}
+
+function sortBy(col){
+  if(SORT_COL===col) SORT_DIR *= -1;
+  else { SORT_COL=col; SORT_DIR=1; }
+  renderResults();
+}
+
+function goPage(n){ PAGE=n; renderResults(); document.getElementById('results-section').scrollIntoView({behavior:'smooth'}); }
+
+// ── COLUMN PICKER ──
+function buildColPicker(){
+  const picker = document.getElementById('col-picker');
+  picker.innerHTML = ALL_COLS.map(col =>
+    `<span class="col-chip${ACTIVE_COLS.includes(col.key)?' active':''}" onclick="toggleCol('${col.key}',this)">${col.label}</span>`
+  ).join('');
+}
+
+function toggleCol(key, el){
+  if(ACTIVE_COLS.includes(key)){
+    if(ACTIVE_COLS.length<=2){ showToast('Keep at least 2 columns','error'); return; }
+    ACTIVE_COLS = ACTIVE_COLS.filter(c=>c!==key);
+    el.classList.remove('active');
+  } else {
+    ACTIVE_COLS.push(key);
+    el.classList.add('active');
+  }
+  if(RESULTS.length) renderResults();
+}
+
+// ── CLEAR FILTERS ──
+function clearFilters(){
+  document.querySelectorAll('.filter-input').forEach(el=>{
+    if(el.tagName==='SELECT') el.value='';
+    else el.value='';
+  });
+}
+
+// ── EXPORT ──
+function exportCSV(){
+  if(!RESULTS.length){ showToast('No results to export','error'); return; }
+  const activeCols = ALL_COLS.filter(c=>ACTIVE_COLS.includes(c.key));
+  const header = activeCols.map(c=>c.label).join(',');
+  const rows = RESULTS.map(row =>
+    activeCols.map(col => {
+      const v = (row[col.key]||'').toString().replace(/"/g,'""');
+      return v.includes(',') || v.includes('"') || v.includes('\n') ? `"${v}"` : v;
+    }).join(',')
+  );
+  const csv = [header, ...rows].join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download='PediCat_Research_'+today()+'.csv'; a.click();
+  URL.revokeObjectURL(url);
+  showToast(`Exported ${RESULTS.length} rows to CSV`,'success');
+}
+
+function exportExcel(){
+  if(!RESULTS.length){ showToast('No results to export','error'); return; }
+  const activeCols = ALL_COLS.filter(c=>ACTIVE_COLS.includes(c.key));
+  // Build HTML table (Excel can open this)
+  const header = activeCols.map(c=>`<th>${c.label}</th>`).join('');
+  const rows = RESULTS.map(row =>
+    '<tr>'+activeCols.map(col=>`<td>${row[col.key]||''}</td>`).join('')+'</tr>'
+  ).join('');
+  const html = `<html><head><meta charset="UTF-8"></head><body><table border="1">${'<tr>'+header+'</tr>'}${rows}</table></body></html>`;
+  const blob = new Blob([html], {type:'application/vnd.ms-excel;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download='PediCat_Research_'+today()+'.xls'; a.click();
+  URL.revokeObjectURL(url);
+  showToast(`Exported ${RESULTS.length} rows to Excel`,'success');
+}
+
+function today(){
+  return new Date().toISOString().split('T')[0];
+}
+
+// ── TOAST ──
+function showToast(msg, type='success'){
+  const container = document.getElementById('toast');
+  const el = document.createElement('div');
+  el.className = `toast-item ${type}`;
+  el.textContent = msg;
+  container.appendChild(el);
+  setTimeout(()=>el.remove(), 4000);
+}
+</script>
+</body>
+</html>
