@@ -198,40 +198,80 @@ tbody td.dim{color:var(--text-dim)}
 
     <div class="filter-section-head">Preoperative Examination</div>
     <div class="filter-grid">
-      <div class="filter-group">
-        <div class="filter-label">Lens Status OD</div>
-        <select class="filter-input" id="f-lens-od">
+            <div class="filter-group">
+        <div class="filter-label">Lens Status</div>
+        <select class="filter-input" id="f-lens-bi">
           <option value="">Any</option>
-          <option value="__either__">Either eye</option>
-          <option>Cataract</option><option>Clear</option><option>Aphakia</option>
-          <option>Pseudophakia</option><option>Subluxated</option><option>Absent</option>
+          <option value="__od__">OD only (present in OD)</option>
+          <option value="__os__">OS only (present in OS)</option>
+          <option value="__either__">Either eye (OD or OS)</option>
+          <option value="__both__">Both eyes</option>
+          <option value="__neither__">Neither eye (both absent/normal)</option>
+          <optgroup label="── Specific value ──────────"></optgroup>
+          <option value="__either__Cataract">Either eye = Cataract</option>
+          <option value="__od__Cataract">OD = Cataract</option>
+          <option value="__os__Cataract">OS = Cataract</option>
+          <option value="__both__Cataract">Both eyes = Cataract</option>
+          <option value="__either__Clear lens">Either eye = Clear lens</option>
+          <option value="__od__Clear lens">OD = Clear lens</option>
+          <option value="__os__Clear lens">OS = Clear lens</option>
+          <option value="__both__Clear lens">Both eyes = Clear lens</option>
+          <option value="__either__Aphakia">Either eye = Aphakia</option>
+          <option value="__od__Aphakia">OD = Aphakia</option>
+          <option value="__os__Aphakia">OS = Aphakia</option>
+          <option value="__both__Aphakia">Both eyes = Aphakia</option>
+          <option value="__either__Pseudophakia">Either eye = Pseudophakia</option>
+          <option value="__od__Pseudophakia">OD = Pseudophakia</option>
+          <option value="__os__Pseudophakia">OS = Pseudophakia</option>
+          <option value="__both__Pseudophakia">Both eyes = Pseudophakia</option>
         </select>
       </div>
       <div class="filter-group">
-        <div class="filter-label">Lens Status OS</div>
-        <select class="filter-input" id="f-lens-os">
+        <div class="filter-label">Gonioscopy</div>
+        <select class="filter-input" id="f-gonio-bi">
           <option value="">Any</option>
           <option value="__either__">Either eye</option>
-          <option>Cataract</option><option>Clear</option><option>Aphakia</option>
-          <option>Pseudophakia</option><option>Subluxated</option><option>Absent</option>
+          <option value="__od__">OD only</option>
+          <option value="__os__">OS only</option>
+          <option value="__both__">Both eyes</option>
+          <option value="__neither__">Neither eye</option>
+          <optgroup label="── Specific value ──────────"></optgroup>
+          <option value="__either__Yes">Either = Yes</option>
+          <option value="__od__Yes">OD = Yes</option>
+          <option value="__os__Yes">OS = Yes</option>
+          <option value="__both__Yes">Both = Yes</option>
+          <option value="__either__No">Either = No</option>
+          <option value="__od__No">OD = No</option>
+          <option value="__os__No">OS = No</option>
+          <option value="__both__No">Both = No</option>
         </select>
       </div>
       <div class="filter-group">
-        <div class="filter-label">Gonioscopy OD</div>
-        <select class="filter-input" id="f-gonio-od">
+        <div class="filter-label">Angle</div>
+        <select class="filter-input" id="f-angle-bi">
           <option value="">Any</option>
           <option value="__either__">Either eye</option>
-          <option>Yes</option><option>No</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <div class="filter-label">Angle OD</div>
-        <select class="filter-input" id="f-angle-od">
-          <option value="">Any</option>
-          <option value="__either__">Either eye</option>
-          <option>Open</option><option>Closed</option>
-          <option>Open with anterior iris insertion</option>
-          <option>Dysgenetic angle</option>
+          <option value="__od__">OD only</option>
+          <option value="__os__">OS only</option>
+          <option value="__both__">Both eyes</option>
+          <option value="__neither__">Neither eye</option>
+          <optgroup label="── Specific value ──────────"></optgroup>
+          <option value="__either__Open">Either = Open</option>
+          <option value="__od__Open">OD = Open</option>
+          <option value="__os__Open">OS = Open</option>
+          <option value="__both__Open">Both = Open</option>
+          <option value="__either__Closed">Either = Closed</option>
+          <option value="__od__Closed">OD = Closed</option>
+          <option value="__os__Closed">OS = Closed</option>
+          <option value="__both__Closed">Both = Closed</option>
+          <option value="__either__Open with anterior iris insertion">Either = Open with anterior iris insertion</option>
+          <option value="__od__Open with anterior iris insertion">OD = Open with anterior iris insertion</option>
+          <option value="__os__Open with anterior iris insertion">OS = Open with anterior iris insertion</option>
+          <option value="__both__Open with anterior iris insertion">Both = Open with anterior iris insertion</option>
+          <option value="__either__Dysgenetic angle">Either = Dysgenetic angle</option>
+          <option value="__od__Dysgenetic angle">OD = Dysgenetic angle</option>
+          <option value="__os__Dysgenetic angle">OS = Dysgenetic angle</option>
+          <option value="__both__Dysgenetic angle">Both = Dysgenetic angle</option>
         </select>
       </div>
       <div class="filter-group">
@@ -261,126 +301,152 @@ tbody td.dim{color:var(--text-dim)}
           <input type="number" class="filter-input" id="f-iop-od-max" placeholder="Max">
         </div>
       </div>
-      <div class="filter-group">
-        <div class="filter-label">Lens Status OD</div>
-        <select class="filter-input" id="f-lens-status-od">
+            <div class="filter-group">
+        <div class="filter-label">Lens Status (detailed)</div>
+        <select class="filter-input" id="f-lens-status-bi">
           <option value="">Any</option>
-          <option value="__either__">Either eye</option>
-          <option>Cataract</option>
-          <option>Clear lens</option>
-          <option>Aphakia</option>
-          <option>Pseudophakia</option>
+          <option value="__od__">OD only (present in OD)</option>
+          <option value="__os__">OS only (present in OS)</option>
+          <option value="__either__">Either eye (OD or OS)</option>
+          <option value="__both__">Both eyes</option>
+          <option value="__neither__">Neither eye (both absent/normal)</option>
+          <optgroup label="── Specific value ──────────"></optgroup>
+          <option value="__either__Cataract">Either eye = Cataract</option>
+          <option value="__od__Cataract">OD = Cataract</option>
+          <option value="__os__Cataract">OS = Cataract</option>
+          <option value="__both__Cataract">Both eyes = Cataract</option>
+          <option value="__either__Clear lens">Either eye = Clear lens</option>
+          <option value="__od__Clear lens">OD = Clear lens</option>
+          <option value="__os__Clear lens">OS = Clear lens</option>
+          <option value="__both__Clear lens">Both eyes = Clear lens</option>
+          <option value="__either__Aphakia">Either eye = Aphakia</option>
+          <option value="__od__Aphakia">OD = Aphakia</option>
+          <option value="__os__Aphakia">OS = Aphakia</option>
+          <option value="__both__Aphakia">Both eyes = Aphakia</option>
+          <option value="__either__Pseudophakia">Either eye = Pseudophakia</option>
+          <option value="__od__Pseudophakia">OD = Pseudophakia</option>
+          <option value="__os__Pseudophakia">OS = Pseudophakia</option>
+          <option value="__both__Pseudophakia">Both eyes = Pseudophakia</option>
         </select>
       </div>
-      <div class="filter-group">
-        <div class="filter-label">Lens Status OS</div>
-        <select class="filter-input" id="f-lens-status-os">
+            <div class="filter-group">
+        <div class="filter-label">Lens Morphology</div>
+        <select class="filter-input" id="f-lens-morph-bi">
           <option value="">Any</option>
-          <option value="__either__">Either eye</option>
-          <option>Cataract</option>
-          <option>Clear lens</option>
-          <option>Aphakia</option>
-          <option>Pseudophakia</option>
+          <option value="__od__">OD only (present in OD)</option>
+          <option value="__os__">OS only (present in OS)</option>
+          <option value="__either__">Either eye (OD or OS)</option>
+          <option value="__both__">Both eyes</option>
+          <option value="__neither__">Neither eye (both absent/normal)</option>
+          <optgroup label="── Specific value ──────────"></optgroup>
+          <option value="__either__Total">Either eye = Total</option>
+          <option value="__od__Total">OD = Total</option>
+          <option value="__os__Total">OS = Total</option>
+          <option value="__both__Total">Both eyes = Total</option>
+          <option value="__either__Nuclear">Either eye = Nuclear</option>
+          <option value="__od__Nuclear">OD = Nuclear</option>
+          <option value="__os__Nuclear">OS = Nuclear</option>
+          <option value="__both__Nuclear">Both eyes = Nuclear</option>
+          <option value="__either__Cortical">Either eye = Cortical</option>
+          <option value="__od__Cortical">OD = Cortical</option>
+          <option value="__os__Cortical">OS = Cortical</option>
+          <option value="__both__Cortical">Both eyes = Cortical</option>
+          <option value="__either__Posterior Subcapsular">Either eye = Posterior Subcapsular</option>
+          <option value="__od__Posterior Subcapsular">OD = Posterior Subcapsular</option>
+          <option value="__os__Posterior Subcapsular">OS = Posterior Subcapsular</option>
+          <option value="__both__Posterior Subcapsular">Both eyes = Posterior Subcapsular</option>
+          <option value="__either__Anterior Polar">Either eye = Anterior Polar</option>
+          <option value="__od__Anterior Polar">OD = Anterior Polar</option>
+          <option value="__os__Anterior Polar">OS = Anterior Polar</option>
+          <option value="__both__Anterior Polar">Both eyes = Anterior Polar</option>
+          <option value="__either__Posterior Polar">Either eye = Posterior Polar</option>
+          <option value="__od__Posterior Polar">OD = Posterior Polar</option>
+          <option value="__os__Posterior Polar">OS = Posterior Polar</option>
+          <option value="__both__Posterior Polar">Both eyes = Posterior Polar</option>
+          <option value="__either__Lamellar">Either eye = Lamellar</option>
+          <option value="__od__Lamellar">OD = Lamellar</option>
+          <option value="__os__Lamellar">OS = Lamellar</option>
+          <option value="__both__Lamellar">Both eyes = Lamellar</option>
         </select>
       </div>
-      <div class="filter-group">
-        <div class="filter-label">Lens Morphology OD</div>
-        <select class="filter-input" id="f-lens-morph-od">
+            <div class="filter-group">
+        <div class="filter-label">Subluxation</div>
+        <select class="filter-input" id="f-sublux-bi">
           <option value="">Any</option>
-          <option value="__either__">Either eye</option>
-          <option>Total</option>
-          <option>Nuclear</option>
-          <option>Cortical</option>
-          <option>Posterior Subcapsular</option>
-          <option>Anterior Polar</option>
-          <option>Posterior Polar</option>
-          <option>Lamellar</option>
+          <option value="__od__">OD only (present in OD)</option>
+          <option value="__os__">OS only (present in OS)</option>
+          <option value="__either__">Either eye (OD or OS)</option>
+          <option value="__both__">Both eyes</option>
+          <option value="__neither__">Neither eye (both absent/normal)</option>
+          <optgroup label="── Specific value ──────────"></optgroup>
+          <option value="__either__Yes">Either eye = Yes</option>
+          <option value="__od__Yes">OD = Yes</option>
+          <option value="__os__Yes">OS = Yes</option>
+          <option value="__both__Yes">Both eyes = Yes</option>
+          <option value="__either__No">Either eye = No</option>
+          <option value="__od__No">OD = No</option>
+          <option value="__os__No">OS = No</option>
+          <option value="__both__No">Both eyes = No</option>
         </select>
       </div>
-      <div class="filter-group">
-        <div class="filter-label">Lens Morphology OS</div>
-        <select class="filter-input" id="f-lens-morph-os">
+            <div class="filter-group">
+        <div class="filter-label">PHPV</div>
+        <select class="filter-input" id="f-phpv-bi">
           <option value="">Any</option>
-          <option value="__either__">Either eye</option>
-          <option>Total</option>
-          <option>Nuclear</option>
-          <option>Cortical</option>
-          <option>Posterior Subcapsular</option>
-          <option>Anterior Polar</option>
-          <option>Posterior Polar</option>
-          <option>Lamellar</option>
+          <option value="__od__">OD only (present in OD)</option>
+          <option value="__os__">OS only (present in OS)</option>
+          <option value="__either__">Either eye (OD or OS)</option>
+          <option value="__both__">Both eyes</option>
+          <option value="__neither__">Neither eye (both absent/normal)</option>
+          <optgroup label="── Specific value ──────────"></optgroup>
+          <option value="__either__Present">Either eye = Present</option>
+          <option value="__od__Present">OD = Present</option>
+          <option value="__os__Present">OS = Present</option>
+          <option value="__both__Present">Both eyes = Present</option>
+          <option value="__either__Absent">Either eye = Absent</option>
+          <option value="__od__Absent">OD = Absent</option>
+          <option value="__os__Absent">OS = Absent</option>
+          <option value="__both__Absent">Both eyes = Absent</option>
         </select>
       </div>
-      <div class="filter-group">
-        <div class="filter-label">Subluxation OD</div>
-        <select class="filter-input" id="f-sublux-od">
+            <div class="filter-group">
+        <div class="filter-label">Spherophakia</div>
+        <select class="filter-input" id="f-spher-bi">
           <option value="">Any</option>
-          <option value="__either__">Either eye</option>
-          <option value="Yes">Present</option>
-          <option value="No">Absent</option>
+          <option value="__od__">OD only (present in OD)</option>
+          <option value="__os__">OS only (present in OS)</option>
+          <option value="__either__">Either eye (OD or OS)</option>
+          <option value="__both__">Both eyes</option>
+          <option value="__neither__">Neither eye (both absent/normal)</option>
+          <optgroup label="── Specific value ──────────"></optgroup>
+          <option value="__either__Present">Either eye = Present</option>
+          <option value="__od__Present">OD = Present</option>
+          <option value="__os__Present">OS = Present</option>
+          <option value="__both__Present">Both eyes = Present</option>
+          <option value="__either__Absent">Either eye = Absent</option>
+          <option value="__od__Absent">OD = Absent</option>
+          <option value="__os__Absent">OS = Absent</option>
+          <option value="__both__Absent">Both eyes = Absent</option>
         </select>
       </div>
-      <div class="filter-group">
-        <div class="filter-label">Subluxation OS</div>
-        <select class="filter-input" id="f-sublux-os">
+            <div class="filter-group">
+        <div class="filter-label">Pre-existing Post. Capsular Defect (PPCD)</div>
+        <select class="filter-input" id="f-ppcd-bi">
           <option value="">Any</option>
-          <option value="__either__">Either eye</option>
-          <option value="Yes">Present</option>
-          <option value="No">Absent</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <div class="filter-label">PHPV OD</div>
-        <select class="filter-input" id="f-phpv-od">
-          <option value="">Any</option>
-          <option value="__either__">Either eye</option>
-          <option>Present</option>
-          <option>Absent</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <div class="filter-label">PHPV OS</div>
-        <select class="filter-input" id="f-phpv-os">
-          <option value="">Any</option>
-          <option value="__either__">Either eye</option>
-          <option>Present</option>
-          <option>Absent</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <div class="filter-label">Spherophakia OD</div>
-        <select class="filter-input" id="f-spher-od">
-          <option value="">Any</option>
-          <option value="__either__">Either eye</option>
-          <option>Present</option>
-          <option>Absent</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <div class="filter-label">Spherophakia OS</div>
-        <select class="filter-input" id="f-spher-os">
-          <option value="">Any</option>
-          <option value="__either__">Either eye</option>
-          <option>Present</option>
-          <option>Absent</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <div class="filter-label">Pre-existing Post. Capsular Defect OD</div>
-        <select class="filter-input" id="f-ppcd-od">
-          <option value="">Any</option>
-          <option value="__either__">Either eye</option>
-          <option>Present</option>
-          <option>Absent</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <div class="filter-label">Pre-existing Post. Capsular Defect OS</div>
-        <select class="filter-input" id="f-ppcd-os">
-          <option value="">Any</option>
-          <option value="__either__">Either eye</option>
-          <option>Present</option>
-          <option>Absent</option>
+          <option value="__od__">OD only (present in OD)</option>
+          <option value="__os__">OS only (present in OS)</option>
+          <option value="__either__">Either eye (OD or OS)</option>
+          <option value="__both__">Both eyes</option>
+          <option value="__neither__">Neither eye (both absent/normal)</option>
+          <optgroup label="── Specific value ──────────"></optgroup>
+          <option value="__either__Present">Either eye = Present</option>
+          <option value="__od__Present">OD = Present</option>
+          <option value="__os__Present">OS = Present</option>
+          <option value="__both__Present">Both eyes = Present</option>
+          <option value="__either__Absent">Either eye = Absent</option>
+          <option value="__od__Absent">OD = Absent</option>
+          <option value="__os__Absent">OS = Absent</option>
+          <option value="__both__Absent">Both eyes = Absent</option>
         </select>
       </div>
     </div>
@@ -457,20 +523,63 @@ tbody td.dim{color:var(--text-dim)}
     <div class="filter-section-head">Follow-up</div>
     <div class="filter-grid">
       <div class="filter-group">
-        <div class="filter-label">Lens Status OD (post-op)</div>
-        <select class="filter-input" id="f-fup-lens-od">
+  <div class="filter-label">Lens Status (follow-up)</div>
+        <select class="filter-input" id="f-fup-lens-bi">
           <option value="">Any</option>
           <option value="__either__">Either eye</option>
-          <option>Clear</option><option>Aphakia</option><option>Pseudophakia</option>
-          <option>Opacified</option><option>Subluxated</option>
+          <option value="__od__">OD only</option>
+          <option value="__os__">OS only</option>
+          <option value="__both__">Both eyes</option>
+          <option value="__neither__">Neither eye</option>
+          <optgroup label="── Specific value ──────────"></optgroup>
+          <option value="__either__Clear">Either = Clear</option>
+          <option value="__od__Clear">OD = Clear</option>
+          <option value="__os__Clear">OS = Clear</option>
+          <option value="__both__Clear">Both = Clear</option>
+          <option value="__either__Aphakia">Either = Aphakia</option>
+          <option value="__od__Aphakia">OD = Aphakia</option>
+          <option value="__os__Aphakia">OS = Aphakia</option>
+          <option value="__both__Aphakia">Both = Aphakia</option>
+          <option value="__either__Pseudophakia">Either = Pseudophakia</option>
+          <option value="__od__Pseudophakia">OD = Pseudophakia</option>
+          <option value="__os__Pseudophakia">OS = Pseudophakia</option>
+          <option value="__both__Pseudophakia">Both = Pseudophakia</option>
+          <option value="__either__Opacified">Either = Opacified</option>
+          <option value="__od__Opacified">OD = Opacified</option>
+          <option value="__os__Opacified">OS = Opacified</option>
+          <option value="__both__Opacified">Both = Opacified</option>
+          <option value="__either__Subluxated">Either = Subluxated</option>
+          <option value="__od__Subluxated">OD = Subluxated</option>
+          <option value="__os__Subluxated">OS = Subluxated</option>
+          <option value="__both__Subluxated">Both = Subluxated</option>
         </select>
       </div>
-      <div class="filter-group">
-        <div class="filter-label">Opacification OD</div>
-        <select class="filter-input" id="f-opacity-od">
+            <div class="filter-group">
+        <div class="filter-label">Opacification (follow-up)</div>
+        <select class="filter-input" id="f-opacity-bi">
           <option value="">Any</option>
           <option value="__either__">Either eye</option>
-          <option>None</option><option>Mild</option><option>Moderate</option><option>Severe</option>
+          <option value="__od__">OD only</option>
+          <option value="__os__">OS only</option>
+          <option value="__both__">Both eyes</option>
+          <option value="__neither__">Neither eye</option>
+          <optgroup label="── Specific value ──────────"></optgroup>
+          <option value="__either__None">Either = None</option>
+          <option value="__od__None">OD = None</option>
+          <option value="__os__None">OS = None</option>
+          <option value="__both__None">Both = None</option>
+          <option value="__either__Mild">Either = Mild</option>
+          <option value="__od__Mild">OD = Mild</option>
+          <option value="__os__Mild">OS = Mild</option>
+          <option value="__both__Mild">Both = Mild</option>
+          <option value="__either__Moderate">Either = Moderate</option>
+          <option value="__od__Moderate">OD = Moderate</option>
+          <option value="__os__Moderate">OS = Moderate</option>
+          <option value="__both__Moderate">Both = Moderate</option>
+          <option value="__either__Severe">Either = Severe</option>
+          <option value="__od__Severe">OD = Severe</option>
+          <option value="__os__Severe">OS = Severe</option>
+          <option value="__both__Severe">Both = Severe</option>
         </select>
       </div>
       <div class="filter-group">
@@ -717,22 +826,22 @@ function runQuery(){
   const fAgeMax = parseFloat(g('f-age-max'));
   const fConsang = g('f-consang');
   const fFhx = g('f-fhx');
-  const fLensOD = g('f-lens-od');
-  const fLensOS = g('f-lens-os');
-  const fLensStatusOD = g('f-lens-status-od');
-  const fLensStatusOS = g('f-lens-status-os');
-  const fLensMorphOD = g('f-lens-morph-od');
-  const fLensMorphOS = g('f-lens-morph-os');
-  const fSubluxOD = g('f-sublux-od');
-  const fSubluxOS = g('f-sublux-os');
-  const fPhpvOD = g('f-phpv-od');
-  const fPhpvOS = g('f-phpv-os');
-  const fSpherOD = g('f-spher-od');
-  const fSpherOS = g('f-spher-os');
-  const fPpcdOD = g('f-ppcd-od');
-  const fPpcdOS = g('f-ppcd-os');
-  const fGonioOD = g('f-gonio-od');
-  const fAngleOD = g('f-angle-od');
+  const fLensOD = g('f-lens-bi');  // merged bilateral
+  const fLensOS = '';
+  const fLensStatusOD = g('f-lens-status-bi');
+  const fLensStatusOS = '';
+  const fLensMorphOD = g('f-lens-morph-bi');
+  const fLensMorphOS = '';
+  const fSubluxOD = g('f-sublux-bi');
+  const fSubluxOS = '';
+  const fPhpvOD = g('f-phpv-bi');
+  const fPhpvOS = '';
+  const fSpherOD = g('f-spher-bi');
+  const fSpherOS = '';
+  const fPpcdOD = g('f-ppcd-bi');
+  const fPpcdOS = '';
+  const fGonioOD = g('f-gonio-bi');
+  const fAngleOD = g('f-angle-bi');
   const fSyndrome = g('f-syndrome').toLowerCase();
   const fAxlODMin = parseFloat(g('f-axl-od-min'));
   const fAxlODMax = parseFloat(g('f-axl-od-max'));
@@ -748,8 +857,8 @@ function runQuery(){
   const fIolType = g('f-iol-type').toLowerCase();
   const fIolPowMin = parseFloat(g('f-iol-pow-min'));
   const fIolPowMax = parseFloat(g('f-iol-pow-max'));
-  const fFupLensOD = g('f-fup-lens-od');
-  const fOpacOD = g('f-opacity-od');
+  const fFupLensOD = g('f-fup-lens-bi');
+  const fOpacOD = g('f-opacity-bi');
   const fFupVaOD = g('f-fup-va-od');
   const fVisitType = g('f-visit-type');
 
@@ -760,23 +869,26 @@ function runQuery(){
     const v = filterVal;
     const od = (odVal||'').toLowerCase();
     const os = (osVal||'').toLowerCase();
-    if(v === '__either__') return od !== '' || os !== '';
-    if(v === '__od__')     return od !== '';
-    if(v === '__os__')     return os !== '';
-    if(v === '__both__')   return od !== '' && os !== '';
-    // Value-specific checks
-    if(v.startsWith('__either__')) { const val=v.slice(9).toLowerCase(); return od.includes(val)||os.includes(val); }
-    if(v.startsWith('__od__'))     { const val=v.slice(6).toLowerCase(); return od.includes(val); }
-    if(v.startsWith('__os__'))     { const val=v.slice(6).toLowerCase(); return os.includes(val); }
-    // Legacy: plain value (exact match on OD field for backward compat)
-    return od.includes(v.toLowerCase());
+    // Presence-based (any non-empty value counts as "present")
+    if(v === '__either__')  return od !== '' || os !== '';
+    if(v === '__od__')      return od !== '' && os === '';
+    if(v === '__os__')      return os !== '' && od === '';
+    if(v === '__both__')    return od !== '' && os !== '';
+    if(v === '__neither__') return od === '' && os === '';
+    // Value-specific: __either__Value, __od__Value, __os__Value, __both__Value
+    if(v.startsWith('__either__')){ const val=v.slice(9).toLowerCase(); return od.includes(val)||os.includes(val); }
+    if(v.startsWith('__od__'))    { const val=v.slice(6).toLowerCase(); return od.includes(val); }
+    if(v.startsWith('__os__'))    { const val=v.slice(6).toLowerCase(); return os.includes(val); }
+    if(v.startsWith('__both__'))  { const val=v.slice(8).toLowerCase(); return od.includes(val)&&os.includes(val); }
+    // Plain value — match either eye (backward compat)
+    return od.includes(v.toLowerCase()) || os.includes(v.toLowerCase());
   }
 
   function examMatches(e){
     if(!bilat(fLensOD, e.LensStatus_OD, e.LensStatus_OS)) return false;
     if(!bilat(fLensOS, e.LensStatus_OS, e.LensStatus_OD)) return false;
-    if(fGonioOD && e.Gonioscopy_OD !== fGonioOD) return false;
-    if(fAngleOD && e.AngleOD !== fAngleOD) return false;
+    if(!bilat(fGonioOD, e.Gonioscopy_OD, e.Gonioscopy_OS)) return false;
+    if(!bilat(fAngleOD, e.AngleOD, e.AngleOS)) return false;
     if(fSyndrome && !(e.Syndrome||'').toLowerCase().includes(fSyndrome)) return false;
     if(fEuaExam && e.EUA !== fEuaExam) return false;
     if(!bilat(fLensStatusOD, e.LensStatus_OD, e.LensStatus_OS)) return false;
@@ -861,8 +973,8 @@ function runQuery(){
 
   const hasExamFilter = !!(fLensOD||fLensOS||fGonioOD||fAngleOD||fSyndrome||fEuaExam||
     !isNaN(fAxlODMin)||!isNaN(fAxlODMax)||fEuaExam||!isNaN(fIopODMin)||!isNaN(fIopODMax)||
-    fLensStatusOD||fLensStatusOS||fLensMorphOD||fLensMorphOS||
-    fSubluxOD||fSubluxOS||fPhpvOD||fPhpvOS||fSpherOD||fSpherOS||fPpcdOD||fPpcdOS);
+    fLensStatusOD||fLensMorphOD||
+    fSubluxOD||fPhpvOD||fSpherOD||fPpcdOD);
   const hasOpFilter   = !!(fIol||fAntCap||fPostCap||fAntVit||fEye||fOptype||fIolType||!isNaN(fIolPowMin)||!isNaN(fIolPowMax));
   const hasFupFilter  = !!(fFupLensOD||fOpacOD||fFupVaOD||fVisitType);
 
