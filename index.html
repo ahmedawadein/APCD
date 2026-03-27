@@ -356,6 +356,36 @@
   .image-lightbox-close{position:absolute;top:16px;right:20px;color:#fff;font-size:28px;cursor:pointer;opacity:.7;background:none;border:none;line-height:1}
   .image-lightbox-close:hover{opacity:1}
   .image-caption-input{margin-top:8px;font-size:12.5px;padding:6px 10px}
+
+  /* ── LOGIN SCREEN ── */
+  #login-screen{position:fixed;inset:0;background:var(--navy);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px}
+  .login-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:36px 32px;width:100%;max-width:380px;backdrop-filter:blur(12px);box-shadow:0 24px 64px rgba(0,0,0,.5)}
+  .login-logo{font-family:'DM Serif Display',serif;font-size:28px;color:var(--teal);margin-bottom:4px}
+  .login-sub{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-faint);letter-spacing:2px;text-transform:uppercase;margin-bottom:28px}
+  .login-field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+  .login-field label{font-size:10.5px;font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;color:var(--text-main);opacity:.75}
+  .login-field input{background:var(--input-bg);border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);color:var(--text-main);font-family:'Lato',sans-serif;font-size:14px;padding:10px 13px;width:100%;outline:none;transition:border-color .15s,box-shadow .15s}
+  .login-field input:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-glow)}
+  #login-error{color:var(--red);font-size:12px;margin-bottom:10px;min-height:16px;font-family:'DM Mono',monospace}
+  .login-btn{width:100%;padding:12px;border-radius:8px;background:var(--teal);color:var(--navy);font-family:'Lato',sans-serif;font-size:14px;font-weight:700;border:none;cursor:pointer;transition:all .15s;margin-top:4px}
+  .login-btn:hover{background:#22d4cc;transform:translateY(-1px);box-shadow:0 4px 16px rgba(28,184,176,.3)}
+
+  /* ── USER BADGE in topbar ── */
+  .user-badge{display:flex;align-items:center;gap:7px;padding:5px 11px;border-radius:8px;border:1px solid var(--border-dim);cursor:pointer;transition:all .15s;font-size:12px;color:var(--text-dim)}
+  .user-badge:hover{border-color:var(--border);color:var(--text-main)}
+  .user-avatar{width:24px;height:24px;border-radius:50%;background:var(--teal-glow);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--teal);font-family:'DM Serif Display',serif;font-weight:700;flex-shrink:0}
+  .role-pill{font-size:9px;font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:20px}
+  .role-pill.admin{background:rgba(176,158,245,.15);color:var(--purple);border:1px solid rgba(176,158,245,.3)}
+  .role-pill.editor{background:var(--teal-glow);color:var(--teal);border:1px solid var(--border)}
+  .role-pill.viewer{background:rgba(247,183,49,.1);color:var(--amber);border:1px solid rgba(247,183,49,.25)}
+
+  /* ── USER MANAGEMENT in Setup ── */
+  .user-row{display:grid;grid-template-columns:1fr 1fr 90px 70px;gap:8px;align-items:center;padding:9px 12px;background:rgba(0,0,0,.18);border:1px solid var(--border-dim);border-radius:8px;margin-bottom:6px;font-size:13px}
+  .user-row-name{font-weight:700;color:var(--text-main)}
+  .user-row-username{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim)}
+  .add-user-form{display:grid;grid-template-columns:1fr 1fr 1fr 110px;gap:8px;align-items:end;margin-top:12px}
+  @media(max-width:640px){.user-row{grid-template-columns:1fr 80px 60px}.add-user-form{grid-template-columns:1fr 1fr}}
+
   /* PDF thumbnail card */
   .pdf-thumb{position:relative;border-radius:9px;overflow:hidden;border:1px solid var(--border-dim);background:rgba(0,0,0,.2);aspect-ratio:4/3;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:border-color .15s}
   .pdf-thumb:hover{border-color:var(--teal)}
@@ -602,6 +632,24 @@
 </button>
 <div id="sidebar-overlay" onclick="closeSidebar()"></div>
 
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">PediCat</div>
+    <div class="login-sub">Cataract Registry</div>
+    <div class="login-field">
+      <label>Username</label>
+      <input type="text" id="login-username" placeholder="Enter your username" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('login-password').focus()">
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="login-password" placeholder="Enter your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div id="login-error"></div>
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+  </div>
+</div>
+
 <!-- SIDEBAR -->
 <nav id="sidebar">
   <div class="sidebar-logo">
@@ -614,8 +662,18 @@
     <div class="nav-item" onclick="showView('patients')" id="nav-patients"><span class="nav-icon">◈</span>Patients</div>
     <div class="nav-section-label" style="margin-top:6px">System</div>
     <div class="nav-item" onclick="showView('setup')" id="nav-setup"><span class="nav-icon">◇</span>Setup</div>
+    <div class="nav-item" id="nav-users" style="display:none" onclick="showView('users')"><span class="nav-icon">👤</span>Manage Users</div>
   </div>
-  <div class="sidebar-footer">v2.0 · PediCat Registry</div>
+  <div style="padding:12px 14px;border-top:1px solid var(--border-dim)">
+    <div id="sidebar-user-info" style="display:flex;align-items:center;gap:9px;margin-bottom:8px">
+      <div id="sidebar-avatar" class="user-avatar">?</div>
+      <div style="flex:1;min-width:0">
+        <div id="sidebar-username" style="font-size:13px;font-weight:700;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+        <div id="sidebar-role-pill"></div>
+      </div>
+    </div>
+    <button onclick="doLogout()" style="width:100%;padding:6px;border-radius:6px;background:transparent;border:1px solid var(--border-dim);color:var(--text-faint);font-size:11px;cursor:pointer;font-family:'Lato',sans-serif;transition:all .15s" onmouseover="this.style.color='var(--red)';this.style.borderColor='rgba(224,82,82,.3)'" onmouseout="this.style.color='var(--text-faint)';this.style.borderColor='var(--border-dim)'">Sign Out</button>
+  </div>
 </nav>
 
 <!-- MAIN -->
@@ -624,6 +682,11 @@
     <div class="topbar-title" id="topbar-title">Dashboard</div>
     <div class="topbar-right">
       <span id="connection-badge" class="badge badge-amber">⬡ Not configured</span>
+      <div class="user-badge" id="topbar-user-badge" style="display:none">
+        <div class="user-avatar" id="topbar-avatar">?</div>
+        <span id="topbar-username"></span>
+        <span id="topbar-role-pill" class="role-pill"></span>
+      </div>
     </div>
   </div>
 
@@ -662,14 +725,20 @@
           <p style="margin-bottom:8px;margin-top:10px">In the <strong>Operations</strong> tab:</p>
           <div class="code-block">ID | PID | DateOfOp | Eye | OperationName | IOL | AnteriorCapsule | PosteriorCapsule | CapsuleStain | Viscoelastic | AnteriorVitrectomy | Membranectomy | Iridectomy | IrisInjury | Sphincterinjury | Synechiolysis | IrisReconstruction | IrisManipulations | Hyphaema | DroppedCortex | DroppedIOL | VitreousHaemorrhage | OtherComplications | Biometry | SRKII | Holladay | HofferQ | Kreading | K1 | K2 | AxialLength | IOLType | IOLPlace | IOLPower | TargetRefraction | Orientation | Steroids | Atropine | Route | Medications | Examiner | Duration | OperationNotes | EntryDate</div>
           <p style="margin-bottom:8px;margin-top:10px">In the <strong>Followup</strong> tab:</p>
-          <div class="code-block">ID | PID | DateOfExam | Eye | VisitType | Examiner | Cornea | CorneaDesc | AC | ACDesc | CCT | Iris | IrisDesc | Pupil | PupilDesc | Lens | LensDesc | LensStatus | Opacification | Fundus | FundusDesc | IOP | CD | VA | Sphere | Cylinder | Axis | Gonioscopy | GonioDesc | Comments | EntryDate</div>
+          <div class="code-block">ID | PID | DateOfExam | Eye | VisitType | Examiner | Cornea | CorneaDesc | AC | ACDesc | CCT | Iris | IrisDesc | Pupil | PupilDesc | Lens | LensDesc | LensStatus | Opacification | Fundus | FundusDesc | IOP | CD | VA | Sphere | Cylinder | Axis | Gonioscopy | GonioDesc | Comments | EntryDate | EditedBy</div>
+          <p style="margin-bottom:8px;margin-top:10px">Also add a <strong>Users</strong> tab with headers:</p>
+          <div class="code-block">Username | Password | DisplayName | Role</div>
+          <p style="margin-top:6px;font-size:12px;color:var(--text-dim)">Add your first admin account manually in row 2 of the Users tab (role: <strong>admin</strong>), then use Manage Users in the app to add more.</p>
         </div>
         <div class="config-card">
           <h3>Step 2 — Deploy Apps Script</h3>
           <p>In your Sheet: <strong>Extensions → Apps Script</strong>. Replace all code with this, then <strong>Deploy → New deployment → Web app → Anyone → Deploy</strong></p>
-          <textarea readonly style="height:180px;font-family:'DM Mono',monospace;font-size:10.5px;color:var(--teal);background:rgba(0,0,0,.4)" onclick="this.select()">function doPost(e){var d=JSON.parse(e.postData.contents);if(d.action==='uploadImage'){var folder=getOrCreateFolder(String(d.pid));var bytes=Utilities.base64Decode(d.data);var blob=Utilities.newBlob(bytes,d.mimeType||'application/octet-stream',d.filename||'file');folder.createFile(blob);return ContentService.createTextOutput(JSON.stringify({status:'ok'})).setMimeType(ContentService.MimeType.JSON);}var ss=SpreadsheetApp.getActiveSpreadsheet();var sheet=ss.getSheetByName(d.sheet);var headers=sheet.getRange(1,1,1,sheet.getLastColumn()).getValues()[0];var row=headers.map(function(h){return d.row[h]!==undefined?d.row[h]:'';});sheet.appendRow(row);return ContentService.createTextOutput(JSON.stringify({status:'ok'})).setMimeType(ContentService.MimeType.JSON);}
-function doGet(e){var p=e.parameter;if(p.action==='listImages'){var folder=getOrCreateFolder(String(p.pid));var files=folder.getFiles();var imgs=[];while(files.hasNext()){var f=files.next();var mime=f.getMimeType();imgs.push({name:f.getName(),url:'https://drive.google.com/uc?id='+f.getId(),thumbnailUrl:'https://drive.google.com/thumbnail?id='+f.getId()+'&sz=w400',mimeType:mime});}return ContentService.createTextOutput(JSON.stringify({images:imgs})).setMimeType(ContentService.MimeType.JSON);}var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=p.sheet;var sheet=ss.getSheetByName(sn);if(!sheet)return ContentService.createTextOutput(JSON.stringify({error:'Not found'})).setMimeType(ContentService.MimeType.JSON);var data=sheet.getDataRange().getValues();var headers=data[0];var rows=data.slice(1).map(function(r){var o={};headers.forEach(function(h,i){o[h]=r[i];});return o;});return ContentService.createTextOutput(JSON.stringify({rows:rows})).setMimeType(ContentService.MimeType.JSON);}
-function getOrCreateFolder(pid){var root=DriveApp.getRootFolder();var name='PediCat_'+pid;var iter=root.getFoldersByName(name);return iter.hasNext()?iter.next():root.createFolder(name);}</textarea>
+          <textarea readonly style="height:220px;font-family:'DM Mono',monospace;font-size:10.5px;color:var(--teal);background:rgba(0,0,0,.4)" onclick="this.select()">function doPost(e){var d=JSON.parse(e.postData.contents);if(d.action==='uploadImage'){var folder=getOrCreateFolder(String(d.pid));var bytes=Utilities.base64Decode(d.data);var blob=Utilities.newBlob(bytes,d.mimeType||'application/octet-stream',d.filename||'file');folder.createFile(blob);return ok();}if(d.action==='deleteUser'){var ss=SpreadsheetApp.getActiveSpreadsheet();var sh=ss.getSheetByName('Users');var vals=sh.getDataRange().getValues();for(var i=1;i<vals.length;i++){if(vals[i][0]===d.username){sh.deleteRow(i+1);return ok();}}return ok();}var ss=SpreadsheetApp.getActiveSpreadsheet();var sheet=ss.getSheetByName(d.sheet);var headers=sheet.getRange(1,1,1,sheet.getLastColumn()).getValues()[0];var row=headers.map(function(h){return d.row[h]!==undefined?d.row[h]:'';});sheet.appendRow(row);return ok();}
+function doGet(e){var p=e.parameter;if(p.action==='listImages'){var folder=getOrCreateFolder(String(p.pid));var files=folder.getFiles();var imgs=[];while(files.hasNext()){var f=files.next();imgs.push({name:f.getName(),url:'https://drive.google.com/uc?id='+f.getId(),thumbnailUrl:'https://drive.google.com/thumbnail?id='+f.getId()+'&sz=w400',mimeType:f.getMimeType()});}return out(JSON.stringify({images:imgs}));}if(p.action==='login'){var ss=SpreadsheetApp.getActiveSpreadsheet();var sh=ss.getSheetByName('Users');if(!sh)return out(JSON.stringify({error:'No Users sheet'}));var vals=sh.getDataRange().getValues();for(var i=1;i<vals.length;i++){if(String(vals[i][0])===String(p.username)&&String(vals[i][1])===String(p.password)){return out(JSON.stringify({ok:true,displayName:vals[i][2],role:vals[i][3]}));}}return out(JSON.stringify({ok:false}));}if(p.action==='listUsers'){var ss=SpreadsheetApp.getActiveSpreadsheet();var sh=ss.getSheetByName('Users');if(!sh)return out(JSON.stringify({users:[]}));var vals=sh.getDataRange().getValues();var users=vals.slice(1).map(function(r){return{username:r[0],displayName:r[2],role:r[3]};});return out(JSON.stringify({users:users}));}var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=p.sheet;var sheet=ss.getSheetByName(sn);if(!sheet)return out(JSON.stringify({error:'Not found'}));var data=sheet.getDataRange().getValues();var headers=data[0];var rows=data.slice(1).map(function(r){var o={};headers.forEach(function(h,i){o[h]=r[i];});return o;});return out(JSON.stringify({rows:rows}));}
+function getOrCreateFolder(pid){var root=DriveApp.getRootFolder();var name='PediCat_'+pid;var iter=root.getFoldersByName(name);return iter.hasNext()?iter.next():root.createFolder(name);}
+function ok(){return ContentService.createTextOutput(JSON.stringify({status:'ok'})).setMimeType(ContentService.MimeType.JSON);}
+function out(s){return ContentService.createTextOutput(s).setMimeType(ContentService.MimeType.JSON);}</textarea>
+          <p style="font-size:12px;color:var(--text-dim);margin-top:8px">Also add a <strong>Users</strong> tab to your Sheet with headers: <strong>Username | Password | DisplayName | Role</strong> — then add your first admin user manually in row 2.</p>
         </div>
         <div class="config-card">
           <h3>Step 3 — Connect</h3>
@@ -679,6 +748,43 @@ function getOrCreateFolder(pid){var root=DriveApp.getRootFolder();var name='Pedi
             <button class="btn btn-primary" onclick="saveConfig()">Connect</button>
           </div>
           <div id="test-result" style="margin-top:10px;font-size:12.5px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ MANAGE USERS ═══ -->
+    <div id="view-users" class="hidden">
+      <div class="section-header"><h2>Manage Users</h2><p>Add and manage registry accounts</p></div>
+      <div class="form-card">
+        <div class="form-card-title">Current Users</div>
+        <div id="users-list"><div style="color:var(--text-faint);font-size:13px">Loading…</div></div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title">Add New User</div>
+        <div class="form-grid cols-4" style="margin-bottom:12px">
+          <div class="form-group">
+            <label>Display Name</label>
+            <input type="text" id="nu-name" placeholder="Dr. Smith">
+          </div>
+          <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="nu-username" placeholder="drsmith" autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="nu-password" placeholder="••••••••" autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label>Role</label>
+            <select id="nu-role">
+              <option value="viewer">Viewer</option>
+              <option value="editor">Editor</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions" style="margin-top:0;padding-top:0;border-top:none">
+          <button class="btn btn-primary" onclick="addUser()">＋ Add User</button>
         </div>
       </div>
     </div>
@@ -704,7 +810,7 @@ function getOrCreateFolder(pid){var root=DriveApp.getRootFolder();var name='Pedi
       <div class="patients-toolbar">
         <div class="section-header" style="margin-bottom:0"><h2>Patients</h2></div>
         <div class="search-wrap"><span class="search-icon">⌕</span><input type="text" id="patient-search" placeholder="Search name or PID…" oninput="filterPatients()"></div>
-        <button class="btn btn-primary btn-sm" onclick="showView('new-patient')">＋ New Patient</button>
+        <button class="btn btn-primary btn-sm editor-only" onclick="showView('new-patient')">＋ New Patient</button>
       </div>
       <div class="table-wrap">
         <table class="data-table">
@@ -2060,7 +2166,7 @@ function getOrCreateFolder(pid){var root=DriveApp.getRootFolder();var name='Pedi
           <div class="chart-name" id="chart-name">—</div>
           <div class="chart-meta" id="chart-meta"></div>
         </div>
-        <div class="chart-demo-actions">
+        <div class="chart-demo-actions editor-only">
           <button class="btn btn-secondary btn-sm" onclick="openEditPatientFromChart()">✎ Edit Demographics</button>
         </div>
       </div>
@@ -2176,15 +2282,131 @@ function getOrCreateFolder(pid){var root=DriveApp.getRootFolder();var name='Pedi
 // ─── STATE ───
 let CONFIG={webAppUrl:'https://script.google.com/macros/s/AKfycbwBRx8ViEtjwVpZkjvZD8hhUDTnbncO96zsTGtT9dR9qyzQVJ5_lHe7U_ehrZTJ6VKOUA/exec'};
 let DB={patients:[],examinations:[],operations:[],followups:[],history:[]};
+let CURRENT_USER=null; // {username, displayName, role}
+
+// ─── AUTH ───
+async function doLogin(){
+  const username=document.getElementById('login-username').value.trim();
+  const password=document.getElementById('login-password').value;
+  const errEl=document.getElementById('login-error');
+  errEl.textContent='';
+  if(!username||!password){errEl.textContent='Please enter username and password.';return;}
+  const btn=document.querySelector('.login-btn');
+  btn.textContent='Signing in…';btn.disabled=true;
+  try{
+    const res=await fetch(`${CONFIG.webAppUrl}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
+    const data=await res.json();
+    if(data.ok){
+      CURRENT_USER={username,displayName:data.displayName||username,role:data.role||'viewer'};
+      sessionStorage.setItem('pedicat_user',JSON.stringify(CURRENT_USER));
+      document.getElementById('login-screen').style.display='none';
+      applyRoleUI();
+      showToast('Welcome, '+CURRENT_USER.displayName+'!','success');
+    } else {
+      errEl.textContent='Invalid username or password.';
+    }
+  }catch(e){
+    errEl.textContent='Cannot reach server. Check your connection.';
+  }
+  btn.textContent='Sign In';btn.disabled=false;
+}
+
+function doLogout(){
+  if(!confirm('Sign out?'))return;
+  CURRENT_USER=null;
+  sessionStorage.removeItem('pedicat_user');
+  document.getElementById('login-username').value='';
+  document.getElementById('login-password').value='';
+  document.getElementById('login-error').textContent='';
+  document.getElementById('login-screen').style.display='flex';
+}
+
+function applyRoleUI(){
+  if(!CURRENT_USER)return;
+  const {username,displayName,role}=CURRENT_USER;
+  // Topbar
+  const tb=document.getElementById('topbar-user-badge');
+  if(tb)tb.style.display='flex';
+  const initials=(displayName||username||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const el=id=>document.getElementById(id);
+  if(el('topbar-avatar'))el('topbar-avatar').textContent=initials;
+  if(el('topbar-username'))el('topbar-username').textContent=displayName||username;
+  if(el('topbar-role-pill')){el('topbar-role-pill').textContent=role;el('topbar-role-pill').className='role-pill '+role;}
+  // Sidebar
+  if(el('sidebar-avatar'))el('sidebar-avatar').textContent=initials;
+  if(el('sidebar-username'))el('sidebar-username').textContent=displayName||username;
+  if(el('sidebar-role-pill')){el('sidebar-role-pill').innerHTML=`<span class="role-pill ${role}">${role}</span>`;}
+  // Show admin-only nav items
+  if(el('nav-users'))el('nav-users').style.display=role==='admin'?'flex':'none';
+  if(el('nav-setup'))el('nav-setup').style.display=role==='admin'?'flex':'none';
+  // Hide add/edit controls for viewers
+  const editorOnly=document.querySelectorAll('.editor-only');
+  editorOnly.forEach(el=>{el.style.display=(role==='viewer')?'none':'';});
+}
+
+// ─── USER MANAGEMENT ───
+async function loadUsers(){
+  const list=document.getElementById('users-list');
+  if(!list)return;
+  list.innerHTML='<div style="color:var(--text-faint);font-size:13px"><span class="spinner"></span> Loading…</div>';
+  try{
+    const res=await fetch(`${CONFIG.webAppUrl}?action=listUsers`);
+    const data=await res.json();
+    const users=data.users||[];
+    if(!users.length){list.innerHTML='<div style="color:var(--text-faint);font-size:13px">No users found.</div>';return;}
+    list.innerHTML=users.map(u=>`
+      <div class="user-row">
+        <div class="user-row-name">${u.displayName||u.username}</div>
+        <div class="user-row-username">@${u.username}</div>
+        <span class="role-pill ${u.role}">${u.role}</span>
+        ${u.username===CURRENT_USER?.username
+          ?'<span style="font-size:11px;color:var(--text-faint);font-family:\'DM Mono\',monospace">you</span>'
+          :`<button onclick="deleteUser('${u.username}')" style="padding:4px 9px;border-radius:5px;border:1px solid rgba(224,82,82,.3);background:rgba(224,82,82,.08);color:var(--red);font-size:11px;cursor:pointer;font-family:'Lato',sans-serif">Remove</button>`}
+      </div>`).join('');
+  }catch(e){list.innerHTML='<div style="color:var(--red);font-size:13px">Failed to load users.</div>';}
+}
+
+async function addUser(){
+  const name=document.getElementById('nu-name').value.trim();
+  const username=document.getElementById('nu-username').value.trim().toLowerCase();
+  const password=document.getElementById('nu-password').value;
+  const role=document.getElementById('nu-role').value;
+  if(!name||!username||!password){showToast('Please fill all fields','error');return;}
+  if(!/^[a-z0-9_]+$/.test(username)){showToast('Username: letters, numbers, underscore only','error');return;}
+  try{
+    await fetch(CONFIG.webAppUrl,{method:'POST',mode:'no-cors',body:JSON.stringify({sheet:'Users',row:{Username:username,Password:password,DisplayName:name,Role:role}})});
+    showToast('User added ✓','success');
+    document.getElementById('nu-name').value='';
+    document.getElementById('nu-username').value='';
+    document.getElementById('nu-password').value='';
+    document.getElementById('nu-role').value='viewer';
+    setTimeout(loadUsers,1800);
+  }catch(e){showToast('Failed to add user','error');}
+}
+
+async function deleteUser(username){
+  if(!confirm('Remove user "'+username+'"?'))return;
+  try{
+    await fetch(CONFIG.webAppUrl,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'deleteUser',username})});
+    showToast('User removed','success');
+    setTimeout(loadUsers,1800);
+  }catch(e){showToast('Failed to remove user','error');}
+}
 
 // ─── INIT ───
 document.addEventListener('DOMContentLoaded',()=>{
   const saved=localStorage.getItem('pedicat_v2_config');
   if(saved){CONFIG=JSON.parse(saved);}
-  // Always ensure the hardcoded URL is set if none saved
   if(!CONFIG.webAppUrl){CONFIG.webAppUrl='https://script.google.com/macros/s/AKfycbwBRx8ViEtjwVpZkjvZD8hhUDTnbncO96zsTGtT9dR9qyzQVJ5_lHe7U_ehrZTJ6VKOUA/exec';localStorage.setItem('pedicat_v2_config',JSON.stringify(CONFIG));}
   document.getElementById('webapp-url-input').value=CONFIG.webAppUrl;
   updateConnectionBadge();
+  // Check for existing session
+  const sess=sessionStorage.getItem('pedicat_user');
+  if(sess){
+    CURRENT_USER=JSON.parse(sess);
+    document.getElementById('login-screen').style.display='none';
+    applyRoleUI();
+  }
   loadAll();
   refreshExaminerSelects();
   setTimeout(initDateDisplays, 100);
@@ -2194,11 +2416,15 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 // ─── NAV ───
 function showView(v){
+  // Role enforcement
+  if(v==='setup'&&CURRENT_USER?.role!=='admin'){showToast('Admin access required','error');return;}
+  if(v==='users'&&CURRENT_USER?.role!=='admin'){showToast('Admin access required','error');return;}
+  if(['new-patient','new-history','new-examination','new-surgery','new-followup'].includes(v)&&CURRENT_USER?.role==='viewer'){showToast('Viewers cannot add or edit records','error');return;}
   document.querySelectorAll('[id^="view-"]').forEach(el=>el.classList.add('hidden'));
   document.getElementById('view-'+v).classList.remove('hidden');
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
   const n=document.getElementById('nav-'+v);if(n)n.classList.add('active');
-  const titles={dashboard:'Dashboard',patients:'Patients',chart:'Patient Chart','new-patient':'New Patient','new-history':'History & Systemic Diseases','new-examination':'Preoperative Examination','new-surgery':'Operation Record','new-followup':'Follow-up Visit','upload-images':'Upload Images',setup:'Setup & Configuration'};
+  const titles={dashboard:'Dashboard',patients:'Patients',chart:'Patient Chart','new-patient':'New Patient','new-history':'History & Systemic Diseases','new-examination':'Preoperative Examination','new-surgery':'Operation Record','new-followup':'Follow-up Visit','upload-images':'Upload Images',setup:'Setup & Configuration',users:'Manage Users'};
   document.getElementById('topbar-title').textContent=titles[v]||'';
   const dataEntryViews=['new-examination','new-surgery','new-followup','new-history','upload-images'];
   const bar=document.getElementById('patient-lookup-bar');
@@ -2206,6 +2432,7 @@ function showView(v){
   else{bar.classList.add('hidden');}
   if(v==='patients')renderPatientsTable();
   if(v==='chart'){}
+  if(v==='users')loadUsers();
   if(v==='upload-images') setTimeout(()=>{
     const pid=ACTIVE_PATIENT?.PID;
     if(!pid)return;
@@ -2453,7 +2680,7 @@ async function submitPatient(e){
   if(!document.getElementById('p-dob').value){showToast('Date of Birth is required','error');document.getElementById('p-dob').focus();return;}
   if(!sex){showToast('Please select the patient sex','error');return;}
   if(!document.getElementById('p-phone').value.trim()){showToast('Phone number is required','error');document.getElementById('p-phone').focus();return;}
-  const row={PID:document.getElementById('p-pid').value.trim(),DateOfRegistration:document.getElementById('p-regdate').value,Name:document.getElementById('p-name').value.trim(),NationalID:document.getElementById('p-natid').value.trim(),DOB:document.getElementById('p-dob').value,Sex:sex?sex.value:'',Phone:document.getElementById('p-phone').value,AlternatePhone:document.getElementById('p-phone2').value,Address:document.getElementById('p-address').value,Referring:document.getElementById('p-referring').value,Others:document.getElementById('p-others').value,EntryDate:today()};
+  const row={PID:document.getElementById('p-pid').value.trim(),DateOfRegistration:document.getElementById('p-regdate').value,Name:document.getElementById('p-name').value.trim(),NationalID:document.getElementById('p-natid').value.trim(),DOB:document.getElementById('p-dob').value,Sex:sex?sex.value:'',Phone:document.getElementById('p-phone').value,AlternatePhone:document.getElementById('p-phone2').value,Address:document.getElementById('p-address').value,Referring:document.getElementById('p-referring').value,Others:document.getElementById('p-others').value,EntryDate:today(),EditedBy:CURRENT_USER?.displayName||CURRENT_USER?.username||'unknown'};
   DB.patients.push(row);
   showToast('Patient saved ✓','success');
   document.getElementById('patient-form').reset();
@@ -2579,7 +2806,7 @@ async function submitSurgery(e){
       if(place==='Iris-claw'){const el=document.querySelector('input[name="s-iris-encl"]:checked');return el?el.value:'';}
       if(place==='Scleral fixation'){const tech=document.querySelector('input[name="s-scler-tech"]:checked')?.value||''; const pts=document.querySelector('input[name="s-scler-pts"]:checked')?.value||''; return [tech,pts].filter(Boolean).join(' — ');}
       return '';
-    })(),IOLPower:document.getElementById('s-iol-power').value,TargetRefraction:document.getElementById('s-target-ref').value,Orientation:document.getElementById('s-orientation').value,Steroids:document.getElementById('s-steroids').checked?'Yes':'No',Atropine:document.getElementById('s-atropine').checked?'Yes':'No',Route:document.getElementById('s-route').value,Medications:document.getElementById('s-meds').value,Examiner:document.getElementById('s-examiner').value,Duration:document.getElementById('s-duration').value,Comments:document.getElementById('s-comments').value,EntryDate:today()};
+    })(),IOLPower:document.getElementById('s-iol-power').value,TargetRefraction:document.getElementById('s-target-ref').value,Orientation:document.getElementById('s-orientation').value,Steroids:document.getElementById('s-steroids').checked?'Yes':'No',Atropine:document.getElementById('s-atropine').checked?'Yes':'No',Route:document.getElementById('s-route').value,Medications:document.getElementById('s-meds').value,Examiner:document.getElementById('s-examiner').value,Duration:document.getElementById('s-duration').value,Comments:document.getElementById('s-comments').value,EntryDate:today(),EditedBy:CURRENT_USER?.displayName||CURRENT_USER?.username||'unknown'};
   DB.operations.push(row);
   showToast('Operation saved ✓','success');
   document.getElementById('surgery-form').reset();
@@ -3489,6 +3716,7 @@ function chartBuildDropdowns(pid){
   const imgs=JSON.parse(localStorage.getItem('pedicat_imgs_'+pid)||'[]');
   window._chartData={hists,exams,ops,fups,imgs};
   const fmt=d=>d?new Date(d).toLocaleDateString():'No date';
+  const canEdit=CURRENT_USER?.role==='admin'||CURRENT_USER?.role==='editor';
   function build(selId,cntId,records,labelFn){
     const sel=document.getElementById(selId);
     const cnt=document.getElementById(cntId);
@@ -3496,7 +3724,7 @@ function chartBuildDropdowns(pid){
     cnt.textContent=records.length;
     sel.innerHTML='<option value="">— select —</option>'+
       records.map((r,i)=>`<option value="${i}">${labelFn(r,i)}</option>`).join('')+
-      '<option value="__new__">＋ Add New</option>';
+      (canEdit?'<option value="__new__">＋ Add New</option>':'');
     sel.value='';
   }
   build('cc-hist-sel','cc-hist-count',hists,r=>fmt(r.EntryDate));
@@ -3526,7 +3754,8 @@ function chartSelect(type,val){
 function chartShowRecord(type,record,idx){
   const titles={hist:'History Entry',exam:'Preoperative Examination',op:'Operation Record',fup:'Follow-up Visit',img:'Clinical Image'};
   document.getElementById('chart-bottom-title').textContent=titles[type]||type;
-  document.getElementById('chart-bottom-actions').innerHTML=type!=='img'
+  const canEdit=CURRENT_USER?.role==='admin'||CURRENT_USER?.role==='editor';
+  document.getElementById('chart-bottom-actions').innerHTML=(type!=='img'&&canEdit)
     ?`<button class="btn btn-secondary btn-sm" style="color:var(--amber);border-color:rgba(247,183,49,.4)" onclick="chartEditRecord('${type}',${idx})">✎ Edit / Correct</button>`:'';
   const body=document.getElementById('chart-bottom-body');
   const drL=pairs=>pairs.filter(([,v])=>v).map(([k,v])=>dr(k,v)).join('');
@@ -3545,14 +3774,19 @@ function chartShowRecord(type,record,idx){
     return;
   }
   if(type==='hist'){
-    body.innerHTML=drL([['Consanguinity',record.Consanguinity],['Family History',record.FamilyHistory],['Family Members',record.FamilyHistoryDesc],['Blunt Trauma',record.BluntTrauma],['Penetrating Trauma',record.PenetratingTrauma],['Previous Surgeries',record.PreviousSurgeries],['Subluxation Syndrome',record.SubluxationSyndrome==='Yes'?record.SubluxSyndromeDetails||'Yes':''],['Cardiac',record.CardiacDisease==='Yes'?record.CardiacDetails:''],['Neurological',record.NeurologicalDisease==='Yes'?record.NeurologicalDetails:''],['Hepatic',record.HepaticDisease==='Yes'?record.HepaticDetails:''],['Renal',record.RenalDisease==='Yes'?record.RenalDetails:''],['Medications',record.Medications]]);
+    body.innerHTML=drL([['Consanguinity',record.Consanguinity],['Family History',record.FamilyHistory],['Family Members',record.FamilyHistoryDesc],['Blunt Trauma',record.BluntTrauma],['Penetrating Trauma',record.PenetratingTrauma],['Previous Surgeries',record.PreviousSurgeries],['Subluxation Syndrome',record.SubluxationSyndrome==='Yes'?record.SubluxSyndromeDetails||'Yes':''],['Cardiac',record.CardiacDisease==='Yes'?record.CardiacDetails:''],['Neurological',record.NeurologicalDisease==='Yes'?record.NeurologicalDetails:''],['Hepatic',record.HepaticDisease==='Yes'?record.HepaticDetails:''],['Renal',record.RenalDisease==='Yes'?record.RenalDetails:''],['Medications',record.Medications]])+editedByFooter(record);
   } else if(type==='exam'){
-    body.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border-dim);border-radius:8px;overflow:hidden;margin-bottom:14px"><div style="padding:10px 14px;border-right:1px solid var(--border-dim);background:rgba(247,183,49,.04)"><div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--amber);margin-bottom:8px">OD — RIGHT</div>${drL([['VA',record.VA_OD],['IOP',record.IOP_OD?record.IOP_OD+' mmHg':''],['Cornea',record.CorneaOpacity_OD],['Lens',record.LensStatus_OD],['Axial Length',record.AxialLength_OD?record.AxialLength_OD+' mm':''],['Angle',record.Angle]])}</div><div style="padding:10px 14px;background:rgba(100,160,255,.04)"><div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:#7ab4ff;margin-bottom:8px">OS — LEFT</div>${drL([['VA',record.VA_OS],['IOP',record.IOP_OS?record.IOP_OS+' mmHg':''],['Cornea',record.CorneaOpacity_OS],['Lens',record.LensStatus_OS],['Axial Length',record.AxialLength_OS?record.AxialLength_OS+' mm':''],['Angle',record.AngleOS]])}</div></div>${drL([['EUA',record.EUA],['Examiner',record.Examiner],['Comments',record.Comments]])}`;
+    body.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border-dim);border-radius:8px;overflow:hidden;margin-bottom:14px"><div style="padding:10px 14px;border-right:1px solid var(--border-dim);background:rgba(247,183,49,.04)"><div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--amber);margin-bottom:8px">OD — RIGHT</div>${drL([['VA',record.VA_OD],['IOP',record.IOP_OD?record.IOP_OD+' mmHg':''],['Cornea',record.CorneaOpacity_OD],['Lens',record.LensStatus_OD],['Axial Length',record.AxialLength_OD?record.AxialLength_OD+' mm':''],['Angle',record.Angle]])}</div><div style="padding:10px 14px;background:rgba(100,160,255,.04)"><div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:#7ab4ff;margin-bottom:8px">OS — LEFT</div>${drL([['VA',record.VA_OS],['IOP',record.IOP_OS?record.IOP_OS+' mmHg':''],['Cornea',record.CorneaOpacity_OS],['Lens',record.LensStatus_OS],['Axial Length',record.AxialLength_OS?record.AxialLength_OS+' mm':''],['Angle',record.AngleOS]])}</div></div>${drL([['EUA',record.EUA],['Examiner',record.Examiner],['Comments',record.Comments]])}${editedByFooter(record)}`;
   } else if(type==='op'){
-    body.innerHTML=drL([['Date',record.DateOfOp?new Date(record.DateOfOp).toLocaleDateString():''],['Eye',record.Eye],['Operation',record.OperationName],['Surgeon',record.Examiner],['Anterior Capsule',record.AnteriorCapsule],['Posterior Capsule',record.PosteriorCapsule],['IOL',record.IOL==='Yes'?`${record.IOLType||''} ${record.IOLPower?record.IOLPower+'D':''}`:'Aphakic'],['Complications',record.OtherComplications],['Comments',record.Comments]]);
+    body.innerHTML=drL([['Date',record.DateOfOp?new Date(record.DateOfOp).toLocaleDateString():''],['Eye',record.Eye],['Operation',record.OperationName],['Surgeon',record.Examiner],['Anterior Capsule',record.AnteriorCapsule],['Posterior Capsule',record.PosteriorCapsule],['IOL',record.IOL==='Yes'?`${record.IOLType||''} ${record.IOLPower?record.IOLPower+'D':''}`:'Aphakic'],['Complications',record.OtherComplications],['Comments',record.Comments]])+editedByFooter(record);
   } else if(type==='fup'){
-    body.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border-dim);border-radius:8px;overflow:hidden;margin-bottom:14px"><div style="padding:10px 14px;border-right:1px solid var(--border-dim);background:rgba(247,183,49,.04)"><div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--amber);margin-bottom:8px">OD — RIGHT</div>${drL([['VA',record.VA_OD],['IOP',record.IOP_OD?record.IOP_OD+' mmHg':''],['Lens',record.LensStatus_OD]])}</div><div style="padding:10px 14px;background:rgba(100,160,255,.04)"><div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:#7ab4ff;margin-bottom:8px">OS — LEFT</div>${drL([['VA',record.VA_OS],['IOP',record.IOP_OS?record.IOP_OS+' mmHg':''],['Lens',record.LensStatus_OS]])}</div></div>${drL([['EUA',record.EUA],['Visit Type',record.VisitType],['Examiner',record.Examiner],['Comments',record.Comments]])}`;
+    body.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border-dim);border-radius:8px;overflow:hidden;margin-bottom:14px"><div style="padding:10px 14px;border-right:1px solid var(--border-dim);background:rgba(247,183,49,.04)"><div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--amber);margin-bottom:8px">OD — RIGHT</div>${drL([['VA',record.VA_OD],['IOP',record.IOP_OD?record.IOP_OD+' mmHg':''],['Lens',record.LensStatus_OD]])}</div><div style="padding:10px 14px;background:rgba(100,160,255,.04)"><div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:#7ab4ff;margin-bottom:8px">OS — LEFT</div>${drL([['VA',record.VA_OS],['IOP',record.IOP_OS?record.IOP_OS+' mmHg':''],['Lens',record.LensStatus_OS]])}</div></div>${drL([['EUA',record.EUA],['Visit Type',record.VisitType],['Examiner',record.Examiner],['Comments',record.Comments]])}${editedByFooter(record)}`;
   }
+}
+
+function editedByFooter(record){
+  if(!record.EditedBy)return'';
+  return`<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border-dim);font-family:'DM Mono',monospace;font-size:10px;color:var(--text-faint)">✎ Entered by <strong style="color:var(--text-dim)">${record.EditedBy}</strong>${record.EntryDate?' on '+new Date(record.EntryDate).toLocaleDateString():''}</div>`;
 }
 
 function chartShowNewForm(type,pid){
@@ -3603,6 +3837,7 @@ function chartEditRecord(type,idx){
 
 function openEditPatientFromChart(){
   if(!_chartPID)return;
+  if(CURRENT_USER?.role==='viewer'){showToast('Viewers cannot edit patient records','error');return;}
   const p=DB.patients.find(x=>String(x.PID)===String(_chartPID));
   if(!p)return;
   document.getElementById('chart-bottom-title').textContent='Edit Patient Demographics';
@@ -3638,6 +3873,8 @@ function chartSaveDemographics(){
     AlternatePhone:document.getElementById('ce-phone2').value.trim(),
     Address:document.getElementById('ce-address').value.trim(),
     Referring:document.getElementById('ce-referring').value.trim(),
+    EditedBy:CURRENT_USER?.displayName||CURRENT_USER?.username||'unknown',
+    EditedAt:today(),
   };
   pushRow('Patients_Update',DB.patients[idx]).catch(()=>{});
   showToast('Patient updated ✓','success');
