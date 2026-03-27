@@ -347,7 +347,7 @@
   .upload-progress{height:4px;background:var(--border-dim);border-radius:2px;margin-top:12px;overflow:hidden;display:none}
   .upload-progress-bar{height:100%;background:var(--teal);border-radius:2px;transition:width .3s}
   .image-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:14px}
-  .image-thumb{position:relative;border-radius:9px;overflow:hidden;border:1px solid var(--border-dim);background:rgba(0,0,0,.2);aspect-ratio:4/3}
+  .image-thumb{position:relative;border-radius:9px;border:1px solid var(--border-dim);background:rgba(0,0,0,.2);aspect-ratio:4/3;overflow:visible}
   .image-thumb img{width:100%;height:100%;object-fit:cover;cursor:pointer;transition:opacity .15s}
   .image-thumb img:hover{opacity:.85}
   .image-thumb-label{position:absolute;bottom:0;left:0;right:0;padding:4px 6px;background:rgba(0,0,0,.65);font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -387,7 +387,7 @@
   @media(max-width:640px){.user-row{grid-template-columns:1fr 80px 60px}.add-user-form{grid-template-columns:1fr 1fr}}
 
   /* PDF thumbnail card */
-  .pdf-thumb{position:relative;border-radius:9px;overflow:hidden;border:1px solid var(--border-dim);background:rgba(0,0,0,.2);aspect-ratio:4/3;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:border-color .15s}
+  .pdf-thumb{position:relative;border-radius:9px;border:1px solid var(--border-dim);background:rgba(0,0,0,.2);aspect-ratio:4/3;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:border-color .15s;overflow:visible}
   .pdf-thumb:hover{border-color:var(--teal)}
   .pdf-thumb-icon{font-size:36px;line-height:1}
   .pdf-thumb-name{font-size:10px;font-family:'DM Mono',monospace;color:var(--text-dim);text-align:center;padding:4px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
@@ -3744,7 +3744,7 @@ async function loadPatientImages(pid){
       const fileIdMatch = img.url.match(/[?&]id=([^&]+)/);
       const fileId = fileIdMatch ? fileIdMatch[1] : '';
       const deleteBtn = canDelete && fileId
-        ? `<button onclick="deleteDriveFile('${fileId}','${pid}',event)" title="Delete file" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.7);border:none;color:#fff;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>`
+        ? `<button onclick="deleteDriveFile('${fileId}','${pid}',event)" title="Delete file" style="position:absolute;top:-7px;right:-7px;background:var(--red);border:none;color:#fff;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;box-shadow:0 2px 6px rgba(0,0,0,.4)">✕</button>`
         : '';
       const isPDF = img.mimeType==='application/pdf' || (img.name||'').toLowerCase().endsWith('.pdf');
       if(isPDF){
@@ -4240,6 +4240,10 @@ function renderImages(pid){
   const grid=document.getElementById('image-grid-'+pid)||document.getElementById('image-grid-main');
   if(!grid)return;
   const imgs=getStoredImages(pid);
+  const canDelete=CURRENT_USER?.role==='admin'||CURRENT_USER?.role==='editor';
+  const delBtn=(p,i)=>canDelete
+    ?`<button onclick="deleteStoredImage('${p}',${i},event)" title="Delete file" style="position:absolute;top:-7px;right:-7px;background:var(--red);border:none;color:#fff;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;box-shadow:0 2px 6px rgba(0,0,0,.4)">✕</button>`
+    :'';
   if(!imgs.length){grid.innerHTML='<div style="text-align:center;padding:28px;color:var(--text-faint);font-size:13px;grid-column:1/-1">No files yet</div>';return;}
   grid.innerHTML=imgs.map((img,i)=>{
     if(img.isPDF){
@@ -4247,10 +4251,10 @@ function renderImages(pid){
         <div class="pdf-thumb-icon">📄</div>
         <div class="pdf-thumb-name">${img.desc||img.name}</div>
         <div class="pdf-thumb-label">${img.desc||img.name}</div>
-        <button onclick="deleteStoredImage('${pid}',${i},event)" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.65);border:none;color:#fff;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer">✕</button>
+        ${delBtn(pid,i)}
       </div>`;
     }
-    return `<div class="image-thumb"><img src="${img.dataUrl}" onclick="openLightbox('${img.dataUrl}')" alt="${img.desc||img.name}"><div class="image-thumb-label">${img.desc||img.name}</div><button onclick="deleteStoredImage('${pid}',${i},event)" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.65);border:none;color:#fff;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer">✕</button></div>`;
+    return `<div class="image-thumb"><img src="${img.dataUrl}" onclick="openLightbox('${img.dataUrl}')" alt="${img.desc||img.name}" style="border-radius:8px"><div class="image-thumb-label">${img.desc||img.name}</div>${delBtn(pid,i)}</div>`;
   }).join('');
 }
 function deleteStoredImage(pid,idx,event){
