@@ -2297,10 +2297,17 @@ function buildResponse(data) { return ContentService.createTextOutput(JSON.strin
           <div class="chart-cat-count" id="cc-fup-count">0</div>
           <select class="chart-cat-select" id="cc-fup-sel" onchange="chartSelect('fup',this.value)"><option value="">— select —</option></select>
         </div>
-        <div class="chart-cat-box">
-          <div class="chart-cat-label">Images</div>
-          <div class="chart-cat-count" id="cc-img-count">0</div>
-          <select class="chart-cat-select" id="cc-img-sel" onchange="chartSelect('img',this.value)"><option value="">— select —</option></select>
+        <div class="chart-cat-box" id="cc-img-box" style="grid-column:1/-1;background:transparent;border:none;padding:0">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="chart-cat-label" style="margin:0">Images</div>
+              <div class="chart-cat-count" id="cc-img-count">0</div>
+            </div>
+            <button class="btn btn-secondary btn-sm editor-only" onclick="chartShowNewForm('img',_chartPID)" style="font-size:11px">＋ Upload</button>
+          </div>
+          <div id="chart-img-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;min-height:60px">
+            <div style="color:var(--text-faint);font-size:12px;grid-column:1/-1;padding:10px 0">Loading images…</div>
+          </div>
         </div>
       </div>
       <div class="chart-bottom">
@@ -3768,6 +3775,90 @@ async function loadPatientImages(pid){
   }
 }
 
+async function loadChartImageGrid(pid){
+  const grid = document.getElementById('chart-img-grid');
+  if(!grid) return;
+  const canDelete = CURRENT_USER?.role==='admin'||CURRENT_USER?.role==='editor';
+
+  // Show locally cached images immediately while Drive loads
+  const localImgs = getStoredImages(pid);
+  function renderLocal(){
+    if(!localImgs.length) return '';
+    return localImgs.map((img,i)=>{
+      const delBtn = canDelete
+        ? `<button onclick="deleteStoredImage('${pid}',${i},event)" title="Delete" style="position:absolute;top:-7px;right:-7px;background:var(--red);border:none;color:#fff;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;box-shadow:0 2px 6px rgba(0,0,0,.4)">✕</button>`
+        : '';
+      if(img.isPDF){
+        return `<div class="pdf-thumb" style="position:relative" onclick="openPDF('${pid}',${i})" title="${img.desc||img.name}">
+          <div class="pdf-thumb-icon">📄</div>
+          <div class="pdf-thumb-name">${img.desc||img.name}</div>
+          ${delBtn}
+        </div>`;
+      }
+      return `<div class="image-thumb" style="position:relative">
+        <img src="${img.dataUrl}" onclick="openLightbox('${img.dataUrl}')" alt="${img.desc||img.name}" style="border-radius:8px">
+        <div class="image-thumb-label">${img.desc||img.name}</div>
+        ${delBtn}
+      </div>`;
+    }).join('');
+  }
+
+  // Show local cache first
+  const localHtml = renderLocal();
+  grid.innerHTML = localHtml || '<div style="color:var(--text-faint);font-size:12px;grid-column:1/-1;padding:6px 0"><span class="spinner"></span> Loading…</div>';
+
+  // Then fetch Drive images and merge
+  try {
+    const res = await fetch(`${CONFIG.webAppUrl}?action=listImages&pid=${encodeURIComponent(pid)}`);
+    const data = await res.json();
+    const driveImgs = data.images || [];
+
+    // Update count
+    const total = Math.max(localImgs.length, driveImgs.length);
+    const countEl = document.getElementById('cc-img-count');
+    if(countEl) countEl.textContent = total;
+
+    if(!driveImgs.length && !localImgs.length){
+      grid.innerHTML = '<div style="color:var(--text-faint);font-size:12px;grid-column:1/-1;padding:6px 0">No images yet — click Upload above</div>';
+      return;
+    }
+
+    if(!driveImgs.length){
+      // No Drive images, keep local render
+      return;
+    }
+
+    // Render Drive images (source of truth)
+    grid.innerHTML = driveImgs.map(img=>{
+      const fileIdMatch = img.url.match(/[?&]id=([^&]+)/);
+      const fileId = fileIdMatch ? fileIdMatch[1] : '';
+      const delBtn = canDelete && fileId
+        ? `<button onclick="deleteDriveFile('${fileId}','${pid}',event)" title="Delete" style="position:absolute;top:-7px;right:-7px;background:var(--red);border:none;color:#fff;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;box-shadow:0 2px 6px rgba(0,0,0,.4)">✕</button>`
+        : '';
+      const isPDF = img.mimeType==='application/pdf' || (img.name||'').toLowerCase().endsWith('.pdf');
+      if(isPDF){
+        const safeUrl = img.url.replace(/'/g,"\'");
+        const safeName = (img.name||'PDF').replace(/'/g,"\'");
+        return `<div class="pdf-thumb" style="position:relative" onclick="openPDFUrl('${safeUrl}','${safeName}')" title="${img.name}">
+          <div class="pdf-thumb-icon">📄</div>
+          <div class="pdf-thumb-name">${img.name}</div>
+          ${delBtn}
+        </div>`;
+      }
+      return `<div class="image-thumb" style="position:relative">
+        <img src="${img.thumbnailUrl||img.url}" onclick="openLightbox('${img.url}')" alt="${img.name}" style="border-radius:8px">
+        <div class="image-thumb-label">${img.name}</div>
+        ${delBtn}
+      </div>`;
+    }).join('');
+  } catch(e) {
+    // Drive failed — keep showing local cache
+    if(!localImgs.length){
+      grid.innerHTML = '<div style="color:var(--text-faint);font-size:12px;grid-column:1/-1;padding:6px 0">Could not load images</div>';
+    }
+  }
+}
+
 async function deleteDriveFile(fileId, pid, event){
   event.stopPropagation();
   if(!confirm('Permanently delete this file from Google Drive?'))return;
@@ -3842,6 +3933,8 @@ async function uploadImages(files, pid, zoneId){
   if(captionEl) captionEl.value = '';
   // if modal is open on this patient, refresh image grid
   if(currentImagePID === pid) loadPatientImages(pid);
+  // Also refresh the chart image grid if this patient is open
+  if(_chartPID && String(_chartPID) === String(pid)) loadChartImageGrid(pid);
   showToast(done+' file'+(done!==1?'s':'')+' uploaded ✓','success');
 }
 
@@ -3938,14 +4031,17 @@ function chartBuildDropdowns(pid){
   build('cc-exam-sel','cc-exam-count',exams,r=>fmt(r.DateOfExam)+(r.EUA==='Yes'?' (EUA)':''));
   build('cc-op-sel','cc-op-count',ops,r=>fmt(r.DateOfOp)+(r.Eye?' · '+r.Eye:'')+(r.OperationName?' · '+r.OperationName:''));
   build('cc-fup-sel','cc-fup-count',fups,r=>fmt(r.DateOfExam)+(r.VisitType?' · '+r.VisitType:''));
-  build('cc-img-sel','cc-img-count',imgs,(r,i)=>r.desc||r.name||('Image '+(i+1)));
+  // Update image count badge and load thumbnail grid from Drive
+  const imgCountEl = document.getElementById('cc-img-count');
+  if(imgCountEl) imgCountEl.textContent = imgs.length;
+  loadChartImageGrid(pid);
 }
 
 function chartResetBottom(){
   document.getElementById('chart-bottom-title').textContent='Select a record above';
   document.getElementById('chart-bottom-actions').innerHTML='';
   document.getElementById('chart-bottom-body').innerHTML=`<div class="chart-empty"><div class="chart-empty-icon">☝️</div><div class="chart-empty-msg">Choose a date from any box above to view that record,<br>or select <strong>＋ Add New</strong> to enter new data.</div></div>`;
-  ['cc-hist-sel','cc-exam-sel','cc-op-sel','cc-fup-sel','cc-img-sel'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['cc-hist-sel','cc-exam-sel','cc-op-sel','cc-fup-sel'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
 }
 
 function chartSelect(type,val){
@@ -4395,7 +4491,7 @@ async function saveImages(files,pid,zid,description){
       saveStoredImages(pid,imgs);
       saved++;
       renderImages(pid);
-      if(_chartPID===pid)chartBuildDropdowns(pid);
+      if(_chartPID===pid){ chartBuildDropdowns(pid); loadChartImageGrid(pid); }
       const gc=document.getElementById('image-grid-card-main');
       const zone=document.getElementById('upload-zone-main');
       if(gc)gc.style.display='';if(zone&&zid==='main')zone.style.display='none';
