@@ -572,9 +572,26 @@
   .chart-name{font-family:'DM Serif Display',serif;font-size:21px;color:var(--text-main)}
   .chart-meta{font-size:13px;color:var(--text-dim);margin-top:4px;line-height:1.7}
   .chart-demo-actions{display:flex;gap:8px;flex-shrink:0;margin-left:auto}
-  .chart-cats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
+  .chart-cats{display:grid;grid-template-columns:1fr 320px;gap:10px;margin-bottom:14px;align-items:start}
+  .chart-cats-left{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
   .chart-cat-box{background:var(--card);border:1px solid var(--border-dim);border-radius:var(--radius-lg);padding:14px 14px 12px;transition:border-color .2s}
   .chart-cat-box:hover{border-color:var(--border)}
+  /* Image carousel panel */
+  .chart-img-panel{background:var(--card);border:1px solid var(--border-dim);border-radius:var(--radius-lg);padding:14px;display:flex;flex-direction:column;gap:10px}
+  .chart-img-carousel{position:relative;width:100%;aspect-ratio:4/3;background:rgba(0,0,0,.3);border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .chart-img-carousel img{width:100%;height:100%;object-fit:cover;cursor:pointer;border-radius:10px}
+  .chart-img-carousel .carousel-empty{color:var(--text-faint);font-size:12px;text-align:center;padding:20px}
+  .carousel-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.55);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;z-index:5;transition:background .15s;backdrop-filter:blur(4px)}
+  .carousel-nav:hover{background:rgba(0,0,0,.8)}
+  .carousel-nav.prev{left:6px}
+  .carousel-nav.next{right:6px}
+  .carousel-nav:disabled{opacity:.25;cursor:default}
+  .carousel-del{position:absolute;top:6px;right:6px;background:var(--red);border:none;color:#fff;border-radius:50%;width:22px;height:22px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:6;box-shadow:0 2px 6px rgba(0,0,0,.4);opacity:0;transition:opacity .15s}
+  .chart-img-carousel:hover .carousel-del{opacity:1}
+  .carousel-label{font-size:11px;color:var(--text-dim);text-align:center;font-family:'DM Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .carousel-dots{display:flex;justify-content:center;gap:5px;flex-wrap:wrap}
+  .carousel-dot{width:6px;height:6px;border-radius:50%;background:var(--border-dim);border:none;cursor:pointer;padding:0;transition:background .15s}
+  .carousel-dot.active{background:var(--teal)}
   .chart-cat-label{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:6px;font-weight:500}
   .chart-cat-count{font-family:'DM Serif Display',serif;font-size:26px;color:var(--text-main);margin-bottom:10px;line-height:1}
   .chart-cat-select{width:100%;background:var(--input-bg);border:1px solid rgba(255,255,255,.18);border-radius:7px;color:var(--text-main);font-family:'Lato',sans-serif;font-size:13px;font-weight:700;padding:8px 10px;outline:none;cursor:pointer;appearance:none}
@@ -587,12 +604,12 @@
   .chart-empty{text-align:center;padding:40px 20px;color:var(--text-faint)}
   .chart-empty-icon{font-size:34px;margin-bottom:10px}
   .chart-empty-msg{font-size:14px;line-height:1.7}
-  @media(max-width:900px){.chart-cats{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:900px){.chart-cats{grid-template-columns:1fr}.chart-img-panel{order:-1}}
   @media(max-width:640px){
     #view-patients .table-wrap{display:none}
     #patients-cardlist{display:flex;flex-direction:column;gap:10px}
-    .chart-cats{grid-template-columns:repeat(2,1fr)}
-    .chart-cat-box:last-child{grid-column:span 2}
+    .chart-cats{grid-template-columns:1fr}
+    .chart-cats-left{grid-template-columns:repeat(2,1fr)}
     .chart-demo-panel{padding:14px 16px;gap:12px}
     .chart-demo-actions{margin-left:0;width:100%}
     .chart-bottom-body{padding:14px 16px}
@@ -2277,37 +2294,44 @@ function buildResponse(data) { return ContentService.createTextOutput(JSON.strin
         </div>
       </div>
       <div class="chart-cats">
-        <div class="chart-cat-box">
-          <div class="chart-cat-label">History</div>
-          <div class="chart-cat-count" id="cc-hist-count">0</div>
-          <select class="chart-cat-select" id="cc-hist-sel" onchange="chartSelect('hist',this.value)"><option value="">— select —</option></select>
+        <!-- Left: 4 clinical record boxes in 2x2 grid -->
+        <div class="chart-cats-left">
+          <div class="chart-cat-box">
+            <div class="chart-cat-label">History</div>
+            <div class="chart-cat-count" id="cc-hist-count">0</div>
+            <select class="chart-cat-select" id="cc-hist-sel" onchange="chartSelect('hist',this.value)"><option value="">— select —</option></select>
+          </div>
+          <div class="chart-cat-box">
+            <div class="chart-cat-label">Preop Exam</div>
+            <div class="chart-cat-count" id="cc-exam-count">0</div>
+            <select class="chart-cat-select" id="cc-exam-sel" onchange="chartSelect('exam',this.value)"><option value="">— select —</option></select>
+          </div>
+          <div class="chart-cat-box">
+            <div class="chart-cat-label">Operations</div>
+            <div class="chart-cat-count" id="cc-op-count">0</div>
+            <select class="chart-cat-select" id="cc-op-sel" onchange="chartSelect('op',this.value)"><option value="">— select —</option></select>
+          </div>
+          <div class="chart-cat-box">
+            <div class="chart-cat-label">Follow-ups</div>
+            <div class="chart-cat-count" id="cc-fup-count">0</div>
+            <select class="chart-cat-select" id="cc-fup-sel" onchange="chartSelect('fup',this.value)"><option value="">— select —</option></select>
+          </div>
         </div>
-        <div class="chart-cat-box">
-          <div class="chart-cat-label">Preop Exam</div>
-          <div class="chart-cat-count" id="cc-exam-count">0</div>
-          <select class="chart-cat-select" id="cc-exam-sel" onchange="chartSelect('exam',this.value)"><option value="">— select —</option></select>
-        </div>
-        <div class="chart-cat-box">
-          <div class="chart-cat-label">Operations</div>
-          <div class="chart-cat-count" id="cc-op-count">0</div>
-          <select class="chart-cat-select" id="cc-op-sel" onchange="chartSelect('op',this.value)"><option value="">— select —</option></select>
-        </div>
-        <div class="chart-cat-box">
-          <div class="chart-cat-label">Follow-ups</div>
-          <div class="chart-cat-count" id="cc-fup-count">0</div>
-          <select class="chart-cat-select" id="cc-fup-sel" onchange="chartSelect('fup',this.value)"><option value="">— select —</option></select>
-        </div>
-        <div class="chart-cat-box" id="cc-img-box" style="grid-column:1/-1;background:transparent;border:none;padding:0">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <div style="display:flex;align-items:center;gap:10px">
+        <!-- Right: Image carousel panel -->
+        <div class="chart-img-panel">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:8px">
               <div class="chart-cat-label" style="margin:0">Images</div>
-              <div class="chart-cat-count" id="cc-img-count">0</div>
+              <div class="chart-cat-count" style="font-size:16px;margin:0" id="cc-img-count">0</div>
             </div>
             <button class="btn btn-secondary btn-sm editor-only" onclick="chartShowNewForm('img',_chartPID)" style="font-size:11px">＋ Upload</button>
           </div>
-          <div id="chart-img-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;min-height:60px">
-            <div style="color:var(--text-faint);font-size:12px;grid-column:1/-1;padding:10px 0">Loading images…</div>
+          <!-- Carousel viewer -->
+          <div class="chart-img-carousel" id="chart-carousel">
+            <div class="carousel-empty">No images yet</div>
           </div>
+          <div class="carousel-label" id="carousel-label"></div>
+          <div class="carousel-dots" id="carousel-dots"></div>
         </div>
       </div>
       <div class="chart-bottom">
@@ -3775,88 +3799,152 @@ async function loadPatientImages(pid){
   }
 }
 
+// ── Image Carousel State ──
+let _carouselImages = [];   // [{url, thumbnailUrl, name, isPDF, fileId, isLocal, localIdx}]
+let _carouselIdx = 0;
+let _carouselPID = null;
+
 async function loadChartImageGrid(pid){
-  const grid = document.getElementById('chart-img-grid');
-  if(!grid) return;
+  _carouselPID = pid;
+  _carouselImages = [];
+  _carouselIdx = 0;
+  renderCarousel(true); // show loading state
+
   const canDelete = CURRENT_USER?.role==='admin'||CURRENT_USER?.role==='editor';
 
-  // Show locally cached images immediately while Drive loads
+  // Load local images immediately
   const localImgs = getStoredImages(pid);
-  function renderLocal(){
-    if(!localImgs.length) return '';
-    return localImgs.map((img,i)=>{
-      const delBtn = canDelete
-        ? `<button onclick="deleteStoredImage('${pid}',${i},event)" title="Delete" style="position:absolute;top:-7px;right:-7px;background:var(--red);border:none;color:#fff;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;box-shadow:0 2px 6px rgba(0,0,0,.4)">✕</button>`
-        : '';
-      if(img.isPDF){
-        return `<div class="pdf-thumb" style="position:relative" onclick="openPDF('${pid}',${i})" title="${img.desc||img.name}">
-          <div class="pdf-thumb-icon">📄</div>
-          <div class="pdf-thumb-name">${img.desc||img.name}</div>
-          ${delBtn}
-        </div>`;
-      }
-      return `<div class="image-thumb" style="position:relative">
-        <img src="${img.dataUrl}" onclick="openLightbox('${img.dataUrl}')" alt="${img.desc||img.name}" style="border-radius:8px">
-        <div class="image-thumb-label">${img.desc||img.name}</div>
-        ${delBtn}
-      </div>`;
-    }).join('');
+  const localEntries = localImgs.map((img, i) => ({
+    url: img.dataUrl,
+    thumbnailUrl: img.dataUrl,
+    name: img.desc || img.name || ('Image '+(i+1)),
+    isPDF: !!img.isPDF,
+    fileId: img.driveFileId || null,
+    isLocal: true,
+    localIdx: i
+  }));
+
+  // Show locals right away while Drive loads
+  if(localEntries.length){
+    _carouselImages = localEntries;
+    updateCarouselCount(pid, localEntries.length);
+    renderCarousel();
   }
 
-  // Show local cache first
-  const localHtml = renderLocal();
-  grid.innerHTML = localHtml || '<div style="color:var(--text-faint);font-size:12px;grid-column:1/-1;padding:6px 0"><span class="spinner"></span> Loading…</div>';
-
-  // Then fetch Drive images and merge
+  // Fetch Drive images
   try {
     const res = await fetch(`${CONFIG.webAppUrl}?action=listImages&pid=${encodeURIComponent(pid)}`);
     const data = await res.json();
-    const driveImgs = data.images || [];
-
-    // Update count
-    const total = Math.max(localImgs.length, driveImgs.length);
-    const countEl = document.getElementById('cc-img-count');
-    if(countEl) countEl.textContent = total;
-
-    if(!driveImgs.length && !localImgs.length){
-      grid.innerHTML = '<div style="color:var(--text-faint);font-size:12px;grid-column:1/-1;padding:6px 0">No images yet — click Upload above</div>';
-      return;
+    const driveImgs = (data.images || []).map(img => {
+      const m = img.url.match(/[?&]id=([^&]+)/);
+      return {
+        url: img.url,
+        thumbnailUrl: img.thumbnailUrl || img.url,
+        name: img.name || 'Image',
+        isPDF: img.mimeType==='application/pdf' || (img.name||'').toLowerCase().endsWith('.pdf'),
+        fileId: m ? m[1] : null,
+        isLocal: false,
+        localIdx: null
+      };
+    });
+    if(driveImgs.length){
+      _carouselImages = driveImgs;
+      _carouselIdx = Math.min(_carouselIdx, driveImgs.length - 1);
+      updateCarouselCount(pid, driveImgs.length);
+      renderCarousel();
+    } else if(!localEntries.length){
+      _carouselImages = [];
+      updateCarouselCount(pid, 0);
+      renderCarousel();
     }
-
-    if(!driveImgs.length){
-      // No Drive images, keep local render
-      return;
-    }
-
-    // Render Drive images (source of truth)
-    grid.innerHTML = driveImgs.map(img=>{
-      const fileIdMatch = img.url.match(/[?&]id=([^&]+)/);
-      const fileId = fileIdMatch ? fileIdMatch[1] : '';
-      const delBtn = canDelete && fileId
-        ? `<button onclick="deleteDriveFile('${fileId}','${pid}',event)" title="Delete" style="position:absolute;top:-7px;right:-7px;background:var(--red);border:none;color:#fff;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;box-shadow:0 2px 6px rgba(0,0,0,.4)">✕</button>`
-        : '';
-      const isPDF = img.mimeType==='application/pdf' || (img.name||'').toLowerCase().endsWith('.pdf');
-      if(isPDF){
-        const safeUrl = img.url.replace(/'/g,"\'");
-        const safeName = (img.name||'PDF').replace(/'/g,"\'");
-        return `<div class="pdf-thumb" style="position:relative" onclick="openPDFUrl('${safeUrl}','${safeName}')" title="${img.name}">
-          <div class="pdf-thumb-icon">📄</div>
-          <div class="pdf-thumb-name">${img.name}</div>
-          ${delBtn}
-        </div>`;
-      }
-      return `<div class="image-thumb" style="position:relative">
-        <img src="${img.thumbnailUrl||img.url}" onclick="openLightbox('${img.url}')" alt="${img.name}" style="border-radius:8px">
-        <div class="image-thumb-label">${img.name}</div>
-        ${delBtn}
-      </div>`;
-    }).join('');
   } catch(e) {
-    // Drive failed — keep showing local cache
-    if(!localImgs.length){
-      grid.innerHTML = '<div style="color:var(--text-faint);font-size:12px;grid-column:1/-1;padding:6px 0">Could not load images</div>';
+    if(!localEntries.length){
+      document.getElementById('chart-carousel').innerHTML = '<div class="carousel-empty">Could not load images</div>';
     }
   }
+}
+
+function updateCarouselCount(pid, count){
+  const el = document.getElementById('cc-img-count');
+  if(el) el.textContent = count;
+}
+
+function renderCarousel(loading){
+  const box = document.getElementById('chart-carousel');
+  const label = document.getElementById('carousel-label');
+  const dots = document.getElementById('carousel-dots');
+  if(!box) return;
+
+  if(loading){
+    box.innerHTML = '<div class="carousel-empty"><span class="spinner"></span></div>';
+    if(label) label.textContent = '';
+    if(dots) dots.innerHTML = '';
+    return;
+  }
+
+  const imgs = _carouselImages;
+  const canDelete = CURRENT_USER?.role==='admin'||CURRENT_USER?.role==='editor';
+
+  if(!imgs.length){
+    box.innerHTML = '<div class="carousel-empty">No images yet<br><span style="font-size:10px;opacity:.6">Click ＋ Upload above</span></div>';
+    if(label) label.textContent = '';
+    if(dots) dots.innerHTML = '';
+    return;
+  }
+
+  const idx = Math.max(0, Math.min(_carouselIdx, imgs.length-1));
+  _carouselIdx = idx;
+  const img = imgs[idx];
+
+  const prevBtn = idx > 0
+    ? `<button class="carousel-nav prev" onclick="carouselGo(${idx-1})">‹</button>` : '';
+  const nextBtn = idx < imgs.length-1
+    ? `<button class="carousel-nav next" onclick="carouselGo(${idx+1})">›</button>` : '';
+
+  let delBtn = '';
+  if(canDelete){
+    if(!img.isLocal && img.fileId){
+      delBtn = `<button class="carousel-del" onclick="deleteDriveFile('${img.fileId}','${_carouselPID}',event)" title="Delete">✕</button>`;
+    } else if(img.isLocal && img.localIdx !== null){
+      delBtn = `<button class="carousel-del" onclick="deleteStoredImage('${_carouselPID}',${img.localIdx},event)" title="Delete">✕</button>`;
+    }
+  }
+
+  if(img.isPDF){
+    const safeUrl = img.url.replace(/'/g,"\'");
+    const safeName = img.name.replace(/'/g,"\'");
+    box.innerHTML = `
+      ${prevBtn}${nextBtn}${delBtn}
+      <div onclick="img.isLocal ? openPDF('${_carouselPID}',${img.localIdx||0},event) : openPDFUrl('${safeUrl}','${safeName}')"
+           style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;width:100%;height:100%;padding:10px">
+        <div style="font-size:42px">📄</div>
+        <div style="font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;text-align:center;word-break:break-all;max-width:90%">${img.name}</div>
+        <div style="font-size:10px;color:var(--teal)">tap to open</div>
+      </div>`;
+  } else {
+    box.innerHTML = `
+      ${prevBtn}${nextBtn}${delBtn}
+      <img src="${img.thumbnailUrl}" onclick="openLightbox('${img.url}')" alt="${img.name}" style="width:100%;height:100%;object-fit:cover;cursor:zoom-in">`;
+  }
+
+  // Label: "2 / 5 — filename"
+  if(label) label.textContent = imgs.length > 1 ? `${idx+1} / ${imgs.length} — ${img.name}` : img.name;
+
+  // Dots (only show if ≤ 12 images to avoid clutter)
+  if(dots){
+    if(imgs.length <= 12 && imgs.length > 1){
+      dots.innerHTML = imgs.map((_,i)=>
+        `<button class="carousel-dot${i===idx?' active':''}" onclick="carouselGo(${i})" title="Image ${i+1}"></button>`
+      ).join('');
+    } else {
+      dots.innerHTML = '';
+    }
+  }
+}
+
+function carouselGo(idx){
+  _carouselIdx = idx;
+  renderCarousel();
 }
 
 async function deleteDriveFile(fileId, pid, event){
@@ -3872,7 +3960,8 @@ async function deleteDriveFile(fileId, pid, event){
     // Wait for Drive to process then refresh the grid
     await new Promise(r => setTimeout(r, 1800));
     showToast('File deleted ✓','success');
-    loadPatientImages(pid);
+    if(currentImagePID === pid) loadPatientImages(pid);
+    if(_carouselPID && String(_carouselPID)===String(pid)) loadChartImageGrid(pid);
   } catch(err) {
     showToast('Delete failed — check connection','error');
   }
@@ -4366,6 +4455,8 @@ function deleteStoredImage(pid,idx,event){
   if(removed && removed.driveFileId){
     fetch(CONFIG.webAppUrl,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'deleteFile',fileId:removed.driveFileId})}).catch(()=>{});
   }
+  // Refresh carousel if open for this patient
+  if(_carouselPID && String(_carouselPID)===String(pid)) loadChartImageGrid(pid);
 }
 function openPDF(pid,idx){
   const imgs=getStoredImages(pid);
