@@ -2386,7 +2386,7 @@ function buildResponse(data) { return ContentService.createTextOutput(JSON.strin
 
 <script>
 // ─── STATE ───
-let CONFIG={webAppUrl:'https://script.google.com/macros/s/AKfycby3Dl-W3YtpURmoY_O0O0du0U4vZNbhozzwmPnkZxde1CJAugWsGVNOEnpE8N9w0BbE/exec'};
+let CONFIG={webAppUrl:'https://script.google.com/macros/s/AKfycbzr4k1UykIJeRXtAVb1WfE-vrG0oQp6iPpsW6vIWcSZK_CGHnUhO0XdKAE7KM7ZMBQ6PQ/exec'};
 let DB={patients:[],examinations:[],operations:[],followups:[],history:[]};
 let CURRENT_USER=null; // {username, displayName, role}
 
@@ -2504,7 +2504,7 @@ async function deleteUser(username){
 document.addEventListener('DOMContentLoaded',()=>{
   const saved=localStorage.getItem('pedicat_v2_config');
   if(saved){CONFIG=JSON.parse(saved);}
-  if(!CONFIG.webAppUrl){CONFIG.webAppUrl='https://script.google.com/macros/s/AKfycby3Dl-W3YtpURmoY_O0O0du0U4vZNbhozzwmPnkZxde1CJAugWsGVNOEnpE8N9w0BbE/exec';localStorage.setItem('pedicat_v2_config',JSON.stringify(CONFIG));}
+  if(!CONFIG.webAppUrl){CONFIG.webAppUrl='https://script.google.com/macros/s/AKfycbzr4k1UykIJeRXtAVb1WfE-vrG0oQp6iPpsW6vIWcSZK_CGHnUhO0XdKAE7KM7ZMBQ6PQ/exec';localStorage.setItem('pedicat_v2_config',JSON.stringify(CONFIG));}
   document.getElementById('webapp-url-input').value=CONFIG.webAppUrl;
   updateConnectionBadge();
   // Check for existing session
@@ -2657,6 +2657,25 @@ async function pushRow(sheet, row){
     showSyncBar('success', 'Saved ✓');
   } catch(err) {
     // Network error (offline etc)
+    showSyncBar('error', 'Network error — check your connection');
+  }
+}
+
+// ─── UPDATE EXISTING ROW ───
+// Tracks the record being edited: {sheet, id} or null for new records
+let _editingRecord = null;
+
+async function pushUpdate(sheet, id, row) {
+  showSyncBar('syncing', 'Updating record…');
+  try {
+    await fetch(CONFIG.webAppUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: JSON.stringify({ action: 'updateRow', sheet, id, row })
+    });
+    await new Promise(r => setTimeout(r, 1500));
+    showSyncBar('success', 'Updated ✓');
+  } catch(err) {
     showSyncBar('error', 'Network error — check your connection');
   }
 }
@@ -2882,11 +2901,20 @@ async function submitExamination(e){
     FamilyHistory:g('e-fhx')?.checked?'Yes':'No',FamilyHistoryDesc:g('e-fhx-desc')?.value||'',
     Comments:g('e-comments').value,EntryDate:today()
   };
-  DB.examinations.push(row);
-  showToast('Examination saved ✓','success');
+  const editing = _editingRecord && _editingRecord.sheet === 'Examinations';
+  if(editing){
+    const dbIdx = DB.examinations.findIndex(x => x.ID === _editingRecord.id);
+    if(dbIdx >= 0) DB.examinations[dbIdx] = {...DB.examinations[dbIdx], ...row, ID: _editingRecord.id};
+    showToast('Examination updated ✓','success');
+    pushUpdate('Examinations', _editingRecord.id, {...row, ID: _editingRecord.id}).catch(()=>{});
+    _editingRecord = null;
+  } else {
+    DB.examinations.push(row);
+    showToast('Examination saved ✓','success');
+    pushRow('Examinations',row).catch(()=>{});
+  }
   document.getElementById('exam-form').reset();
   if(_chartReturnPID){openChart(_chartReturnPID);}else{showView('patients');}
-  pushRow('Examinations',row).catch(()=>{});
 }
 
 // ─── SUBMIT SURGERY ───
@@ -2994,12 +3022,21 @@ async function submitFollowup(e){
     Complications_OS:getFupComplications('os'),
     Comments:g('f-comments').value,EntryDate:today()
   };
-  DB.followups.push(row);
-  showToast('Follow-up saved ✓','success');
+  const editing = _editingRecord && _editingRecord.sheet === 'Followup';
+  if(editing){
+    const dbIdx = DB.followups.findIndex(x => x.ID === _editingRecord.id);
+    if(dbIdx >= 0) DB.followups[dbIdx] = {...DB.followups[dbIdx], ...row, ID: _editingRecord.id};
+    showToast('Follow-up updated ✓','success');
+    pushUpdate('Followup', _editingRecord.id, {...row, ID: _editingRecord.id}).catch(()=>{});
+    _editingRecord = null;
+  } else {
+    DB.followups.push(row);
+    showToast('Follow-up saved ✓','success');
+    pushRow('Followup',row).catch(()=>{});
+  }
   document.getElementById('followup-form').reset();
   customFupComps={od:[],os:[]};['od','os'].forEach(e=>{const cc=document.getElementById('fc-custom-comps-'+e);if(cc)cc.innerHTML='';});
   if(_chartReturnPID){openChart(_chartReturnPID);}else{showView('patients');}
-  pushRow('Followup',row).catch(()=>{});
 }
 
 // ─── ACTIVE PATIENT STATE ───
@@ -3527,13 +3564,22 @@ async function submitHistory(e){
     EntryDate:today()
   };
   DB.history = DB.history || [];
-  DB.history.push(row);
-  showToast('History saved ✓','success');
+  const editing = _editingRecord && _editingRecord.sheet === 'History';
+  if(editing){
+    const dbIdx = DB.history.findIndex(x => x.ID === _editingRecord.id);
+    if(dbIdx >= 0) DB.history[dbIdx] = {...DB.history[dbIdx], ...row, ID: _editingRecord.id};
+    showToast('History updated ✓','success');
+    pushUpdate('History', _editingRecord.id, {...row, ID: _editingRecord.id}).catch(()=>{});
+    _editingRecord = null;
+  } else {
+    DB.history.push(row);
+    showToast('History saved ✓','success');
+    pushRow('History', row).catch(()=>{});
+  }
   document.getElementById('history-form').reset();
   prevSurgeries = [];
   renderPrevSurgeries();
   if(_chartReturnPID){openChart(_chartReturnPID);}else{showView('patients');}
-  pushRow('History', row).catch(()=>{});
 }
 
 
@@ -3924,6 +3970,8 @@ function editedByFooter(record){
 }
 
 function chartShowNewForm(type,pid){
+  // Reset edit state — chartEditRecord will re-set it after calling us
+  _editingRecord = null;
   if(type==='img'){
     const ipid=pid||_chartPID;
     document.getElementById('chart-bottom-title').textContent='Upload Images';
@@ -3949,24 +3997,156 @@ function chartShowNewForm(type,pid){
 
 function chartEditRecord(type,idx){
   const map={hist:'hists',exam:'exams',op:'ops',fup:'fups'};
+  const sheetMap={hist:'History',exam:'Examinations',op:'Operations',fup:'Followup'};
   const record=window._chartData[map[type]]?.[idx];
   if(!record)return;
+  // Store edit context so submit functions know to update instead of append
+  _editingRecord={sheet:sheetMap[type], id:record.ID};
   chartShowNewForm(type,_chartPID);
-  const dateMap={exam:'e-date',op:'s-date',fup:'f-date'};
-  const dateVal=record.DateOfExam||record.DateOfOp||record.EntryDate||'';
   setTimeout(()=>{
-    if(dateMap[type]&&dateVal){const el=document.getElementById(dateMap[type]);if(el)el.value=dateVal.split('T')[0];}
+    // Pre-fill all form fields from the record
+    prefillForm(type, record);
+    // Show edit notice banner
     const viewMap={hist:'view-new-history',exam:'view-new-examination',op:'view-new-surgery',fup:'view-new-followup'};
     const view=document.getElementById(viewMap[type]);
     if(view&&!view.querySelector('.chart-edit-notice')){
       const n=document.createElement('div');
       n.className='chart-edit-notice';
       n.style.cssText='background:rgba(247,183,49,.1);border:1px solid rgba(247,183,49,.3);border-radius:9px;padding:11px 16px;margin-bottom:14px;font-size:13px;color:var(--amber);display:flex;align-items:center;gap:10px';
-      n.innerHTML=`<span style="font-size:18px">✎</span><div>Editing record from ${dateVal?new Date(dateVal).toLocaleDateString():''}. Update fields and save.</div>`;
+      const dateVal=record.DateOfExam||record.DateOfOp||record.EntryDate||'';
+      n.innerHTML=`<span style="font-size:18px">✎</span><div><strong>Editing record</strong>${dateVal?' from '+new Date(dateVal).toLocaleDateString():''}. All fields are pre-filled — make your changes and save.</div>`;
       const back=view.querySelector('.chart-back-btn');
       if(back)back.after(n);else view.insertBefore(n,view.firstChild);
     }
-  },100);
+  },120);
+}
+
+// Pre-fill form fields from an existing record object
+function prefillForm(type, rec){
+  const g = id => document.getElementById(id);
+  const setRadio = (name, val) => {
+    const el = document.querySelector(`input[name="${name}"][value="${val}"]`);
+    if(el) el.checked = true;
+  };
+  const setVal = (id, val) => { const el = g(id); if(el && val !== undefined && val !== null) el.value = val; };
+  const setChk = (id, val) => { const el = g(id); if(el) el.checked = (val === 'Yes' || val === true); };
+
+  if(type === 'exam'){
+    setVal('e-date', (rec.DateOfExam||'').split('T')[0]);
+    setChk('e-eua', rec.EUA);
+    setVal('e-examiner', rec.Examiner);
+    // OD
+    setVal('e-va-od', rec.VA_OD); setChk('e-irr-od', rec.Irrefractable_OD);
+    setVal('e-sphere-od', rec.Sphere_OD); setVal('e-cylinder-od', rec.Cylinder_OD); setVal('e-axisval-od', rec.Axis_OD);
+    setRadio('e-cornea-od', rec.CorneaOpacity_OD); setVal('e-cornea-loc-od', rec.LocationCornea_OD); setVal('e-cornea-density-od', rec.Density_OD);
+    setVal('e-cornea-diamh-od', rec.CorneaDiamH_OD); setVal('e-cornea-diamv-od', rec.CorneaDiamV_OD);
+    setVal('e-cct-od', rec.CCT_OD); setVal('e-pupil-diam-od', rec.PupilDiam_OD);
+    setRadio('e-gonio-od', rec.Gonioscopy_OD); setRadio('e-angle-od', rec.AngleOD); setVal('e-gonio-desc-od', rec.GonioDesc_OD);
+    setVal('e-iop-od', rec.IOP_OD); setVal('e-pupilbefore-od', rec.PupilBefore_OD);
+    setRadio('e-lens-status-od', rec.LensStatus_OD);
+    setRadio('e-sub-od', rec.Subluxation_OD); setVal('e-sub-grade-od', rec.SubluxationGrade_OD); setVal('e-sub-deg-od', rec.SubluxationDeg_OD); setVal('e-sub-loc-od', rec.SubluxationLoc_OD);
+    setRadio('e-sph-od', rec.Spherophakia_OD); setRadio('e-ant-lent-od', rec.AntLenticonus_OD); setRadio('e-post-lent-od', rec.PostLenticonus_OD);
+    setRadio('e-phpv-od', rec.PHPV_OD); setRadio('e-ppcd-od', rec.PPCD_OD);
+    setVal('e-aph-pc-od', rec.AphakiaPC_OD); setVal('e-iol-loc-od', rec.IOLLocation_OD); setVal('e-pse-pc-od', rec.PseudophakiaPC_OD);
+    setRadio('e-centration-od', rec.IOLCentration_OD);
+    setRadio('e-fundus-od', rec.Fundus_OD); setVal('e-fundus-abn-od', rec.FundusAbnorm_OD);
+    setVal('e-cd-od', rec.CD_OD); setVal('e-axl-od', rec.AxialLength_OD);
+    setRadio('e-bio-tech-od', rec.BioTech_OD); setVal('e-k1-od', rec.K1_OD); setVal('e-k2-od', rec.K2_OD);
+    // OS
+    setVal('e-va-os', rec.VA_OS); setChk('e-irr-os', rec.Irrefractable_OS);
+    setVal('e-sphere-os', rec.Sphere_OS); setVal('e-cylinder-os', rec.Cylinder_OS); setVal('e-axisval-os', rec.Axis_OS);
+    setRadio('e-cornea-os', rec.CorneaOpacity_OS); setVal('e-cornea-loc-os', rec.LocationCornea_OS); setVal('e-cornea-density-os', rec.Density_OS);
+    setVal('e-cornea-diamh-os', rec.CorneaDiamH_OS); setVal('e-cornea-diamv-os', rec.CorneaDiamV_OS);
+    setVal('e-cct-os', rec.CCT_OS); setVal('e-pupil-diam-os', rec.PupilDiam_OS);
+    setRadio('e-gonio-os', rec.Gonioscopy_OS); setRadio('e-angle-os', rec.AngleOS); setVal('e-gonio-desc-os', rec.GonioDesc_OS);
+    setVal('e-iop-os', rec.IOP_OS); setVal('e-pupilbefore-os', rec.PupilBefore_OS);
+    setRadio('e-lens-status-os', rec.LensStatus_OS);
+    setRadio('e-sub-os', rec.Subluxation_OS); setVal('e-sub-grade-os', rec.SubluxationGrade_OS); setVal('e-sub-deg-os', rec.SubluxationDeg_OS); setVal('e-sub-loc-os', rec.SubluxationLoc_OS);
+    setRadio('e-sph-os', rec.Spherophakia_OS); setRadio('e-ant-lent-os', rec.AntLenticonus_OS); setRadio('e-post-lent-os', rec.PostLenticonus_OS);
+    setRadio('e-phpv-os', rec.PHPV_OS); setRadio('e-ppcd-os', rec.PPCD_OS);
+    setVal('e-aph-pc-os', rec.AphakiaPC_OS); setVal('e-iol-loc-os', rec.IOLLocation_OS); setVal('e-pse-pc-os', rec.PseudophakiaPC_OS);
+    setRadio('e-centration-os', rec.IOLCentration_OS);
+    setRadio('e-fundus-os', rec.Fundus_OS); setVal('e-fundus-abn-os', rec.FundusAbnorm_OS);
+    setVal('e-cd-os', rec.CD_OS); setVal('e-axl-os', rec.AxialLength_OS);
+    setRadio('e-bio-tech-os', rec.BioTech_OS); setVal('e-k1-os', rec.K1_OS); setVal('e-k2-os', rec.K2_OS);
+    // Shared
+    setVal('e-syndrome', rec.Syndrome); setVal('e-invest', rec.Investigations);
+    setChk('e-consang', rec.Consanguinity); setChk('e-fhx', rec.FamilyHistory); setVal('e-fhx-desc', rec.FamilyHistoryDesc);
+    setVal('e-comments', rec.Comments);
+  }
+  else if(type === 'fup'){
+    setVal('f-date', (rec.DateOfExam||'').split('T')[0]);
+    setChk('f-eua', rec.EUA);
+    setVal('f-examiner', rec.Examiner);
+    // OD
+    setVal('f-va-od', rec.VA_OD); setChk('f-irr-od', rec.Irrefractable_OD);
+    setVal('f-sph-od', rec.Sphere_OD); setVal('f-cyl-od', rec.Cylinder_OD); setVal('f-axis-od', rec.Axis_OD);
+    setVal('f-iop-od', rec.IOP_OD);
+    setRadio('f-cornea-od', rec.Cornea_OD); setVal('f-cornea-desc-od', rec.CorneaDesc_OD);
+    setRadio('f-ac-od', rec.AC_OD); setVal('f-ac-desc-od', rec.ACDesc_OD);
+    setVal('f-cct-od', rec.CCT_OD);
+    setRadio('f-iris-od', rec.Iris_OD); setVal('f-iris-desc-od', rec.IrisDesc_OD);
+    setRadio('f-pupil-od', rec.Pupil_OD); setVal('f-pupil-desc-od', rec.PupilDesc_OD);
+    setRadio('f-lens-status-od', rec.LensStatus_OD);
+    setRadio('f-sub-od', rec.Subluxation_OD); setVal('f-sub-grade-od', rec.SubluxGrade_OD); setVal('f-sub-deg-od', rec.SubluxDeg_OD); setVal('f-sub-loc-od', rec.SubluxLoc_OD);
+    setRadio('f-sph-od', rec.Spherophakia_OD); setRadio('f-ant-lent-od', rec.AntLenticonus_OD); setRadio('f-post-lent-od', rec.PostLenticonus_OD);
+    setRadio('f-phpv-od', rec.PHPV_OD); setRadio('f-ppcd-od', rec.PPCD_OD);
+    setVal('f-aph-pc-od', rec.AphakiaPC_OD); setVal('f-iol-loc-od', rec.IOLLocation_OD); setVal('f-pse-pc-od', rec.PseudophakiaPC_OD);
+    setRadio('f-centration-od', rec.IOLCentration_OD);
+    setVal('f-opacification-od', rec.Opacification_OD);
+    setRadio('f-fundus-od', rec.Fundus_OD); setVal('f-fundus-desc-od', rec.FundusDesc_OD);
+    setVal('f-cd-od', rec.CD_OD); setRadio('f-gonio-od', rec.Gonioscopy_OD); setRadio('f-angle-od', rec.AngleOD); setVal('f-gonio-desc-od', rec.GonioDesc_OD);
+    setVal('f-axl-od', rec.AxialLength_OD); setVal('f-k1-od', rec.K1_OD); setVal('f-k2-od', rec.K2_OD);
+    // OS
+    setVal('f-va-os', rec.VA_OS); setChk('f-irr-os', rec.Irrefractable_OS);
+    setVal('f-sph-os', rec.Sphere_OS); setVal('f-cyl-os', rec.Cylinder_OS); setVal('f-axis-os', rec.Axis_OS);
+    setVal('f-iop-os', rec.IOP_OS);
+    setRadio('f-cornea-os', rec.Cornea_OS); setVal('f-cornea-desc-os', rec.CorneaDesc_OS);
+    setRadio('f-ac-os', rec.AC_OS); setVal('f-ac-desc-os', rec.ACDesc_OS);
+    setVal('f-cct-os', rec.CCT_OS);
+    setRadio('f-iris-os', rec.Iris_OS); setVal('f-iris-desc-os', rec.IrisDesc_OS);
+    setRadio('f-pupil-os', rec.Pupil_OS); setVal('f-pupil-desc-os', rec.PupilDesc_OS);
+    setRadio('f-lens-status-os', rec.LensStatus_OS);
+    setRadio('f-sub-os', rec.Subluxation_OS); setVal('f-sub-grade-os', rec.SubluxGrade_OS); setVal('f-sub-deg-os', rec.SubluxDeg_OS); setVal('f-sub-loc-os', rec.SubluxLoc_OS);
+    setRadio('f-sph-os', rec.Spherophakia_OS); setRadio('f-ant-lent-os', rec.AntLenticonus_OS); setRadio('f-post-lent-os', rec.PostLenticonus_OS);
+    setRadio('f-phpv-os', rec.PHPV_OS); setRadio('f-ppcd-os', rec.PPCD_OS);
+    setVal('f-aph-pc-os', rec.AphakiaPC_OS); setVal('f-iol-loc-os', rec.IOLLocation_OS); setVal('f-pse-pc-os', rec.PseudophakiaPC_OS);
+    setRadio('f-centration-os', rec.IOLCentration_OS);
+    setVal('f-opacification-os', rec.Opacification_OS);
+    setRadio('f-fundus-os', rec.Fundus_OS); setVal('f-fundus-desc-os', rec.FundusDesc_OS);
+    setVal('f-cd-os', rec.CD_OS); setRadio('f-gonio-os', rec.Gonioscopy_OS); setRadio('f-angle-os', rec.AngleOS); setVal('f-gonio-desc-os', rec.GonioDesc_OS);
+    setVal('f-axl-os', rec.AxialLength_OS); setVal('f-k1-os', rec.K1_OS); setVal('f-k2-os', rec.K2_OS);
+    setVal('f-comments', rec.Comments);
+  }
+  else if(type === 'op'){
+    setVal('s-date', (rec.DateOfOp||'').split('T')[0]);
+    setRadio('s-eye', rec.Eye);
+    setVal('s-examiner', rec.Examiner);
+    setVal('s-optype', rec.OperationName);
+    setRadio('s-iol', rec.IOL);
+    setVal('s-ant-cap', rec.AnteriorCapsule); setVal('s-post-cap', rec.PosteriorCapsule);
+    setChk('s-cap-stain', rec.CapsuleStain); setVal('s-visco', rec.Viscoelastic);
+    setVal('s-ant-vit', rec.AnteriorVitrectomy);
+    setVal('s-iol-type', rec.IOLType); setVal('s-iol-power', rec.IOLPower); setVal('s-target-ref', rec.TargetRefraction);
+    setVal('s-iol-loc', rec.IOLPlace); setVal('s-orientation', rec.Orientation);
+    setChk('s-steroids', rec.Steroids); setChk('s-atropine', rec.Atropine); setVal('s-route', rec.Route);
+    setVal('s-meds', rec.Medications); setVal('s-duration', rec.Duration);
+    setVal('s-complications', rec.OtherComplications); setVal('s-comments', rec.Comments);
+  }
+  else if(type === 'hist'){
+    setRadio('h-consang', rec.Consanguinity);
+    setRadio('h-fhx', rec.FamilyHistory); setVal('h-fhx-members', rec.FamilyHistoryMembers);
+    setRadio('h-blunt', rec.BluntTrauma); setRadio('h-pen', rec.PenetratingTrauma);
+    setRadio('h-sublux-syn', rec.SubluxationSyndrome);
+    setRadio('h-cardiac', rec.CardiacDisease); setVal('h-cardiac-desc', rec.CardiacDetails);
+    setRadio('h-neuro', rec.NeurologicalDisease); setVal('h-neuro-desc', rec.NeurologicalDetails);
+    setRadio('h-hepatic', rec.HepaticDisease); setVal('h-hepatic-desc', rec.HepaticDetails);
+    setRadio('h-renal', rec.RenalDisease); setVal('h-renal-desc', rec.RenalDetails);
+    setRadio('h-hema', rec.HaematologicalDisease); setVal('h-hema-desc', rec.HaematologicalDetails);
+    setRadio('h-chest', rec.ChestDisease); setVal('h-chest-desc', rec.ChestDetails);
+    setRadio('h-other-sys', rec.OtherSystemicDisease); setVal('h-other-sys-desc', rec.OtherSystemicDetails);
+    setVal('h-medications', rec.Medications);
+  }
 }
 
 function openEditPatientFromChart(){
@@ -4010,7 +4190,7 @@ function chartSaveDemographics(){
     EditedBy:CURRENT_USER?.displayName||CURRENT_USER?.username||'unknown',
     EditedAt:today(),
   };
-  pushRow('Patients_Update',DB.patients[idx]).catch(()=>{});
+  pushUpdate('Patients', DB.patients[idx].PID, DB.patients[idx]).catch(()=>{});
   showToast('Patient updated ✓','success');
   openChart(pid);
 }
