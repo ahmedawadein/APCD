@@ -356,6 +356,14 @@
   .image-lightbox-close{position:absolute;top:16px;right:20px;color:#fff;font-size:28px;cursor:pointer;opacity:.7;background:none;border:none;line-height:1}
   .image-lightbox-close:hover{opacity:1}
   .image-caption-input{margin-top:8px;font-size:12.5px;padding:6px 10px}
+  /* PDF thumbnail card */
+  .pdf-thumb{position:relative;border-radius:9px;overflow:hidden;border:1px solid var(--border-dim);background:rgba(0,0,0,.2);aspect-ratio:4/3;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:border-color .15s}
+  .pdf-thumb:hover{border-color:var(--teal)}
+  .pdf-thumb-icon{font-size:36px;line-height:1}
+  .pdf-thumb-name{font-size:10px;font-family:'DM Mono',monospace;color:var(--text-dim);text-align:center;padding:4px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .pdf-thumb-label{position:absolute;bottom:0;left:0;right:0;padding:4px 6px;background:rgba(0,0,0,.65);font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* picker preview for PDF */
+  .picker-preview-pdf{width:60px;height:60px;border-radius:8px;border:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(240,82,82,.08);font-size:22px;color:var(--red)}
 
   /* PATIENT SEARCH BAR */
   #patient-lookup-bar{background:rgba(13,27,42,.95);border-bottom:1px solid var(--border);padding:12px 30px;display:flex;align-items:center;gap:12px;position:sticky;top:58px;z-index:40;backdrop-filter:blur(8px)}
@@ -659,8 +667,9 @@
         <div class="config-card">
           <h3>Step 2 — Deploy Apps Script</h3>
           <p>In your Sheet: <strong>Extensions → Apps Script</strong>. Replace all code with this, then <strong>Deploy → New deployment → Web app → Anyone → Deploy</strong></p>
-          <textarea readonly style="height:180px;font-family:'DM Mono',monospace;font-size:10.5px;color:var(--teal);background:rgba(0,0,0,.4)" onclick="this.select()">function doPost(e){var d=JSON.parse(e.postData.contents);var ss=SpreadsheetApp.getActiveSpreadsheet();var sheet=ss.getSheetByName(d.sheet);var headers=sheet.getRange(1,1,1,sheet.getLastColumn()).getValues()[0];var row=headers.map(function(h){return d.row[h]!==undefined?d.row[h]:'';});sheet.appendRow(row);return ContentService.createTextOutput(JSON.stringify({status:'ok'})).setMimeType(ContentService.MimeType.JSON);}
-function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.parameter.sheet;var sheet=ss.getSheetByName(sn);if(!sheet)return ContentService.createTextOutput(JSON.stringify({error:'Not found'})).setMimeType(ContentService.MimeType.JSON);var data=sheet.getDataRange().getValues();var headers=data[0];var rows=data.slice(1).map(function(r){var o={};headers.forEach(function(h,i){o[h]=r[i];});return o;});return ContentService.createTextOutput(JSON.stringify({rows:rows})).setMimeType(ContentService.MimeType.JSON);}</textarea>
+          <textarea readonly style="height:180px;font-family:'DM Mono',monospace;font-size:10.5px;color:var(--teal);background:rgba(0,0,0,.4)" onclick="this.select()">function doPost(e){var d=JSON.parse(e.postData.contents);if(d.action==='uploadImage'){var folder=getOrCreateFolder(String(d.pid));var bytes=Utilities.base64Decode(d.data);var blob=Utilities.newBlob(bytes,d.mimeType||'application/octet-stream',d.filename||'file');folder.createFile(blob);return ContentService.createTextOutput(JSON.stringify({status:'ok'})).setMimeType(ContentService.MimeType.JSON);}var ss=SpreadsheetApp.getActiveSpreadsheet();var sheet=ss.getSheetByName(d.sheet);var headers=sheet.getRange(1,1,1,sheet.getLastColumn()).getValues()[0];var row=headers.map(function(h){return d.row[h]!==undefined?d.row[h]:'';});sheet.appendRow(row);return ContentService.createTextOutput(JSON.stringify({status:'ok'})).setMimeType(ContentService.MimeType.JSON);}
+function doGet(e){var p=e.parameter;if(p.action==='listImages'){var folder=getOrCreateFolder(String(p.pid));var files=folder.getFiles();var imgs=[];while(files.hasNext()){var f=files.next();var mime=f.getMimeType();imgs.push({name:f.getName(),url:'https://drive.google.com/uc?id='+f.getId(),thumbnailUrl:'https://drive.google.com/thumbnail?id='+f.getId()+'&sz=w400',mimeType:mime});}return ContentService.createTextOutput(JSON.stringify({images:imgs})).setMimeType(ContentService.MimeType.JSON);}var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=p.sheet;var sheet=ss.getSheetByName(sn);if(!sheet)return ContentService.createTextOutput(JSON.stringify({error:'Not found'})).setMimeType(ContentService.MimeType.JSON);var data=sheet.getDataRange().getValues();var headers=data[0];var rows=data.slice(1).map(function(r){var o={};headers.forEach(function(h,i){o[h]=r[i];});return o;});return ContentService.createTextOutput(JSON.stringify({rows:rows})).setMimeType(ContentService.MimeType.JSON);}
+function getOrCreateFolder(pid){var root=DriveApp.getRootFolder();var name='PediCat_'+pid;var iter=root.getFoldersByName(name);return iter.hasNext()?iter.next():root.createFolder(name);}</textarea>
         </div>
         <div class="config-card">
           <h3>Step 3 — Connect</h3>
@@ -2025,11 +2034,11 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
           ondragover="event.preventDefault();this.classList.add('drag-over')"
           ondragleave="this.classList.remove('drag-over')"
           ondrop="handleImageDrop(event,'main')">
-          <input type="file" id="img-file-main" accept="image/*" multiple style="display:none"
+          <input type="file" id="img-file-main" accept="image/*,application/pdf" multiple style="display:none"
             onchange="onFilesChosen(event,'main')">
           <div class="upload-zone-icon">📷</div>
-          <div class="upload-zone-text">Tap to upload a photo</div>
-          <div class="upload-zone-sub">Choose from gallery, camera or hard disc</div>
+          <div class="upload-zone-text">Tap to upload a photo or PDF</div>
+          <div class="upload-zone-sub">Images (JPG, PNG…) or PDF documents</div>
         </div>
         <div class="form-card" id="image-grid-card-main" style="display:none;margin-top:14px">
           <div class="form-card-title" style="display:flex;align-items:center;justify-content:space-between">
@@ -2104,7 +2113,7 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
 
 <div id="photo-picker-overlay" class="photo-picker-overlay" style="display:none">
   <div class="photo-picker-sheet">
-    <div class="photo-picker-title">📎 Add Photo Description</div>
+    <div class="photo-picker-title" id="picker-modal-title">📎 Add Description</div>
     <div id="picker-preview-strip" class="picker-preview-strip"></div>
     <div id="picker-file-count" class="picker-file-count"></div>
     <div class="picker-desc-label">Short description (optional)</div>
@@ -2121,6 +2130,10 @@ function doGet(e){var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=e.paramete
       <span class="picker-tag" onclick="setTag(this,'Post-op day 1')">Post-op day 1</span>
       <span class="picker-tag" onclick="setTag(this,'Post-op week 1')">Post-op week 1</span>
       <span class="picker-tag" onclick="setTag(this,'Post-op month 1')">Post-op month 1</span>
+      <span class="picker-tag" onclick="setTag(this,'Operative report')">Operative report</span>
+      <span class="picker-tag" onclick="setTag(this,'Consent form')">Consent form</span>
+      <span class="picker-tag" onclick="setTag(this,'Referral letter')">Referral letter</span>
+      <span class="picker-tag" onclick="setTag(this,'Lab results')">Lab results</span>
     </div>
     <div class="picker-desc-actions">
       <button class="picker-cancel-btn" onclick="cancelUpload()">Cancel</button>
@@ -3319,11 +3332,20 @@ async function loadPatientImages(pid){
       grid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-faint);font-size:12.5px;grid-column:1/-1">No images yet — tap above to upload</div>';
       return;
     }
-    grid.innerHTML = images.map(img=>`
-      <div class="image-thumb">
+    grid.innerHTML = images.map(img=>{
+      const isPDF = img.mimeType==='application/pdf' || (img.name||'').toLowerCase().endsWith('.pdf');
+      if(isPDF){
+        return `<div class="pdf-thumb" title="Click to open ${img.name}" onclick="window.open('${img.url}','_blank')">
+          <div class="pdf-thumb-icon">📄</div>
+          <div class="pdf-thumb-name">${img.name}</div>
+          <div class="pdf-thumb-label">${img.name}</div>
+        </div>`;
+      }
+      return `<div class="image-thumb">
         <img src="${img.thumbnailUrl||img.url}" onclick="openLightbox('${img.url}')" alt="${img.name}">
         <div class="image-thumb-label">${img.name}</div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   } catch(e) {
     grid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-faint);font-size:12.5px;grid-column:1/-1">Could not load images</div>';
   }
@@ -3332,7 +3354,7 @@ async function loadPatientImages(pid){
 function handleImageDrop(event, pid){
   event.preventDefault();
   document.getElementById('upload-zone-'+pid)?.classList.remove('drag-over');
-  const files = [...event.dataTransfer.files].filter(f=>f.type.startsWith('image/'));
+  const files = [...event.dataTransfer.files].filter(f=>f.type.startsWith('image/')||f.type==='application/pdf');
   const targetPid = pid==='main' ? ACTIVE_PATIENT?.PID : pid;
   if(!targetPid){showToast('Please select a patient first','error');return;}
   if(files.length) uploadImages(files, targetPid, pid);
@@ -3350,7 +3372,7 @@ async function uploadImages(files, pid, zoneId){
   const progress = document.getElementById('upload-progress-'+zid);
   const bar = document.getElementById('upload-bar-'+zid);
   const statusEl = document.getElementById('upload-status');
-  if(statusEl) statusEl.textContent = 'Uploading '+files.length+' image'+(files.length!==1?'s':'')+'…';
+  if(statusEl) statusEl.textContent = 'Uploading '+files.length+' file'+(files.length!==1?'s':'')+'…';
   if(progress) progress.style.display = 'block';
   let done = 0;
   for(const file of files){
@@ -3384,7 +3406,7 @@ async function uploadImages(files, pid, zoneId){
   if(captionEl) captionEl.value = '';
   // if modal is open on this patient, refresh image grid
   if(currentImagePID === pid) loadPatientImages(pid);
-  showToast(done+' image'+(done!==1?'s':'')+' uploaded ✓','success');
+  showToast(done+' file'+(done!==1?'s':'')+' uploaded ✓','success');
 }
 
 function fileToBase64(file){
@@ -3526,7 +3548,7 @@ function chartShowNewForm(type,pid){
     const ipid=pid||_chartPID;
     document.getElementById('chart-bottom-title').textContent='Upload Images';
     document.getElementById('chart-bottom-actions').innerHTML='';
-    document.getElementById('chart-bottom-body').innerHTML=`<div class="upload-zone" onclick="document.getElementById('img-file-chart').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleImageDrop(event,'${ipid}')"><input type="file" id="img-file-chart" accept="image/*" multiple style="display:none" onchange="onFilesChosen(event,'${ipid}')"><div class="upload-zone-icon">📷</div><div class="upload-zone-text">Tap to upload a photo</div></div><div class="image-grid" id="image-grid-${ipid}" style="margin-top:12px"></div>`;
+    document.getElementById('chart-bottom-body').innerHTML=`<div class="upload-zone" onclick="document.getElementById('img-file-chart').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleImageDrop(event,'${ipid}')"><input type="file" id="img-file-chart" accept="image/*,application/pdf" multiple style="display:none" onchange="onFilesChosen(event,'${ipid}')"><div class="upload-zone-icon">📷</div><div class="upload-zone-text">Tap to upload a photo or PDF</div></div><div class="image-grid" id="image-grid-${ipid}" style="margin-top:12px"></div>`;
     renderImages(ipid);
     return;
   }
@@ -3628,18 +3650,34 @@ function renderImages(pid){
   const grid=document.getElementById('image-grid-'+pid)||document.getElementById('image-grid-main');
   if(!grid)return;
   const imgs=getStoredImages(pid);
-  if(!imgs.length){grid.innerHTML='<div style="text-align:center;padding:28px;color:var(--text-faint);font-size:13px;grid-column:1/-1">No images yet</div>';return;}
-  grid.innerHTML=imgs.map((img,i)=>`<div class="image-thumb"><img src="${img.dataUrl}" onclick="openLightbox('${img.dataUrl}')" alt="${img.desc||img.name}"><div class="image-thumb-label">${img.desc||img.name}</div><button onclick="deleteStoredImage('${pid}',${i},event)" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.65);border:none;color:#fff;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer">✕</button></div>`).join('');
+  if(!imgs.length){grid.innerHTML='<div style="text-align:center;padding:28px;color:var(--text-faint);font-size:13px;grid-column:1/-1">No files yet</div>';return;}
+  grid.innerHTML=imgs.map((img,i)=>{
+    if(img.isPDF){
+      return `<div class="pdf-thumb" title="Click to open ${img.desc||img.name}" onclick="openPDF('${pid}',${i})">
+        <div class="pdf-thumb-icon">📄</div>
+        <div class="pdf-thumb-name">${img.desc||img.name}</div>
+        <div class="pdf-thumb-label">${img.desc||img.name}</div>
+        <button onclick="deleteStoredImage('${pid}',${i},event)" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.65);border:none;color:#fff;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer">✕</button>
+      </div>`;
+    }
+    return `<div class="image-thumb"><img src="${img.dataUrl}" onclick="openLightbox('${img.dataUrl}')" alt="${img.desc||img.name}"><div class="image-thumb-label">${img.desc||img.name}</div><button onclick="deleteStoredImage('${pid}',${i},event)" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.65);border:none;color:#fff;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer">✕</button></div>`;
+  }).join('');
 }
 function deleteStoredImage(pid,idx,event){
   event.stopPropagation();
-  if(!confirm('Remove this image?'))return;
+  if(!confirm('Remove this file?'))return;
   const imgs=getStoredImages(pid);imgs.splice(idx,1);saveStoredImages(pid,imgs);renderImages(pid);
-  showToast('Image removed','success');
+  showToast('File removed','success');
+}
+function openPDF(pid,idx){
+  const imgs=getStoredImages(pid);
+  const item=imgs[idx];if(!item||!item.dataUrl)return;
+  const win=window.open();
+  if(win){win.document.write('<html><head><title>'+(item.desc||item.name||'PDF')+'</title></head><body style="margin:0"><embed src="'+item.dataUrl+'" type="application/pdf" width="100%" height="100%" style="position:fixed;inset:0"></body></html>');win.document.close();}
 }
 let _pendingFiles=[];let _pendingZone='main';
 function onFilesChosen(event,zoneId){
-  const files=[...event.target.files].filter(f=>f.type.startsWith('image/'));
+  const files=[...event.target.files].filter(f=>f.type.startsWith('image/')||f.type==='application/pdf');
   event.target.value='';if(!files.length)return;
   _pendingFiles=files;_pendingZone=zoneId;
   const pid=zoneId==='main'?ACTIVE_PATIENT?.PID:zoneId;
@@ -3648,15 +3686,25 @@ function onFilesChosen(event,zoneId){
 }
 function handleImageDrop(event,zoneId){
   event.preventDefault();
-  const files=[...event.dataTransfer.files].filter(f=>f.type.startsWith('image/'));
+  const files=[...event.dataTransfer.files].filter(f=>f.type.startsWith('image/')||f.type==='application/pdf');
   if(!files.length)return;openDescModal(files,zoneId);
 }
 function openDescModal(files,zoneId){
   _pendingFiles=files;_pendingZone=zoneId;
+  const hasPDF=files.some(f=>f.type==='application/pdf');
+  const hasImg=files.some(f=>f.type.startsWith('image/'));
+  const title=document.getElementById('picker-modal-title');
+  if(title)title.textContent=hasPDF&&!hasImg?'📄 Add Document Description':hasPDF?'📎 Add Description':'📎 Add Photo Description';
   const strip=document.getElementById('picker-preview-strip');
-  if(strip){strip.innerHTML='';files.slice(0,5).forEach(f=>{const img=document.createElement('img');img.className='picker-preview-thumb';img.src=URL.createObjectURL(f);strip.appendChild(img);});}
+  if(strip){strip.innerHTML='';files.slice(0,5).forEach(f=>{
+    if(f.type==='application/pdf'){
+      const div=document.createElement('div');div.className='picker-preview-pdf';div.innerHTML='📄<span style="font-size:9px;font-family:monospace;margin-top:2px;color:var(--text-faint);overflow:hidden;max-width:56px;text-overflow:ellipsis;white-space:nowrap">'+f.name+'</span>';strip.appendChild(div);
+    }else{
+      const img=document.createElement('img');img.className='picker-preview-thumb';img.src=URL.createObjectURL(f);strip.appendChild(img);
+    }
+  });}
   const cnt=document.getElementById('picker-file-count');
-  if(cnt)cnt.textContent=files.length===1?'1 photo selected':files.length+' photos selected';
+  if(cnt)cnt.textContent=files.length===1?'1 file selected':files.length+' files selected';
   const di=document.getElementById('picker-desc-input');if(di)di.value='';
   document.querySelectorAll('.picker-tag').forEach(t=>t.classList.remove('sel'));
   document.getElementById('photo-picker-overlay').style.display='flex';
@@ -3676,20 +3724,29 @@ async function saveImages(files,pid,zid,description){
   const desc=(description||'').trim();let saved=0;
   for(let i=0;i<files.length;i++){
     const file=files[i];
+    const isPDF=file.type==='application/pdf';
     try{
       const dataUrl=await new Promise((res,rej)=>{const fr=new FileReader();fr.onload=e=>res(e.target.result);fr.onerror=()=>rej();fr.readAsDataURL(file);});
-      const thumb=await new Promise(res=>{const img=new Image();img.onload=()=>{const MAX=400,scale=Math.min(1,MAX/Math.max(img.width||1,img.height||1));const w=Math.max(1,Math.round(img.width*scale)),h=Math.max(1,Math.round(img.height*scale));try{const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);res(cv.toDataURL('image/jpeg',.8));}catch(e){res(dataUrl);}};img.onerror=()=>res(dataUrl);img.src=dataUrl;});
+      let thumb=dataUrl;
+      if(!isPDF){
+        thumb=await new Promise(res=>{const img=new Image();img.onload=()=>{const MAX=400,scale=Math.min(1,MAX/Math.max(img.width||1,img.height||1));const w=Math.max(1,Math.round(img.width*scale)),h=Math.max(1,Math.round(img.height*scale));try{const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);res(cv.toDataURL('image/jpeg',.8));}catch(e){res(dataUrl);}};img.onerror=()=>res(dataUrl);img.src=dataUrl;});
+      }
       const label=desc?(files.length>1?desc+' ('+(i+1)+')':desc):file.name.replace(/\.[^.]+$/,'');
-      addStoredImage(pid,file.name,label,thumb);saved++;
+      // Save to localStorage for instant display
+      const imgs=getStoredImages(pid);
+      imgs.push({name:file.name,desc:label,dataUrl:isPDF?dataUrl:thumb,isPDF,savedAt:new Date().toISOString()});
+      saveStoredImages(pid,imgs);
+      saved++;
       renderImages(pid);
       if(_chartPID===pid)chartBuildDropdowns(pid);
       const gc=document.getElementById('image-grid-card-main');
       const zone=document.getElementById('upload-zone-main');
       if(gc)gc.style.display='';if(zone&&zid==='main')zone.style.display='none';
-      fetch(CONFIG.webAppUrl,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'uploadImage',pid,filename:label,mimeType:file.type,data:dataUrl.split(',')[1]||''})}).catch(()=>{});
+      // Upload to Google Drive (same action used by uploadImages)
+      fetch(CONFIG.webAppUrl,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'uploadImage',pid,filename:label+(isPDF?'.pdf':''),mimeType:file.type,data:dataUrl.split(',')[1]||''})}).catch(()=>{});
     }catch(err){console.error('Save error',err);}
   }
-  if(saved>0)showToast(saved+' photo'+(saved!==1?'s':'')+' saved ✓','success');
+  if(saved>0){const label=saved+' file'+(saved!==1?'s':'')+' saved ✓';showToast(label,'success');}
 }
 
 </script>
