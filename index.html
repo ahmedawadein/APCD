@@ -2531,14 +2531,46 @@ document.addEventListener('DOMContentLoaded',()=>{
   setTimeout(initDateDisplays, 100);
   const today=new Date().toISOString().split('T')[0];
   ['e-date','s-date','f-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today;});
+
+  // ── Mobile back-button interception ──
+  // Push an initial state so we have something to pop back to
+  history.replaceState({view:'dashboard'}, '', '');
+
+  window.addEventListener('popstate', function(e){
+    if(e.state && e.state.view){
+      // Navigate within the app without pushing a new entry
+      showView(e.state.view, true);
+    } else {
+      // No in-app state — user is trying to leave. Confirm.
+      const confirmed = confirm('Are you sure you want to leave PediCat?');
+      if(confirmed){
+        // Let them go — nothing to do
+      } else {
+        // Stay in app: re-push current view state
+        const currentView = document.querySelector('[id^="view-"]:not(.hidden)');
+        const v = currentView ? currentView.id.replace('view-','') : 'dashboard';
+        history.pushState({view:v}, '', '');
+      }
+    }
+  });
+
+  // ── Confirm before browser/tab close (desktop) ──
+  window.addEventListener('beforeunload', function(e){
+    e.preventDefault();
+    e.returnValue = '';
+  });
 });
 
 // ─── NAV ───
-function showView(v){
+function showView(v, fromPopState){
   // Role enforcement
   if(v==='setup'&&CURRENT_USER?.role!=='admin'){showToast('Admin access required','error');return;}
   if(v==='users'&&CURRENT_USER?.role!=='admin'){showToast('Admin access required','error');return;}
   if(['new-patient','new-history','new-examination','new-surgery','new-followup'].includes(v)&&CURRENT_USER?.role==='viewer'){showToast('Viewers cannot add or edit records','error');return;}
+  // Push a history entry so the mobile back button stays in-app
+  if(!fromPopState){
+    history.pushState({view:v}, '', '');
+  }
   document.querySelectorAll('[id^="view-"]').forEach(el=>el.classList.add('hidden'));
   document.getElementById('view-'+v).classList.remove('hidden');
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
