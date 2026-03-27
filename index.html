@@ -3335,7 +3335,9 @@ async function loadPatientImages(pid){
     grid.innerHTML = images.map(img=>{
       const isPDF = img.mimeType==='application/pdf' || (img.name||'').toLowerCase().endsWith('.pdf');
       if(isPDF){
-        return `<div class="pdf-thumb" title="Click to open ${img.name}" onclick="window.open('${img.url}','_blank')">
+        const safeUrl = img.url.replace(/'/g,"\\'");
+        const safeName = (img.name||'PDF').replace(/'/g,"\\'");
+        return `<div class="pdf-thumb" title="Click to open ${img.name}" onclick="openPDFUrl('${safeUrl}','${safeName}')">
           <div class="pdf-thumb-icon">📄</div>
           <div class="pdf-thumb-name">${img.name}</div>
           <div class="pdf-thumb-label">${img.name}</div>
@@ -3529,7 +3531,17 @@ function chartShowRecord(type,record,idx){
   const body=document.getElementById('chart-bottom-body');
   const drL=pairs=>pairs.filter(([,v])=>v).map(([k,v])=>dr(k,v)).join('');
   if(type==='img'){
-    body.innerHTML=`<div style="text-align:center;padding:20px"><img src="${record.dataUrl}" style="max-width:100%;max-height:55vh;border-radius:10px;cursor:zoom-in;box-shadow:0 4px 24px rgba(0,0,0,.4)" onclick="openLightbox('${record.dataUrl}')"><div style="margin-top:8px;font-size:13px;color:var(--text-dim)">${record.desc||record.name||''}</div></div>`;
+    if(record.isPDF){
+      body.innerHTML=`<div style="text-align:center;padding:12px 0">
+        <div style="font-size:13px;color:var(--text-dim);margin-bottom:10px">📄 ${record.desc||record.name||'PDF Document'}</div>
+        <iframe src="${record.dataUrl}" style="width:100%;height:60vh;border:none;border-radius:10px;background:#fff"></iframe>
+        <div style="margin-top:10px">
+          <a href="${record.dataUrl}" download="${record.name||'document.pdf'}" class="btn btn-secondary btn-sm" style="text-decoration:none">⬇ Download PDF</a>
+        </div>
+      </div>`;
+    } else {
+      body.innerHTML=`<div style="text-align:center;padding:20px"><img src="${record.dataUrl}" style="max-width:100%;max-height:55vh;border-radius:10px;cursor:zoom-in;box-shadow:0 4px 24px rgba(0,0,0,.4)" onclick="openLightbox('${record.dataUrl}')"><div style="margin-top:8px;font-size:13px;color:var(--text-dim)">${record.desc||record.name||''}</div></div>`;
+    }
     return;
   }
   if(type==='hist'){
@@ -3672,8 +3684,63 @@ function deleteStoredImage(pid,idx,event){
 function openPDF(pid,idx){
   const imgs=getStoredImages(pid);
   const item=imgs[idx];if(!item||!item.dataUrl)return;
-  const win=window.open();
-  if(win){win.document.write('<html><head><title>'+(item.desc||item.name||'PDF')+'</title></head><body style="margin:0"><embed src="'+item.dataUrl+'" type="application/pdf" width="100%" height="100%" style="position:fixed;inset:0"></body></html>');win.document.close();}
+  // Show inline PDF viewer overlay
+  let overlay=document.getElementById('pdf-viewer-overlay');
+  if(!overlay){
+    overlay=document.createElement('div');
+    overlay.id='pdf-viewer-overlay';
+    overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px';
+    overlay.innerHTML=`
+      <div style="width:100%;max-width:900px;display:flex;flex-direction:column;height:90vh">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <span id="pdf-viewer-title" style="color:#fff;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:1px"></span>
+          <div style="display:flex;gap:8px">
+            <a id="pdf-download-btn" href="#" download class="btn btn-secondary btn-sm" style="text-decoration:none;color:var(--teal)">⬇ Download</a>
+            <button onclick="document.getElementById('pdf-viewer-overlay').style.display='none';document.body.style.overflow=''" style="background:none;border:none;color:#fff;font-size:26px;cursor:pointer;line-height:1;opacity:.7">✕</button>
+          </div>
+        </div>
+        <iframe id="pdf-viewer-frame" src="" style="flex:1;border:none;border-radius:10px;background:#fff;width:100%"></iframe>
+      </div>`;
+    document.body.appendChild(overlay);
+  }
+  document.getElementById('pdf-viewer-title').textContent=item.desc||item.name||'PDF Document';
+  document.getElementById('pdf-viewer-frame').src=item.dataUrl;
+  const dl=document.getElementById('pdf-download-btn');
+  dl.href=item.dataUrl;dl.download=item.name||'document.pdf';
+  overlay.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+
+function openPDFUrl(url, name){
+  // For Google Drive PDFs, use the preview URL which embeds natively
+  let viewUrl = url;
+  // Convert Drive download URL to preview URL
+  const idMatch = url.match(/[?&]id=([^&]+)/);
+  if(idMatch) viewUrl = 'https://drive.google.com/file/d/'+idMatch[1]+'/preview';
+  let overlay=document.getElementById('pdf-viewer-overlay');
+  if(!overlay){
+    overlay=document.createElement('div');
+    overlay.id='pdf-viewer-overlay';
+    overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px';
+    overlay.innerHTML=`
+      <div style="width:100%;max-width:900px;display:flex;flex-direction:column;height:90vh">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <span id="pdf-viewer-title" style="color:#fff;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:1px"></span>
+          <div style="display:flex;gap:8px">
+            <a id="pdf-download-btn" href="#" target="_blank" class="btn btn-secondary btn-sm" style="text-decoration:none;color:var(--teal)">⬇ Open in Drive</a>
+            <button onclick="document.getElementById('pdf-viewer-overlay').style.display='none';document.body.style.overflow=''" style="background:none;border:none;color:#fff;font-size:26px;cursor:pointer;line-height:1;opacity:.7">✕</button>
+          </div>
+        </div>
+        <iframe id="pdf-viewer-frame" src="" style="flex:1;border:none;border-radius:10px;background:#fff;width:100%"></iframe>
+      </div>`;
+    document.body.appendChild(overlay);
+  }
+  document.getElementById('pdf-viewer-title').textContent=name||'PDF Document';
+  document.getElementById('pdf-viewer-frame').src=viewUrl;
+  const dl=document.getElementById('pdf-download-btn');
+  dl.href=url;
+  overlay.style.display='flex';
+  document.body.style.overflow='hidden';
 }
 let _pendingFiles=[];let _pendingZone='main';
 function onFilesChosen(event,zoneId){
