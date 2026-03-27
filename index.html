@@ -834,10 +834,26 @@ function buildResponse(data) { return ContentService.createTextOutput(JSON.strin
           <h3>Step 4 — Connect</h3>
           <p>Paste your Web App URL here and click Connect.</p>
           <div class="settings-url-row">
-            <input type="url" id="webapp-url-input" value="https://script.google.com/macros/s/AKfycbwBRx8ViEtjwVpZkjvZD8hhUDTnbncO96zsTGtT9dR9qyzQVJ5_lHe7U_ehrZTJ6VKOUA/exec">
+            <input type="url" id="webapp-url-input" placeholder="https://script.google.com/macros/s/…/exec">
             <button class="btn btn-primary" onclick="saveConfig()">Connect</button>
           </div>
           <div id="test-result" style="margin-top:10px;font-size:12.5px"></div>
+          <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border-dim)">
+            <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:10px">🔬 Login Diagnostic</div>
+            <p style="font-size:12px;color:var(--text-dim);margin-bottom:10px">Test a specific username/password against the live script to see the exact response:</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <label style="font-size:10px;font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;opacity:.7">Username</label>
+                <input type="text" id="diag-username" placeholder="admin" style="width:140px">
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <label style="font-size:10px;font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;opacity:.7">Password</label>
+                <input type="text" id="diag-password" placeholder="(visible for testing)" style="width:160px">
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="runLoginDiagnostic()">Test Login</button>
+            </div>
+            <div id="diag-result" style="margin-top:10px;font-family:'DM Mono',monospace;font-size:11px;white-space:pre-wrap;background:rgba(0,0,0,.4);border-radius:6px;padding:10px 12px;display:none;color:var(--teal)"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -2370,7 +2386,7 @@ function buildResponse(data) { return ContentService.createTextOutput(JSON.strin
 
 <script>
 // ─── STATE ───
-let CONFIG={webAppUrl:'https://script.google.com/macros/s/AKfycbwBRx8ViEtjwVpZkjvZD8hhUDTnbncO96zsTGtT9dR9qyzQVJ5_lHe7U_ehrZTJ6VKOUA/exec'};
+let CONFIG={webAppUrl:'https://script.google.com/macros/s/AKfycby3Dl-W3YtpURmoY_O0O0du0U4vZNbhozzwmPnkZxde1CJAugWsGVNOEnpE8N9w0BbE/exec'};
 let DB={patients:[],examinations:[],operations:[],followups:[],history:[]};
 let CURRENT_USER=null; // {username, displayName, role}
 
@@ -2396,7 +2412,8 @@ async function doLogin(){
       errEl.textContent='Invalid username or password.';
     }
   }catch(e){
-    errEl.textContent='Cannot reach server. Check your connection.';
+    console.error('Login error:', e);
+    errEl.textContent='Cannot reach server. Check your connection or open Setup to run the Login Diagnostic.';
   }
   btn.textContent='Sign In';btn.disabled=false;
 }
@@ -2487,7 +2504,7 @@ async function deleteUser(username){
 document.addEventListener('DOMContentLoaded',()=>{
   const saved=localStorage.getItem('pedicat_v2_config');
   if(saved){CONFIG=JSON.parse(saved);}
-  if(!CONFIG.webAppUrl){CONFIG.webAppUrl='https://script.google.com/macros/s/AKfycbwBRx8ViEtjwVpZkjvZD8hhUDTnbncO96zsTGtT9dR9qyzQVJ5_lHe7U_ehrZTJ6VKOUA/exec';localStorage.setItem('pedicat_v2_config',JSON.stringify(CONFIG));}
+  if(!CONFIG.webAppUrl){CONFIG.webAppUrl='https://script.google.com/macros/s/AKfycby3Dl-W3YtpURmoY_O0O0du0U4vZNbhozzwmPnkZxde1CJAugWsGVNOEnpE8N9w0BbE/exec';localStorage.setItem('pedicat_v2_config',JSON.stringify(CONFIG));}
   document.getElementById('webapp-url-input').value=CONFIG.webAppUrl;
   updateConnectionBadge();
   // Check for existing session
@@ -2560,6 +2577,33 @@ function saveConfig(){
     showToast('Connection failed','error');
   });
 }
+async function runLoginDiagnostic(){
+  const username = document.getElementById('diag-username').value.trim();
+  const password = document.getElementById('diag-password').value;
+  const resultEl = document.getElementById('diag-result');
+  resultEl.style.display = 'block';
+  if(!CONFIG.webAppUrl){ resultEl.textContent = '✗ No Web App URL saved yet. Connect first.'; return; }
+  if(!username||!password){ resultEl.textContent = '✗ Enter both username and password to test.'; return; }
+  resultEl.textContent = 'Sending request…';
+  const url = `${CONFIG.webAppUrl}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+  resultEl.textContent += '\nURL: ' + url;
+  try {
+    const res = await fetch(url);
+    const text = await res.text();
+    resultEl.textContent += '\n\nRaw response:\n' + text;
+    try {
+      const json = JSON.parse(text);
+      resultEl.textContent += '\n\nParsed: ' + JSON.stringify(json, null, 2);
+      if(json.ok === true) resultEl.style.color = 'var(--green)';
+      else if(json.ok === false) resultEl.style.color = 'var(--amber)';
+      else resultEl.style.color = 'var(--red)';
+    } catch(pe){ resultEl.textContent += '\n\n✗ Response is not valid JSON — script may not be deployed correctly.'; resultEl.style.color='var(--red)'; }
+  } catch(err) {
+    resultEl.textContent += '\n\n✗ Network error: ' + err.message;
+    resultEl.style.color = 'var(--red)';
+  }
+}
+
 function updateConnectionBadge(){
   const b=document.getElementById('connection-badge');
   if(CONFIG.webAppUrl){b.className='badge badge-green';b.textContent='⬡ Connected';}
