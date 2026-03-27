@@ -2386,7 +2386,7 @@ function buildResponse(data) { return ContentService.createTextOutput(JSON.strin
 
 <script>
 // ─── STATE ───
-let CONFIG={webAppUrl:'https://script.google.com/macros/s/AKfycbzr4k1UykIJeRXtAVb1WfE-vrG0oQp6iPpsW6vIWcSZK_CGHnUhO0XdKAE7KM7ZMBQ6PQ/exec'};
+let CONFIG={webAppUrl:'https://script.google.com/macros/s/AKfycbw3hsgKz6Hp5GhKgQxhPhl2WnaWnu8sJcPuZuSl4ZputAWzmJ8f_m-On95NHcr-ErXrsg/exec'};
 let DB={patients:[],examinations:[],operations:[],followups:[],history:[]};
 let CURRENT_USER=null; // {username, displayName, role}
 
@@ -2504,7 +2504,7 @@ async function deleteUser(username){
 document.addEventListener('DOMContentLoaded',()=>{
   const saved=localStorage.getItem('pedicat_v2_config');
   if(saved){CONFIG=JSON.parse(saved);}
-  if(!CONFIG.webAppUrl){CONFIG.webAppUrl='https://script.google.com/macros/s/AKfycbzr4k1UykIJeRXtAVb1WfE-vrG0oQp6iPpsW6vIWcSZK_CGHnUhO0XdKAE7KM7ZMBQ6PQ/exec';localStorage.setItem('pedicat_v2_config',JSON.stringify(CONFIG));}
+  if(!CONFIG.webAppUrl){CONFIG.webAppUrl='https://script.google.com/macros/s/AKfycbw3hsgKz6Hp5GhKgQxhPhl2WnaWnu8sJcPuZuSl4ZputAWzmJ8f_m-On95NHcr-ErXrsg/exec';localStorage.setItem('pedicat_v2_config',JSON.stringify(CONFIG));}
   document.getElementById('webapp-url-input').value=CONFIG.webAppUrl;
   updateConnectionBadge();
   // Check for existing session
@@ -3739,24 +3739,51 @@ async function loadPatientImages(pid){
       grid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-faint);font-size:12.5px;grid-column:1/-1">No images yet — tap above to upload</div>';
       return;
     }
+        const canDelete = CURRENT_USER?.role==='admin'||CURRENT_USER?.role==='editor';
     grid.innerHTML = images.map(img=>{
+      const fileIdMatch = img.url.match(/[?&]id=([^&]+)/);
+      const fileId = fileIdMatch ? fileIdMatch[1] : '';
+      const deleteBtn = canDelete && fileId
+        ? `<button onclick="deleteDriveFile('${fileId}','${pid}',event)" title="Delete file" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.7);border:none;color:#fff;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>`
+        : '';
       const isPDF = img.mimeType==='application/pdf' || (img.name||'').toLowerCase().endsWith('.pdf');
       if(isPDF){
         const safeUrl = img.url.replace(/'/g,"\\'");
         const safeName = (img.name||'PDF').replace(/'/g,"\\'");
-        return `<div class="pdf-thumb" title="Click to open ${img.name}" onclick="openPDFUrl('${safeUrl}','${safeName}')">
+        return `<div class="pdf-thumb" style="position:relative" title="Click to open ${img.name}" onclick="openPDFUrl('${safeUrl}','${safeName}')">
           <div class="pdf-thumb-icon">📄</div>
           <div class="pdf-thumb-name">${img.name}</div>
           <div class="pdf-thumb-label">${img.name}</div>
+          ${deleteBtn}
         </div>`;
       }
-      return `<div class="image-thumb">
+      return `<div class="image-thumb" style="position:relative">
         <img src="${img.thumbnailUrl||img.url}" onclick="openLightbox('${img.url}')" alt="${img.name}">
         <div class="image-thumb-label">${img.name}</div>
+        ${deleteBtn}
       </div>`;
     }).join('');
   } catch(e) {
     grid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-faint);font-size:12.5px;grid-column:1/-1">Could not load images</div>';
+  }
+}
+
+async function deleteDriveFile(fileId, pid, event){
+  event.stopPropagation();
+  if(!confirm('Permanently delete this file from Google Drive?'))return;
+  showToast('Deleting…','');
+  try {
+    await fetch(CONFIG.webAppUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: JSON.stringify({ action: 'deleteFile', fileId })
+    });
+    // Wait for Drive to process then refresh the grid
+    await new Promise(r => setTimeout(r, 1800));
+    showToast('File deleted ✓','success');
+    loadPatientImages(pid);
+  } catch(err) {
+    showToast('Delete failed — check connection','error');
   }
 }
 
@@ -4229,8 +4256,16 @@ function renderImages(pid){
 function deleteStoredImage(pid,idx,event){
   event.stopPropagation();
   if(!confirm('Remove this file?'))return;
-  const imgs=getStoredImages(pid);imgs.splice(idx,1);saveStoredImages(pid,imgs);renderImages(pid);
+  const imgs=getStoredImages(pid);
+  const removed=imgs[idx];
+  imgs.splice(idx,1);
+  saveStoredImages(pid,imgs);
+  renderImages(pid);
   showToast('File removed','success');
+  // If this file was also uploaded to Drive, delete it there too
+  if(removed && removed.driveFileId){
+    fetch(CONFIG.webAppUrl,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'deleteFile',fileId:removed.driveFileId})}).catch(()=>{});
+  }
 }
 function openPDF(pid,idx){
   const imgs=getStoredImages(pid);
