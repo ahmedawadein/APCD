@@ -716,32 +716,122 @@
           <p>Your registry data is stored in a Google Sheet you own.<br>Follow the steps below to get online.</p>
         </div>
         <div class="config-card">
-          <h3>Step 1 — Create your Google Sheet</h3>
-          <p>Create a new spreadsheet and add <strong>4 tabs</strong> named exactly: <strong>Patients, Examinations, Operations, Followup</strong></p>
-          <p style="margin-bottom:8px">In the <strong>Patients</strong> tab, row 1 headers:</p>
-          <div class="code-block">PID | DateOfRegistration | Name | NationalID | DOB | Sex | Phone | AlternatePhone | Address | Referring | Others | EntryDate</div>
-          <p style="margin-bottom:8px;margin-top:10px">In the <strong>Examinations</strong> tab:</p>
-          <div class="code-block">ID | PID | DateOfExam | Eye | ProcedureType | Examiner | CorneaOpacity | LocationCornea | Density | CorneaDiamH | CorneaDiamV | CCT | CCTOtherEye | PupilDiam | Synaechia | Location | Angle | AngleDesc | IOP | LensDensity | LensMorphology | CataractLocation | Spherophakia | Lenticonus | PHPV | PHPVType | Subluxation | SubluxationGrade | SubluxationDeg | SubluxationLoc | Fundus | FundusAbnorm | CD | AxialLength | AXLOtherEye | Syndrome | Investigations | Consanguinity | FamilyHistory | FamilyHistoryDesc | PupilBefore | Comments | EntryDate</div>
-          <p style="margin-bottom:8px;margin-top:10px">In the <strong>Operations</strong> tab:</p>
-          <div class="code-block">ID | PID | DateOfOp | Eye | OperationName | IOL | AnteriorCapsule | PosteriorCapsule | CapsuleStain | Viscoelastic | AnteriorVitrectomy | Membranectomy | Iridectomy | IrisInjury | Sphincterinjury | Synechiolysis | IrisReconstruction | IrisManipulations | Hyphaema | DroppedCortex | DroppedIOL | VitreousHaemorrhage | OtherComplications | Biometry | SRKII | Holladay | HofferQ | Kreading | K1 | K2 | AxialLength | IOLType | IOLPlace | IOLPower | TargetRefraction | Orientation | Steroids | Atropine | Route | Medications | Examiner | Duration | OperationNotes | EntryDate</div>
-          <p style="margin-bottom:8px;margin-top:10px">In the <strong>Followup</strong> tab:</p>
-          <div class="code-block">ID | PID | DateOfExam | Eye | VisitType | Examiner | Cornea | CorneaDesc | AC | ACDesc | CCT | Iris | IrisDesc | Pupil | PupilDesc | Lens | LensDesc | LensStatus | Opacification | Fundus | FundusDesc | IOP | CD | VA | Sphere | Cylinder | Axis | Gonioscopy | GonioDesc | Comments | EntryDate | EditedBy</div>
-          <p style="margin-bottom:8px;margin-top:10px">Also add a <strong>Users</strong> tab with headers:</p>
+          <h3>Step 1 — Prepare your Google Sheet</h3>
+          <p>Your registry is connected to this sheet: <a href="https://docs.google.com/spreadsheets/d/1X8vUkiBIaI2JHAQP5g72AoW5oLva6zKs_R48S70WG0k/edit" target="_blank" style="color:var(--teal)">Open PediCat Registry Sheet ↗</a></p>
+          <p style="margin-top:10px;margin-bottom:6px">Make sure it has these <strong>5 tabs</strong> (create any that are missing):</p>
+          <div class="code-block" style="margin-bottom:8px">Patients &nbsp;|&nbsp; Examinations &nbsp;|&nbsp; Operations &nbsp;|&nbsp; Followup &nbsp;|&nbsp; <strong>Users</strong></div>
+          <p style="margin-bottom:6px">The <strong>Users</strong> tab must have this header row (row 1):</p>
           <div class="code-block">Username | Password | DisplayName | Role</div>
-          <p style="margin-top:6px;font-size:12px;color:var(--text-dim)">Add your first admin account manually in row 2 of the Users tab (role: <strong>admin</strong>), then use Manage Users in the app to add more.</p>
+          <p style="margin-top:10px;font-size:12px;color:var(--amber)">⚠ Add your first admin manually in row 2 of the Users tab — set Role to <strong>admin</strong>. Then use Manage Users in the app to add editors and viewers.</p>
         </div>
         <div class="config-card">
-          <h3>Step 2 — Deploy Apps Script</h3>
-          <p>In your Sheet: <strong>Extensions → Apps Script</strong>. Replace all code with this, then <strong>Deploy → New deployment → Web app → Anyone → Deploy</strong></p>
-          <textarea readonly style="height:220px;font-family:'DM Mono',monospace;font-size:10.5px;color:var(--teal);background:rgba(0,0,0,.4)" onclick="this.select()">function doPost(e){var d=JSON.parse(e.postData.contents);if(d.action==='uploadImage'){var folder=getOrCreateFolder(String(d.pid));var bytes=Utilities.base64Decode(d.data);var blob=Utilities.newBlob(bytes,d.mimeType||'application/octet-stream',d.filename||'file');folder.createFile(blob);return ok();}if(d.action==='deleteUser'){var ss=SpreadsheetApp.getActiveSpreadsheet();var sh=ss.getSheetByName('Users');var vals=sh.getDataRange().getValues();for(var i=1;i<vals.length;i++){if(vals[i][0]===d.username){sh.deleteRow(i+1);return ok();}}return ok();}var ss=SpreadsheetApp.getActiveSpreadsheet();var sheet=ss.getSheetByName(d.sheet);var headers=sheet.getRange(1,1,1,sheet.getLastColumn()).getValues()[0];var row=headers.map(function(h){return d.row[h]!==undefined?d.row[h]:'';});sheet.appendRow(row);return ok();}
-function doGet(e){var p=e.parameter;if(p.action==='listImages'){var folder=getOrCreateFolder(String(p.pid));var files=folder.getFiles();var imgs=[];while(files.hasNext()){var f=files.next();imgs.push({name:f.getName(),url:'https://drive.google.com/uc?id='+f.getId(),thumbnailUrl:'https://drive.google.com/thumbnail?id='+f.getId()+'&sz=w400',mimeType:f.getMimeType()});}return out(JSON.stringify({images:imgs}));}if(p.action==='login'){var ss=SpreadsheetApp.getActiveSpreadsheet();var sh=ss.getSheetByName('Users');if(!sh)return out(JSON.stringify({error:'No Users sheet'}));var vals=sh.getDataRange().getValues();for(var i=1;i<vals.length;i++){if(String(vals[i][0])===String(p.username)&&String(vals[i][1])===String(p.password)){return out(JSON.stringify({ok:true,displayName:vals[i][2],role:vals[i][3]}));}}return out(JSON.stringify({ok:false}));}if(p.action==='listUsers'){var ss=SpreadsheetApp.getActiveSpreadsheet();var sh=ss.getSheetByName('Users');if(!sh)return out(JSON.stringify({users:[]}));var vals=sh.getDataRange().getValues();var users=vals.slice(1).map(function(r){return{username:r[0],displayName:r[2],role:r[3]};});return out(JSON.stringify({users:users}));}var ss=SpreadsheetApp.getActiveSpreadsheet();var sn=p.sheet;var sheet=ss.getSheetByName(sn);if(!sheet)return out(JSON.stringify({error:'Not found'}));var data=sheet.getDataRange().getValues();var headers=data[0];var rows=data.slice(1).map(function(r){var o={};headers.forEach(function(h,i){o[h]=r[i];});return o;});return out(JSON.stringify({rows:rows}));}
-function getOrCreateFolder(pid){var root=DriveApp.getRootFolder();var name='PediCat_'+pid;var iter=root.getFoldersByName(name);return iter.hasNext()?iter.next():root.createFolder(name);}
-function ok(){return ContentService.createTextOutput(JSON.stringify({status:'ok'})).setMimeType(ContentService.MimeType.JSON);}
-function out(s){return ContentService.createTextOutput(s).setMimeType(ContentService.MimeType.JSON);}</textarea>
-          <p style="font-size:12px;color:var(--text-dim);margin-top:8px">Also add a <strong>Users</strong> tab to your Sheet with headers: <strong>Username | Password | DisplayName | Role</strong> — then add your first admin user manually in row 2.</p>
+          <h3>Step 2 — Add a Users tab to your Google Sheet</h3>
+          <p>In your Google Sheet, add a new tab named exactly <strong>Users</strong> and put these headers in row 1:</p>
+          <div class="code-block" style="margin-top:8px">Username | Password | DisplayName | Role</div>
+          <p style="margin-top:10px;font-size:12px;color:var(--amber)">⚠ Add your first admin manually in row 2: choose any username and password, set Role to <strong>admin</strong>. Then use Manage Users in the app to add editors and viewers.</p>
         </div>
         <div class="config-card">
-          <h3>Step 3 — Connect</h3>
+          <h3>Step 3 — Update your Apps Script</h3>
+          <p>In your Google Sheet go to <strong>Extensions → Apps Script</strong>. Replace all existing code with the script below (adds login, user listing, and user deletion). Then <strong>Deploy → New deployment → Web app → Execute as: Me → Who has access: Anyone → Deploy</strong> and copy the new URL.</p>
+          <textarea readonly style="height:260px;font-family:'DM Mono',monospace;font-size:10.5px;color:var(--teal);background:rgba(0,0,0,.4)" onclick="this.select()">const FOLDER_NAME = 'PediCat Images';
+
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    if (data.action === 'uploadImage') { return uploadImage(data); }
+    if (data.action === 'deleteUser') {
+      var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Users');
+      if (!sh) return buildResponse({ status: 'error', message: 'Users sheet not found' });
+      var vals = sh.getDataRange().getValues();
+      for (var i = 1; i < vals.length; i++) {
+        if (String(vals[i][0]) === String(data.username)) { sh.deleteRow(i + 1); return buildResponse({ status: 'ok' }); }
+      }
+      return buildResponse({ status: 'ok' });
+    }
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(data.sheet);
+    if (!sheet) return buildResponse({ status: 'error', message: 'Sheet not found: ' + data.sheet });
+    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    var row = headers.map(function (h) { return data.row[h] !== undefined ? data.row[h] : ''; });
+    sheet.appendRow(row);
+    return buildResponse({ status: 'ok' });
+  } catch (err) { return buildResponse({ status: 'error', message: err.toString() }); }
+}
+
+function doGet(e) {
+  try {
+    var p = e.parameter;
+    if (p.action === 'listImages') { return listImages(p.pid); }
+    if (p.action === 'login') {
+      var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Users');
+      if (!sh) return buildResponse({ ok: false, error: 'No Users sheet' });
+      var vals = sh.getDataRange().getValues();
+      for (var i = 1; i < vals.length; i++) {
+        if (String(vals[i][0]) === String(p.username) && String(vals[i][1]) === String(p.password)) {
+          return buildResponse({ ok: true, displayName: vals[i][2] || p.username, role: vals[i][3] || 'viewer' });
+        }
+      }
+      return buildResponse({ ok: false });
+    }
+    if (p.action === 'listUsers') {
+      var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Users');
+      if (!sh) return buildResponse({ users: [] });
+      var vals = sh.getDataRange().getValues();
+      var users = vals.slice(1).filter(function (r) { return r[0]; }).map(function (r) { return { username: r[0], displayName: r[2], role: r[3] }; });
+      return buildResponse({ users: users });
+    }
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheetName = p.sheet;
+    if (!sheetName) return buildResponse({ status: 'ok', message: 'PediCat API running' });
+    var sheet = ss.getSheetByName(sheetName);
+    if (!sheet) return buildResponse({ error: 'Sheet not found: ' + sheetName });
+    var data = sheet.getDataRange().getValues();
+    var headers = data[0];
+    var rows = data.slice(1).map(function (r) { var obj = {}; headers.forEach(function (h, i) { obj[h] = r[i]; }); return obj; });
+    return buildResponse({ rows: rows });
+  } catch (err) { return buildResponse({ status: 'error', message: err.toString() }); }
+}
+
+function uploadImage(data) {
+  try {
+    var folder = getOrCreateFolder(FOLDER_NAME + '/' + data.pid);
+    var blob = Utilities.newBlob(Utilities.base64Decode(data.data), data.mimeType, data.filename);
+    var file = folder.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    return buildResponse({ status: 'ok', url: file.getUrl() });
+  } catch (err) { return buildResponse({ status: 'error', message: err.toString() }); }
+}
+
+function listImages(pid) {
+  try {
+    var parentFolder = DriveApp.getFoldersByName(FOLDER_NAME);
+    if (!parentFolder.hasNext()) return buildResponse({ images: [] });
+    var parent = parentFolder.next();
+    var subFolders = parent.getFoldersByName(pid);
+    if (!subFolders.hasNext()) return buildResponse({ images: [] });
+    var folder = subFolders.next();
+    var files = folder.getFiles();
+    var images = [];
+    while (files.hasNext()) {
+      var f = files.next(); var id = f.getId();
+      images.push({ name: f.getName(), url: 'https://drive.google.com/uc?export=view&id=' + id, thumbnailUrl: 'https://drive.google.com/thumbnail?id=' + id + '&sz=w400' });
+    }
+    return buildResponse({ images: images });
+  } catch (err) { return buildResponse({ images: [], error: err.toString() }); }
+}
+
+function getOrCreateFolder(path) {
+  var parts = path.split('/');
+  var folder = DriveApp.getRootFolder();
+  for (var i = 0; i < parts.length; i++) { var name = parts[i]; var sub = folder.getFoldersByName(name); folder = sub.hasNext() ? sub.next() : folder.createFolder(name); }
+  return folder;
+}
+
+function buildResponse(data) { return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON); }</textarea>
+          <p style="font-size:12px;color:var(--text-dim);margin-top:8px">After deploying, copy the Web App URL and paste it in Step 4 below.</p>
+        </div>
+        <div class="config-card">
+          <h3>Step 4 — Connect</h3>
           <p>Paste your Web App URL here and click Connect.</p>
           <div class="settings-url-row">
             <input type="url" id="webapp-url-input" value="https://script.google.com/macros/s/AKfycbwBRx8ViEtjwVpZkjvZD8hhUDTnbncO96zsTGtT9dR9qyzQVJ5_lHe7U_ehrZTJ6VKOUA/exec">
