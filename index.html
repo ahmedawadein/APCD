@@ -2543,8 +2543,8 @@ async function loadUsers(){
         <div class="user-row-username">@${u.username}</div>
         <span class="role-pill ${u.role}">${u.role}</span>
         ${u.username===CURRENT_USER?.username
-          ?'<span style="font-size:11px;color:var(--text-faint);font-family:\'DM Mono\',monospace">you</span>'
-          :`<button onclick="deleteUser('${u.username}')" style="padding:4px 9px;border-radius:5px;border:1px solid rgba(224,82,82,.3);background:rgba(224,82,82,.08);color:var(--red);font-size:11px;cursor:pointer;font-family:'Lato',sans-serif">Remove</button>`}
+          ?'<span style="font-size:11px;color:var(--text-faint);font-family:DM Mono,monospace">you</span>'
+          :`<button onclick="deleteUser('${u.username}')" style="padding:4px 9px;border-radius:5px;border:1px solid rgba(224,82,82,.3);background:rgba(224,82,82,.08);color:var(--red);font-size:11px;cursor:pointer;font-family:Lato,sans-serif">Remove</button>`}
       </div>`).join('');
   }catch(e){list.innerHTML='<div style="color:var(--red);font-size:13px">Failed to load users.</div>';}
 }
@@ -2742,7 +2742,7 @@ function updateScanBadge(){
     if(!hasKey && !existing){
       var warn = document.createElement('span');
       warn.className = 'scan-no-key-warn';
-      warn.style.cssText = 'font-size:10.5px;color:var(--amber);font-family:\'DM Mono\',monospace';
+      warn.style.cssText = 'font-size:10.5px;color:var(--amber);font-family:DM Mono,monospace';
       warn.textContent = '⚠ API key needed — configure in Setup';
       bar.appendChild(warn);
     } else if(hasKey && existing){
@@ -4011,7 +4011,7 @@ function openGalleryLightbox(idx){
       <button onclick="closeLightbox()" style="position:absolute;top:-14px;right:-14px;background:rgba(0,0,0,.7);border:none;color:#fff;border-radius:50%;width:30px;height:30px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10">✕</button>
       ${imgs.length > 1 ? `<button id="lb-prev" onclick="lightboxGo(_lightboxIdx-1)" style="position:fixed;left:16px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:50%;width:44px;height:44px;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;backdrop-filter:blur(4px)">‹</button>` : ''}
       <div id="lb-content" style="display:flex;align-items:center;justify-content:center;max-height:80vh"></div>
-      <div id="lb-label" style="margin-top:10px;font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.6);text-align:center"></div>
+      <div id="lb-label" style="margin-top:10px;font-family:DM Mono,monospace;font-size:11px;color:rgba(255,255,255,.6);text-align:center"></div>
       ${imgs.length > 1 ? `<button id="lb-next" onclick="lightboxGo(_lightboxIdx+1)" style="position:fixed;right:16px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:50%;width:44px;height:44px;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;backdrop-filter:blur(4px)">›</button>` : ''}
     </div>`;
 
@@ -4048,7 +4048,7 @@ function renderLightboxSlide(){
     const safeUrl = img.url.replace(/'/g,"\'");
     content.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px">
       <div style="font-size:64px">📄</div>
-      <div style="font-size:14px;color:#fff;font-family:'DM Mono',monospace">${img.name}</div>
+      <div style="font-size:14px;color:#fff;font-family:DM Mono,monospace">${img.name}</div>
       <a href="${img.url}" target="_blank" class="btn btn-secondary btn-sm" style="color:var(--teal);text-decoration:none">Open PDF ↗</a>
     </div>`;
   } else {
@@ -4284,22 +4284,22 @@ function chartShowRecord(type,record,idx){
   if(type==='hist'){
     body.innerHTML=drL([['Consanguinity',record.Consanguinity],['Family History',record.FamilyHistory],['Family Members',record.FamilyHistoryDesc],['Blunt Trauma',record.BluntTrauma],['Penetrating Trauma',record.PenetratingTrauma],['Previous Surgeries',record.PreviousSurgeries],['Subluxation Syndrome',record.SubluxationSyndrome==='Yes'?record.SubluxSyndromeDetails||'Yes':''],['Cardiac',record.CardiacDisease==='Yes'?record.CardiacDetails:''],['Neurological',record.NeurologicalDisease==='Yes'?record.NeurologicalDetails:''],['Hepatic',record.HepaticDisease==='Yes'?record.HepaticDetails:''],['Renal',record.RenalDisease==='Yes'?record.RenalDetails:''],['Medications',record.Medications]])+editedByFooter(record);
   } else if(type==='exam'){
-    body.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border-dim);border-radius:8px;overflow:hidden;margin-bottom:14px"><div style="padding:10px 14px;border-right:1px solid var(--border-dim);background:rgba(247,183,49,.04)"><div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--amber);margin-bottom:8px">OD — RIGHT</div>${drL([['VA',record.VA_OD],['IOP',record.IOP_OD?record.IOP_OD+' mmHg':''],['Cornea',record.CorneaOpacity_OD],['Lens',record.LensStatus_OD],['Axial Length',record.AxialLength_OD?record.AxialLength_OD+' mm':''],['Angle',record.Angle]])}</div><div style="padding:10px 14px;background:rgba(100,160,255,.04)"><div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:#7ab4ff;margin-bottom:8px">OS — LEFT</div>${drL([['VA',record.VA_OS],['IOP',record.IOP_OS?record.IOP_OS+' mmHg':''],['Cornea',record.CorneaOpacity_OS],['Lens',record.LensStatus_OS],['Axial Length',record.AxialLength_OS?record.AxialLength_OS+' mm':''],['Angle',record.AngleOS]])}</div></div>${drL([['EUA',record.EUA],['Examiner',record.Examiner],['Comments',record.Comments]])}${editedByFooter(record)}`;
+    body.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border-dim);border-radius:8px;overflow:hidden;margin-bottom:14px"><div style="padding:10px 14px;border-right:1px solid var(--border-dim);background:rgba(247,183,49,.04)"><div style="font-family:DM Mono,monospace;font-size:10px;letter-spacing:1.5px;color:var(--amber);margin-bottom:8px">OD — RIGHT</div>${drL([['VA',record.VA_OD],['IOP',record.IOP_OD?record.IOP_OD+' mmHg':''],['Cornea',record.CorneaOpacity_OD],['Lens',record.LensStatus_OD],['Axial Length',record.AxialLength_OD?record.AxialLength_OD+' mm':''],['Angle',record.Angle]])}</div><div style="padding:10px 14px;background:rgba(100,160,255,.04)"><div style="font-family:DM Mono,monospace;font-size:10px;letter-spacing:1.5px;color:#7ab4ff;margin-bottom:8px">OS — LEFT</div>${drL([['VA',record.VA_OS],['IOP',record.IOP_OS?record.IOP_OS+' mmHg':''],['Cornea',record.CorneaOpacity_OS],['Lens',record.LensStatus_OS],['Axial Length',record.AxialLength_OS?record.AxialLength_OS+' mm':''],['Angle',record.AngleOS]])}</div></div>${drL([['EUA',record.EUA],['Examiner',record.Examiner],['Comments',record.Comments]])}${editedByFooter(record)}`;
   } else if(type==='op'){
     body.innerHTML=drL([['Date',record.DateOfOp?new Date(record.DateOfOp).toLocaleDateString():''],['Eye',record.Eye],['Operation',record.OperationName],['Surgeon',record.Examiner],['Anterior Capsule',record.AnteriorCapsule],['Posterior Capsule',record.PosteriorCapsule],['IOL',record.IOL==='Yes'?`${record.IOLType||''} ${record.IOLPower?record.IOLPower+'D':''}`:'Aphakic'],['Complications',record.OtherComplications],['Comments',record.Comments]])+editedByFooter(record);
   } else if(type==='fup'){
-    body.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border-dim);border-radius:8px;overflow:hidden;margin-bottom:14px"><div style="padding:10px 14px;border-right:1px solid var(--border-dim);background:rgba(247,183,49,.04)"><div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--amber);margin-bottom:8px">OD — RIGHT</div>${drL([['VA',record.VA_OD],['IOP',record.IOP_OD?record.IOP_OD+' mmHg':''],['Lens',record.LensStatus_OD]])}</div><div style="padding:10px 14px;background:rgba(100,160,255,.04)"><div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:#7ab4ff;margin-bottom:8px">OS — LEFT</div>${drL([['VA',record.VA_OS],['IOP',record.IOP_OS?record.IOP_OS+' mmHg':''],['Lens',record.LensStatus_OS]])}</div></div>${drL([['EUA',record.EUA],['Visit Type',record.VisitType],['Examiner',record.Examiner],['Comments',record.Comments]])}${editedByFooter(record)}`;
+    body.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border-dim);border-radius:8px;overflow:hidden;margin-bottom:14px"><div style="padding:10px 14px;border-right:1px solid var(--border-dim);background:rgba(247,183,49,.04)"><div style="font-family:DM Mono,monospace;font-size:10px;letter-spacing:1.5px;color:var(--amber);margin-bottom:8px">OD — RIGHT</div>${drL([['VA',record.VA_OD],['IOP',record.IOP_OD?record.IOP_OD+' mmHg':''],['Lens',record.LensStatus_OD]])}</div><div style="padding:10px 14px;background:rgba(100,160,255,.04)"><div style="font-family:DM Mono,monospace;font-size:10px;letter-spacing:1.5px;color:#7ab4ff;margin-bottom:8px">OS — LEFT</div>${drL([['VA',record.VA_OS],['IOP',record.IOP_OS?record.IOP_OS+' mmHg':''],['Lens',record.LensStatus_OS]])}</div></div>${drL([['EUA',record.EUA],['Visit Type',record.VisitType],['Examiner',record.Examiner],['Comments',record.Comments]])}${editedByFooter(record)}`;
   }
 }
 
 function editedByFooter(record){
   var parts = [];
   if(record.EditedBy){
-    parts.push(`<div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-faint)">✎ Entered by <strong style="color:var(--text-dim)">${record.EditedBy}</strong>${record.EntryDate?' on '+new Date(record.EntryDate).toLocaleDateString():''}</div>`);
+    parts.push(`<div style="font-family:DM Mono,monospace;font-size:10px;color:var(--text-faint)">✎ Entered by <strong style="color:var(--text-dim)">${record.EditedBy}</strong>${record.EntryDate?' on '+new Date(record.EntryDate).toLocaleDateString():''}</div>`);
   }
   if(record.ScanSourceUrl){
     parts.push(`<a href="${record.ScanSourceUrl}" target="_blank" rel="noopener"
-      style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:5px 10px;background:rgba(45,207,202,.08);border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;font-size:10px;color:var(--teal);text-decoration:none;transition:background .15s"
+      style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:5px 10px;background:rgba(45,207,202,.08);border:1px solid var(--border);border-radius:6px;font-family:DM Mono,monospace;font-size:10px;color:var(--teal);text-decoration:none;transition:background .15s"
       onmouseover="this.style.background='rgba(45,207,202,.16)'" onmouseout="this.style.background='rgba(45,207,202,.08)'">
       📎 View source scan ↗
     </a>`);
@@ -4597,7 +4597,7 @@ function openPDF(pid,idx){
     overlay.innerHTML=`
       <div style="width:100%;max-width:900px;display:flex;flex-direction:column;height:90vh">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <span id="pdf-viewer-title" style="color:#fff;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:1px"></span>
+          <span id="pdf-viewer-title" style="color:#fff;font-family:DM Mono,monospace;font-size:12px;letter-spacing:1px"></span>
           <div style="display:flex;gap:8px">
             <a id="pdf-download-btn" href="#" download class="btn btn-secondary btn-sm" style="text-decoration:none;color:var(--teal)">⬇ Download</a>
             <button onclick="document.getElementById('pdf-viewer-overlay').style.display='none';document.body.style.overflow=''" style="background:none;border:none;color:#fff;font-size:26px;cursor:pointer;line-height:1;opacity:.7">✕</button>
@@ -4629,7 +4629,7 @@ function openPDFUrl(url, name){
     overlay.innerHTML=`
       <div style="width:100%;max-width:900px;display:flex;flex-direction:column;height:90vh">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <span id="pdf-viewer-title" style="color:#fff;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:1px"></span>
+          <span id="pdf-viewer-title" style="color:#fff;font-family:DM Mono,monospace;font-size:12px;letter-spacing:1px"></span>
           <div style="display:flex;gap:8px">
             <a id="pdf-download-btn" href="#" target="_blank" class="btn btn-secondary btn-sm" style="text-decoration:none;color:var(--teal)">⬇ Open in Drive</a>
             <button onclick="document.getElementById('pdf-viewer-overlay').style.display='none';document.body.style.overflow=''" style="background:none;border:none;color:#fff;font-size:26px;cursor:pointer;line-height:1;opacity:.7">✕</button>
@@ -5051,8 +5051,8 @@ function applyScanResults(){
   if(view){
     var clearBtn = document.createElement('div');
     clearBtn.id = 'scan-clear-highlights-btn';
-    clearBtn.style.cssText = 'display:flex;align-items:center;gap:10px;background:rgba(247,183,49,.08);border:1px solid rgba(247,183,49,.3);border-radius:8px;padding:8px 14px;margin-bottom:12px;font-size:12px;color:var(--amber);font-family:\'DM Mono\',monospace';
-    clearBtn.innerHTML = '<span>⚠ Fields filled by scan are highlighted. Amber = uncertain.</span><button onclick="clearScanHighlights()" style="margin-left:auto;background:none;border:1px solid rgba(247,183,49,.4);color:var(--amber);border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-family:\'Lato\',sans-serif">Clear highlights</button>';
+    clearBtn.style.cssText = 'display:flex;align-items:center;gap:10px;background:rgba(247,183,49,.08);border:1px solid rgba(247,183,49,.3);border-radius:8px;padding:8px 14px;margin-bottom:12px;font-size:12px;color:var(--amber);font-family:DM Mono,monospace';
+    clearBtn.innerHTML = '<span>⚠ Fields filled by scan are highlighted. Amber = uncertain.</span><button onclick="clearScanHighlights()" style="margin-left:auto;background:none;border:1px solid rgba(247,183,49,.4);color:var(--amber);border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-family:Lato,sans-serif">Clear highlights</button>';
     var scanBar = view.querySelector('.scan-bar');
     if(scanBar) scanBar.after(clearBtn);
     else view.insertBefore(clearBtn, view.firstChild);
