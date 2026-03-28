@@ -2455,7 +2455,7 @@ function buildResponse(data) { return ContentService.createTextOutput(JSON.strin
 
 <script>
 // ─── STATE ───
-let CONFIG={webAppUrl:'https://script.google.com/macros/s/AKfycbwXbAWSsmQQE9p5yrOF_PXEB4ar1l3Es3XUxPppyAHGtFjBdCslhYoarvE0iHvCUR0fAQ/exec', anthropicApiKey:''};
+let CONFIG={webAppUrl:'https://script.google.com/macros/s/AKfycbxvqgG7zl2IPcRdMIJ684nqdEH4EPfJ1GblfMmvbK6DA21ttAvQeTauR286Uc1Pgw1x6A/exec', anthropicApiKey:''};
 let DB={patients:[],examinations:[],operations:[],followups:[],history:[]};
 let CURRENT_USER=null; // {username, displayName, role}
 
@@ -2580,7 +2580,7 @@ async function deleteUser(username){
 document.addEventListener('DOMContentLoaded',()=>{
   const saved=localStorage.getItem('pedicat_v2_config');
   if(saved){CONFIG=JSON.parse(saved);}
-  if(!CONFIG.webAppUrl){CONFIG.webAppUrl='https://script.google.com/macros/s/AKfycbwXbAWSsmQQE9p5yrOF_PXEB4ar1l3Es3XUxPppyAHGtFjBdCslhYoarvE0iHvCUR0fAQ/exec';localStorage.setItem('pedicat_v2_config',JSON.stringify(CONFIG));}
+  if(!CONFIG.webAppUrl){CONFIG.webAppUrl='https://script.google.com/macros/s/AKfycbxvqgG7zl2IPcRdMIJ684nqdEH4EPfJ1GblfMmvbK6DA21ttAvQeTauR286Uc1Pgw1x6A/exec';localStorage.setItem('pedicat_v2_config',JSON.stringify(CONFIG));}
   document.getElementById('webapp-url-input').value=CONFIG.webAppUrl;
   if(document.getElementById('anthropic-key-input')) document.getElementById('anthropic-key-input').value=CONFIG.anthropicApiKey||'';
   updateConnectionBadge();
