@@ -877,6 +877,17 @@ function buildResponse(data) { return ContentService.createTextOutput(JSON.strin
             <div id="diag-result" style="margin-top:10px;font-family:'DM Mono',monospace;font-size:11px;white-space:pre-wrap;background:rgba(0,0,0,.4);border-radius:6px;padding:10px 12px;display:none;color:var(--teal)"></div>
           </div>
         </div>
+        <div class="config-card">
+          <h3>Step 5 — Anthropic API Key <span style="font-size:11px;color:var(--amber);font-family:'DM Mono',monospace;font-weight:400">(required for Scan &amp; Import)</span></h3>
+          <p>The Scan &amp; Import feature uses Claude's vision AI to read handwritten sheets. It requires an Anthropic API key. <a href="https://console.anthropic.com/keys" target="_blank" style="color:var(--teal)">Get your key at console.anthropic.com ↗</a></p>
+          <p style="font-size:11.5px;color:var(--amber);margin-bottom:12px">⚠ Your key is stored only in your browser's localStorage — it is never sent to Google Sheets or any server other than Anthropic's API directly.</p>
+          <div class="settings-url-row">
+            <input type="password" id="anthropic-key-input" placeholder="sk-ant-api03-…" autocomplete="off" style="font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px">
+            <button class="btn btn-secondary btn-sm" id="toggle-key-vis" onclick="toggleKeyVisibility()" style="flex-shrink:0">Show</button>
+            <button class="btn btn-primary" onclick="saveApiKey()">Save Key</button>
+          </div>
+          <div id="api-key-status" style="margin-top:10px;font-size:12px;font-family:'DM Mono',monospace"></div>
+        </div>
       </div>
     </div>
 
@@ -2438,7 +2449,7 @@ function buildResponse(data) { return ContentService.createTextOutput(JSON.strin
 
 <script>
 // ─── STATE ───
-let CONFIG={webAppUrl:'https://script.google.com/macros/s/AKfycbxehONI3-bwcViXoEc9bK7ZJFA3ZXBsR2y5z7JBOFXGdeWmeuJLBl1b6oZimBeZRx2XSA/exec'};
+let CONFIG={webAppUrl:'https://script.google.com/macros/s/AKfycbxehONI3-bwcViXoEc9bK7ZJFA3ZXBsR2y5z7JBOFXGdeWmeuJLBl1b6oZimBeZRx2XSA/exec', anthropicApiKey:''};
 let DB={patients:[],examinations:[],operations:[],followups:[],history:[]};
 let CURRENT_USER=null; // {username, displayName, role}
 
@@ -2558,7 +2569,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(saved){CONFIG=JSON.parse(saved);}
   if(!CONFIG.webAppUrl){CONFIG.webAppUrl='https://script.google.com/macros/s/AKfycbxehONI3-bwcViXoEc9bK7ZJFA3ZXBsR2y5z7JBOFXGdeWmeuJLBl1b6oZimBeZRx2XSA/exec';localStorage.setItem('pedicat_v2_config',JSON.stringify(CONFIG));}
   document.getElementById('webapp-url-input').value=CONFIG.webAppUrl;
+  if(document.getElementById('anthropic-key-input')) document.getElementById('anthropic-key-input').value=CONFIG.anthropicApiKey||'';
   updateConnectionBadge();
+  updateScanBadge();
   // Check for existing session
   const sess=sessionStorage.getItem('pedicat_user');
   if(sess){
@@ -2686,6 +2699,43 @@ async function runLoginDiagnostic(){
     resultEl.textContent += '\n\n✗ Network error: ' + err.message;
     resultEl.style.color = 'var(--red)';
   }
+}
+
+function saveApiKey(){
+  const key = document.getElementById('anthropic-key-input').value.trim();
+  const statusEl = document.getElementById('api-key-status');
+  if(!key){ statusEl.innerHTML='<span style="color:var(--red)">✗ Please enter a key</span>'; return; }
+  if(!key.startsWith('sk-ant-')){ statusEl.innerHTML='<span style="color:var(--amber)">⚠ Key should start with sk-ant- — double-check it</span>'; }
+  else { statusEl.innerHTML='<span style="color:var(--green)">✓ API key saved</span>'; }
+  CONFIG.anthropicApiKey = key;
+  localStorage.setItem('pedicat_v2_config', JSON.stringify(CONFIG));
+  updateScanBadge();
+  showToast('Anthropic API key saved ✓','success');
+}
+
+function toggleKeyVisibility(){
+  const inp = document.getElementById('anthropic-key-input');
+  const btn = document.getElementById('toggle-key-vis');
+  if(!inp) return;
+  if(inp.type === 'password'){ inp.type='text'; btn.textContent='Hide'; }
+  else { inp.type='password'; btn.textContent='Show'; }
+}
+
+function updateScanBadge(){
+  // Show/hide a small warning on scan buttons if no API key is configured
+  const hasKey = !!(CONFIG.anthropicApiKey && CONFIG.anthropicApiKey.trim());
+  document.querySelectorAll('.scan-bar').forEach(function(bar){
+    var existing = bar.querySelector('.scan-no-key-warn');
+    if(!hasKey && !existing){
+      var warn = document.createElement('span');
+      warn.className = 'scan-no-key-warn';
+      warn.style.cssText = 'font-size:10.5px;color:var(--amber);font-family:'DM Mono',monospace';
+      warn.textContent = '⚠ API key needed — configure in Setup';
+      bar.appendChild(warn);
+    } else if(hasKey && existing){
+      existing.remove();
+    }
+  });
 }
 
 function updateConnectionBadge(){
@@ -4721,6 +4771,12 @@ async function processScanFile(file){
   actions.style.display = 'none';
   status.textContent = 'Reading image...';
 
+  // Check API key before doing anything
+  if(!CONFIG.anthropicApiKey || !CONFIG.anthropicApiKey.trim()){
+    status.textContent = '';
+    status.innerHTML = '<span style="color:var(--red)">✗ No Anthropic API key configured.</span> <a href="#" onclick="closeScanModal();showView('setup')" style="color:var(--teal)">Go to Setup → Step 5 to add your key ↗</a>';
+    return;
+  }
   _scanMimeType = file.type || 'image/jpeg';
   _scanBase64 = await new Promise((res, rej) => {
     const r = new FileReader();
@@ -4745,7 +4801,7 @@ async function processScanFile(file){
     status.textContent = 'Step 1/2 — Transcribing handwriting...';
     const resp1 = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
+      headers: {'Content-Type':'application/json','x-api-key':CONFIG.anthropicApiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 800,
@@ -4767,7 +4823,7 @@ async function processScanFile(file){
     const structPrompt = structuredPrompts[_scanFormType] || structuredPrompts.fup;
     const resp2 = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
+      headers: {'Content-Type':'application/json','x-api-key':CONFIG.anthropicApiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 800,
