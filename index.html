@@ -591,26 +591,6 @@
   .chart-empty-icon{font-size:34px;margin-bottom:10px}
   .chart-empty-msg{font-size:14px;line-height:1.7}
   @media(max-width:900px){.chart-cats{grid-template-columns:repeat(2,1fr)}}
-  /* Scan & Import */
-  .scan-bar{display:flex;align-items:center;gap:10px;background:rgba(45,207,202,.06);border:1px solid var(--border);border-radius:10px;padding:10px 16px;margin-bottom:16px}
-  .scan-bar-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);flex:1}
-  .scan-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:800;display:flex;align-items:center;justify-content:center;padding:20px}
-  .scan-modal{background:var(--navy-mid);border:1px solid var(--border);border-radius:var(--radius-lg);width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:24px;box-shadow:0 24px 64px rgba(0,0,0,.6)}
-  .scan-modal h3{font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:4px}
-  .scan-modal p{font-size:12.5px;color:var(--text-dim);margin-bottom:16px}
-  .scan-drop-zone{border:2px dashed var(--border);border-radius:10px;padding:32px;text-align:center;cursor:pointer;transition:border-color .15s;margin-bottom:14px}
-  .scan-drop-zone:hover,.scan-drop-zone.drag-over{border-color:var(--teal);background:var(--teal-glow)}
-  .scan-drop-zone .icon{font-size:36px;margin-bottom:8px}
-  .scan-drop-zone p{margin:0;font-size:13px;color:var(--text-dim)}
-  .scan-preview{width:100%;max-height:220px;object-fit:contain;border-radius:8px;margin-bottom:12px;border:1px solid var(--border-dim)}
-  .scan-extracted{background:rgba(0,0,0,.35);border-radius:8px;padding:12px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--teal);white-space:pre-wrap;max-height:180px;overflow-y:auto;margin-bottom:14px;line-height:1.6}
-  .scan-status{font-size:12px;font-family:'DM Mono',monospace;color:var(--text-faint);margin-bottom:10px;min-height:18px}
-  .scan-raw{background:rgba(0,0,0,.35);border-radius:8px;padding:12px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);white-space:pre-wrap;max-height:140px;overflow-y:auto;margin-bottom:8px;line-height:1.6;border:1px solid var(--border-dim)}
-  .scan-fields{background:rgba(0,0,0,.35);border-radius:8px;padding:12px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--teal);white-space:pre-wrap;max-height:160px;overflow-y:auto;margin-bottom:14px;line-height:1.6}
-  .scan-section-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px}
-  /* Scan highlight — applied to form fields filled by OCR */
-  .scan-filled{box-shadow:0 0 0 2px var(--amber),0 0 8px rgba(247,183,49,.25) !important;border-color:var(--amber) !important;background:rgba(247,183,49,.06) !important;transition:box-shadow .3s,border-color .3s}
-  .scan-filled-radio+label{border-color:var(--amber) !important;background:rgba(247,183,49,.12) !important;color:var(--amber) !important;opacity:1 !important}
   @media(max-width:640px){
     #view-patients .table-wrap{display:none}
     #patients-cardlist{display:flex;flex-direction:column;gap:10px}
@@ -668,12 +648,6 @@
       <input type="password" id="login-password" placeholder="Enter your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <div id="login-error"></div>
-    <div id="login-cors-hint" style="display:none;margin-top:8px;padding:8px 12px;background:rgba(247,183,49,.1);border:1px solid rgba(247,183,49,.3);border-radius:6px;font-size:11px;color:var(--amber);line-height:1.5">
-      <strong>CORS / network error detected.</strong> This usually means:<br>
-      1. The Apps Script deployment settings are wrong — make sure it is deployed as <strong>Execute as: Me</strong> and <strong>Who has access: Anyone</strong><br>
-      2. The deployment URL in Setup may be outdated — check Setup → Step 4<br>
-      3. Try opening the URL directly in a new tab to confirm it responds
-    </div>
     <button class="login-btn" onclick="doLogin()">Sign In</button>
   </div>
 </div>
@@ -883,17 +857,6 @@ function buildResponse(data) { return ContentService.createTextOutput(JSON.strin
             <div id="diag-result" style="margin-top:10px;font-family:'DM Mono',monospace;font-size:11px;white-space:pre-wrap;background:rgba(0,0,0,.4);border-radius:6px;padding:10px 12px;display:none;color:var(--teal)"></div>
           </div>
         </div>
-        <div class="config-card">
-          <h3>Step 5 — Anthropic API Key <span style="font-size:11px;color:var(--amber);font-family:'DM Mono',monospace;font-weight:400">(required for Scan &amp; Import)</span></h3>
-          <p>The Scan &amp; Import feature uses Claude's vision AI to read handwritten sheets. It requires an Anthropic API key. <a href="https://console.anthropic.com/keys" target="_blank" style="color:var(--teal)">Get your key at console.anthropic.com ↗</a></p>
-          <p style="font-size:11.5px;color:var(--amber);margin-bottom:12px">⚠ Your key is stored only in your browser's localStorage — it is never sent to Google Sheets or any server other than Anthropic's API directly.</p>
-          <div class="settings-url-row">
-            <input type="password" id="anthropic-key-input" placeholder="sk-ant-api03-…" autocomplete="off" style="font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px">
-            <button class="btn btn-secondary btn-sm" id="toggle-key-vis" onclick="toggleKeyVisibility()" style="flex-shrink:0">Show</button>
-            <button class="btn btn-primary" onclick="saveApiKey()">Save Key</button>
-          </div>
-          <div id="api-key-status" style="margin-top:10px;font-size:12px;font-family:'DM Mono',monospace"></div>
-        </div>
       </div>
     </div>
 
@@ -1002,12 +965,7 @@ function buildResponse(data) { return ContentService.createTextOutput(JSON.strin
     <!-- ═══════════════════════════════ HISTORY ═══ -->
     <div id="view-new-history" class="hidden">
       <div class="section-header"><h2>History & Systemic Diseases</h2><p>Background history — linked to selected patient</p></div>
-      <div class="scan-bar">
-          <span class="scan-bar-label">📷 Scan &amp; Import</span>
-          <span style="font-size:12px;color:var(--text-dim)">Upload a photo of a handwritten sheet to auto-fill this form</span>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="openScanModal('hist')" style="flex-shrink:0">📷 Scan Sheet</button>
-        </div>
-        <form id="history-form" onsubmit="submitHistory(event)">
+      <form id="history-form" onsubmit="submitHistory(event)">
 
         <div class="form-card">
           <div class="form-card-title">Family & Social History</div>
@@ -1190,12 +1148,7 @@ function buildResponse(data) { return ContentService.createTextOutput(JSON.strin
     <!-- ═══════════════════════════════ EXAMINATION ═══ -->
     <div id="view-new-examination" class="hidden">
       <div class="section-header"><h2>Preoperative Examination</h2><p>Preoperative clinical findings — both eyes in one submission</p></div>
-      <div class="scan-bar">
-          <span class="scan-bar-label">📷 Scan &amp; Import</span>
-          <span style="font-size:12px;color:var(--text-dim)">Upload a photo of a handwritten sheet to auto-fill this form</span>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="openScanModal('exam')" style="flex-shrink:0">📷 Scan Sheet</button>
-        </div>
-        <form id="exam-form" onsubmit="submitExamination(event)">
+      <form id="exam-form" onsubmit="submitExamination(event)">
         <div class="form-card">
           <div class="form-card-title">Examination Info</div>
           <div class="form-grid cols-4">
@@ -1635,12 +1588,7 @@ function buildResponse(data) { return ContentService.createTextOutput(JSON.strin
 
       <!-- CATARACT FORM (default visible) -->
       <div id="surg-cataract-form">
-      <div class="scan-bar">
-          <span class="scan-bar-label">📷 Scan &amp; Import</span>
-          <span style="font-size:12px;color:var(--text-dim)">Upload a photo of a handwritten sheet to auto-fill this form</span>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="openScanModal('op')" style="flex-shrink:0">📷 Scan Sheet</button>
-        </div>
-        <form id="surgery-form" onsubmit="submitSurgery(event)">
+      <form id="surgery-form" onsubmit="submitSurgery(event)">
         <div class="form-card">
           <div class="form-card-title">Procedure Details</div>
           <div class="form-grid cols-4">
@@ -1860,12 +1808,7 @@ function buildResponse(data) { return ContentService.createTextOutput(JSON.strin
     <!-- ═══════════════════════════════ FOLLOW-UP ═══ -->
     <div id="view-new-followup" class="hidden">
       <div class="section-header"><h2>Follow-up Visit</h2><p>Postoperative examination — both eyes in one submission</p></div>
-      <div class="scan-bar">
-          <span class="scan-bar-label">📷 Scan &amp; Import</span>
-          <span style="font-size:12px;color:var(--text-dim)">Upload a photo of a handwritten sheet to auto-fill this form</span>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="openScanModal('fup')" style="flex-shrink:0">📷 Scan Sheet</button>
-        </div>
-        <form id="followup-form" onsubmit="submitFollowup(event)">
+      <form id="followup-form" onsubmit="submitFollowup(event)">
         <div class="form-card">
           <div class="form-card-title">Visit Info</div>
           <div class="form-grid cols-4">
@@ -2455,7 +2398,7 @@ function buildResponse(data) { return ContentService.createTextOutput(JSON.strin
 
 <script>
 // ─── STATE ───
-let CONFIG={webAppUrl:'https://script.google.com/macros/s/AKfycbxvqgG7zl2IPcRdMIJ684nqdEH4EPfJ1GblfMmvbK6DA21ttAvQeTauR286Uc1Pgw1x6A/exec', anthropicApiKey:''};
+let CONFIG={webAppUrl:'https://script.google.com/macros/s/AKfycbw3hsgKz6Hp5GhKgQxhPhl2WnaWnu8sJcPuZuSl4ZputAWzmJ8f_m-On95NHcr-ErXrsg/exec'};
 let DB={patients:[],examinations:[],operations:[],followups:[],history:[]};
 let CURRENT_USER=null; // {username, displayName, role}
 
@@ -2465,7 +2408,6 @@ async function doLogin(){
   const password=document.getElementById('login-password').value;
   const errEl=document.getElementById('login-error');
   errEl.textContent='';
-  document.getElementById('login-cors-hint').style.display='none';
   if(!username||!password){errEl.textContent='Please enter username and password.';return;}
   const btn=document.querySelector('.login-btn');
   btn.textContent='Signing in…';btn.disabled=true;
@@ -2483,13 +2425,7 @@ async function doLogin(){
     }
   }catch(e){
     console.error('Login error:', e);
-    // Diagnose the specific failure
-    if(e instanceof TypeError && e.message.includes('fetch')){
-      errEl.innerHTML='Cannot reach server — possible CORS or network issue.';
-      document.getElementById('login-cors-hint').style.display='block';
-    } else {
-      errEl.textContent='Error: '+e.message+'. Check Setup → Login Diagnostic.';
-    }
+    errEl.textContent='Cannot reach server. Check your connection or open Setup to run the Login Diagnostic.';
   }
   btn.textContent='Sign In';btn.disabled=false;
 }
@@ -2543,8 +2479,8 @@ async function loadUsers(){
         <div class="user-row-username">@${u.username}</div>
         <span class="role-pill ${u.role}">${u.role}</span>
         ${u.username===CURRENT_USER?.username
-          ?'<span style="font-size:11px;color:var(--text-faint);font-family:DM Mono,monospace">you</span>'
-          :`<button onclick="deleteUser('${u.username}')" style="padding:4px 9px;border-radius:5px;border:1px solid rgba(224,82,82,.3);background:rgba(224,82,82,.08);color:var(--red);font-size:11px;cursor:pointer;font-family:Lato,sans-serif">Remove</button>`}
+          ?'<span style="font-size:11px;color:var(--text-faint);font-family:\'DM Mono\',monospace">you</span>'
+          :`<button onclick="deleteUser('${u.username}')" style="padding:4px 9px;border-radius:5px;border:1px solid rgba(224,82,82,.3);background:rgba(224,82,82,.08);color:var(--red);font-size:11px;cursor:pointer;font-family:'Lato',sans-serif">Remove</button>`}
       </div>`).join('');
   }catch(e){list.innerHTML='<div style="color:var(--red);font-size:13px">Failed to load users.</div>';}
 }
@@ -2580,11 +2516,9 @@ async function deleteUser(username){
 document.addEventListener('DOMContentLoaded',()=>{
   const saved=localStorage.getItem('pedicat_v2_config');
   if(saved){CONFIG=JSON.parse(saved);}
-  if(!CONFIG.webAppUrl){CONFIG.webAppUrl='https://script.google.com/macros/s/AKfycbxvqgG7zl2IPcRdMIJ684nqdEH4EPfJ1GblfMmvbK6DA21ttAvQeTauR286Uc1Pgw1x6A/exec';localStorage.setItem('pedicat_v2_config',JSON.stringify(CONFIG));}
+  if(!CONFIG.webAppUrl){CONFIG.webAppUrl='https://script.google.com/macros/s/AKfycbw3hsgKz6Hp5GhKgQxhPhl2WnaWnu8sJcPuZuSl4ZputAWzmJ8f_m-On95NHcr-ErXrsg/exec';localStorage.setItem('pedicat_v2_config',JSON.stringify(CONFIG));}
   document.getElementById('webapp-url-input').value=CONFIG.webAppUrl;
-  if(document.getElementById('anthropic-key-input')) document.getElementById('anthropic-key-input').value=CONFIG.anthropicApiKey||'';
   updateConnectionBadge();
-  updateScanBadge();
   // Check for existing session
   const sess=sessionStorage.getItem('pedicat_user');
   if(sess){
@@ -2712,43 +2646,6 @@ async function runLoginDiagnostic(){
     resultEl.textContent += '\n\n✗ Network error: ' + err.message;
     resultEl.style.color = 'var(--red)';
   }
-}
-
-function saveApiKey(){
-  const key = document.getElementById('anthropic-key-input').value.trim();
-  const statusEl = document.getElementById('api-key-status');
-  if(!key){ statusEl.innerHTML='<span style="color:var(--red)">✗ Please enter a key</span>'; return; }
-  if(!key.startsWith('sk-ant-')){ statusEl.innerHTML='<span style="color:var(--amber)">⚠ Key should start with sk-ant- — double-check it</span>'; }
-  else { statusEl.innerHTML='<span style="color:var(--green)">✓ API key saved</span>'; }
-  CONFIG.anthropicApiKey = key;
-  localStorage.setItem('pedicat_v2_config', JSON.stringify(CONFIG));
-  updateScanBadge();
-  showToast('Anthropic API key saved ✓','success');
-}
-
-function toggleKeyVisibility(){
-  const inp = document.getElementById('anthropic-key-input');
-  const btn = document.getElementById('toggle-key-vis');
-  if(!inp) return;
-  if(inp.type === 'password'){ inp.type='text'; btn.textContent='Hide'; }
-  else { inp.type='password'; btn.textContent='Show'; }
-}
-
-function updateScanBadge(){
-  // Show/hide a small warning on scan buttons if no API key is configured
-  const hasKey = !!(CONFIG.anthropicApiKey && CONFIG.anthropicApiKey.trim());
-  document.querySelectorAll('.scan-bar').forEach(function(bar){
-    var existing = bar.querySelector('.scan-no-key-warn');
-    if(!hasKey && !existing){
-      var warn = document.createElement('span');
-      warn.className = 'scan-no-key-warn';
-      warn.style.cssText = 'font-size:10.5px;color:var(--amber);font-family:DM Mono,monospace';
-      warn.textContent = '⚠ API key needed — configure in Setup';
-      bar.appendChild(warn);
-    } else if(hasKey && existing){
-      existing.remove();
-    }
-  });
 }
 
 function updateConnectionBadge(){
@@ -3046,8 +2943,7 @@ async function submitExamination(e){
     Syndrome:g('e-syndrome')?.value||'',Investigations:g('e-invest')?.value||'',
     Consanguinity:g('e-consang')?.checked?'Yes':'No',
     FamilyHistory:g('e-fhx')?.checked?'Yes':'No',FamilyHistoryDesc:g('e-fhx-desc')?.value||'',
-    Comments:g('e-comments').value,EntryDate:today(),
-    ScanSourceUrl: (_scanFormType==='exam' && _scanDriveUrl) ? _scanDriveUrl : ''
+    Comments:g('e-comments').value,EntryDate:today()
   };
   const editing = _editingRecord && _editingRecord.sheet === 'Examinations';
   if(editing){
@@ -3116,7 +3012,7 @@ async function submitSurgery(e){
       if(place==='Iris-claw'){const el=document.querySelector('input[name="s-iris-encl"]:checked');return el?el.value:'';}
       if(place==='Scleral fixation'){const tech=document.querySelector('input[name="s-scler-tech"]:checked')?.value||''; const pts=document.querySelector('input[name="s-scler-pts"]:checked')?.value||''; return [tech,pts].filter(Boolean).join(' — ');}
       return '';
-    })(),IOLPower:document.getElementById('s-iol-power').value,TargetRefraction:document.getElementById('s-target-ref').value,Orientation:document.getElementById('s-orientation').value,Steroids:document.getElementById('s-steroids').checked?'Yes':'No',Atropine:document.getElementById('s-atropine').checked?'Yes':'No',Route:document.getElementById('s-route').value,Medications:document.getElementById('s-meds').value,Examiner:document.getElementById('s-examiner').value,Duration:document.getElementById('s-duration').value,Comments:document.getElementById('s-comments').value,EntryDate:today(),EditedBy:CURRENT_USER?.displayName||CURRENT_USER?.username||'unknown',ScanSourceUrl:(_scanFormType==='op'&&_scanDriveUrl)?_scanDriveUrl:''};
+    })(),IOLPower:document.getElementById('s-iol-power').value,TargetRefraction:document.getElementById('s-target-ref').value,Orientation:document.getElementById('s-orientation').value,Steroids:document.getElementById('s-steroids').checked?'Yes':'No',Atropine:document.getElementById('s-atropine').checked?'Yes':'No',Route:document.getElementById('s-route').value,Medications:document.getElementById('s-meds').value,Examiner:document.getElementById('s-examiner').value,Duration:document.getElementById('s-duration').value,Comments:document.getElementById('s-comments').value,EntryDate:today(),EditedBy:CURRENT_USER?.displayName||CURRENT_USER?.username||'unknown'};
   DB.operations.push(row);
   showToast('Operation saved ✓','success');
   document.getElementById('surgery-form').reset();
@@ -3168,8 +3064,7 @@ async function submitFollowup(e){
     AxialLength_OS:g('f-axl-os').value,K1_OS:g('f-k1-os').value,K2_OS:g('f-k2-os').value,Formulas_OS:getFormulasJSON('f','os'),
     Complications_OD:getFupComplications('od'),
     Complications_OS:getFupComplications('os'),
-    Comments:g('f-comments').value,EntryDate:today(),
-    ScanSourceUrl: (_scanFormType==='fup' && _scanDriveUrl) ? _scanDriveUrl : ''
+    Comments:g('f-comments').value,EntryDate:today()
   };
   const editing = _editingRecord && _editingRecord.sheet === 'Followup';
   if(editing){
@@ -3710,8 +3605,7 @@ async function submitHistory(e){
     ChestDisease:r('h-chest'), ChestDetails:g('h-chest-desc')?.value||'',
     OtherSystemicDisease:r('h-other-sys'), OtherSystemicDetails:g('h-other-sys-desc')?.value||'',
     Medications:g('h-medications')?.value||'',
-    EntryDate:today(),
-    ScanSourceUrl: (_scanFormType==='hist' && _scanDriveUrl) ? _scanDriveUrl : ''
+    EntryDate:today()
   };
   DB.history = DB.history || [];
   const editing = _editingRecord && _editingRecord.sheet === 'History';
@@ -4011,7 +3905,7 @@ function openGalleryLightbox(idx){
       <button onclick="closeLightbox()" style="position:absolute;top:-14px;right:-14px;background:rgba(0,0,0,.7);border:none;color:#fff;border-radius:50%;width:30px;height:30px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10">✕</button>
       ${imgs.length > 1 ? `<button id="lb-prev" onclick="lightboxGo(_lightboxIdx-1)" style="position:fixed;left:16px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:50%;width:44px;height:44px;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;backdrop-filter:blur(4px)">‹</button>` : ''}
       <div id="lb-content" style="display:flex;align-items:center;justify-content:center;max-height:80vh"></div>
-      <div id="lb-label" style="margin-top:10px;font-family:DM Mono,monospace;font-size:11px;color:rgba(255,255,255,.6);text-align:center"></div>
+      <div id="lb-label" style="margin-top:10px;font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.6);text-align:center"></div>
       ${imgs.length > 1 ? `<button id="lb-next" onclick="lightboxGo(_lightboxIdx+1)" style="position:fixed;right:16px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:50%;width:44px;height:44px;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;backdrop-filter:blur(4px)">›</button>` : ''}
     </div>`;
 
@@ -4048,7 +3942,7 @@ function renderLightboxSlide(){
     const safeUrl = img.url.replace(/'/g,"\'");
     content.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px">
       <div style="font-size:64px">📄</div>
-      <div style="font-size:14px;color:#fff;font-family:DM Mono,monospace">${img.name}</div>
+      <div style="font-size:14px;color:#fff;font-family:'DM Mono',monospace">${img.name}</div>
       <a href="${img.url}" target="_blank" class="btn btn-secondary btn-sm" style="color:var(--teal);text-decoration:none">Open PDF ↗</a>
     </div>`;
   } else {
@@ -4284,28 +4178,17 @@ function chartShowRecord(type,record,idx){
   if(type==='hist'){
     body.innerHTML=drL([['Consanguinity',record.Consanguinity],['Family History',record.FamilyHistory],['Family Members',record.FamilyHistoryDesc],['Blunt Trauma',record.BluntTrauma],['Penetrating Trauma',record.PenetratingTrauma],['Previous Surgeries',record.PreviousSurgeries],['Subluxation Syndrome',record.SubluxationSyndrome==='Yes'?record.SubluxSyndromeDetails||'Yes':''],['Cardiac',record.CardiacDisease==='Yes'?record.CardiacDetails:''],['Neurological',record.NeurologicalDisease==='Yes'?record.NeurologicalDetails:''],['Hepatic',record.HepaticDisease==='Yes'?record.HepaticDetails:''],['Renal',record.RenalDisease==='Yes'?record.RenalDetails:''],['Medications',record.Medications]])+editedByFooter(record);
   } else if(type==='exam'){
-    body.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border-dim);border-radius:8px;overflow:hidden;margin-bottom:14px"><div style="padding:10px 14px;border-right:1px solid var(--border-dim);background:rgba(247,183,49,.04)"><div style="font-family:DM Mono,monospace;font-size:10px;letter-spacing:1.5px;color:var(--amber);margin-bottom:8px">OD — RIGHT</div>${drL([['VA',record.VA_OD],['IOP',record.IOP_OD?record.IOP_OD+' mmHg':''],['Cornea',record.CorneaOpacity_OD],['Lens',record.LensStatus_OD],['Axial Length',record.AxialLength_OD?record.AxialLength_OD+' mm':''],['Angle',record.Angle]])}</div><div style="padding:10px 14px;background:rgba(100,160,255,.04)"><div style="font-family:DM Mono,monospace;font-size:10px;letter-spacing:1.5px;color:#7ab4ff;margin-bottom:8px">OS — LEFT</div>${drL([['VA',record.VA_OS],['IOP',record.IOP_OS?record.IOP_OS+' mmHg':''],['Cornea',record.CorneaOpacity_OS],['Lens',record.LensStatus_OS],['Axial Length',record.AxialLength_OS?record.AxialLength_OS+' mm':''],['Angle',record.AngleOS]])}</div></div>${drL([['EUA',record.EUA],['Examiner',record.Examiner],['Comments',record.Comments]])}${editedByFooter(record)}`;
+    body.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border-dim);border-radius:8px;overflow:hidden;margin-bottom:14px"><div style="padding:10px 14px;border-right:1px solid var(--border-dim);background:rgba(247,183,49,.04)"><div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--amber);margin-bottom:8px">OD — RIGHT</div>${drL([['VA',record.VA_OD],['IOP',record.IOP_OD?record.IOP_OD+' mmHg':''],['Cornea',record.CorneaOpacity_OD],['Lens',record.LensStatus_OD],['Axial Length',record.AxialLength_OD?record.AxialLength_OD+' mm':''],['Angle',record.Angle]])}</div><div style="padding:10px 14px;background:rgba(100,160,255,.04)"><div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:#7ab4ff;margin-bottom:8px">OS — LEFT</div>${drL([['VA',record.VA_OS],['IOP',record.IOP_OS?record.IOP_OS+' mmHg':''],['Cornea',record.CorneaOpacity_OS],['Lens',record.LensStatus_OS],['Axial Length',record.AxialLength_OS?record.AxialLength_OS+' mm':''],['Angle',record.AngleOS]])}</div></div>${drL([['EUA',record.EUA],['Examiner',record.Examiner],['Comments',record.Comments]])}${editedByFooter(record)}`;
   } else if(type==='op'){
     body.innerHTML=drL([['Date',record.DateOfOp?new Date(record.DateOfOp).toLocaleDateString():''],['Eye',record.Eye],['Operation',record.OperationName],['Surgeon',record.Examiner],['Anterior Capsule',record.AnteriorCapsule],['Posterior Capsule',record.PosteriorCapsule],['IOL',record.IOL==='Yes'?`${record.IOLType||''} ${record.IOLPower?record.IOLPower+'D':''}`:'Aphakic'],['Complications',record.OtherComplications],['Comments',record.Comments]])+editedByFooter(record);
   } else if(type==='fup'){
-    body.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border-dim);border-radius:8px;overflow:hidden;margin-bottom:14px"><div style="padding:10px 14px;border-right:1px solid var(--border-dim);background:rgba(247,183,49,.04)"><div style="font-family:DM Mono,monospace;font-size:10px;letter-spacing:1.5px;color:var(--amber);margin-bottom:8px">OD — RIGHT</div>${drL([['VA',record.VA_OD],['IOP',record.IOP_OD?record.IOP_OD+' mmHg':''],['Lens',record.LensStatus_OD]])}</div><div style="padding:10px 14px;background:rgba(100,160,255,.04)"><div style="font-family:DM Mono,monospace;font-size:10px;letter-spacing:1.5px;color:#7ab4ff;margin-bottom:8px">OS — LEFT</div>${drL([['VA',record.VA_OS],['IOP',record.IOP_OS?record.IOP_OS+' mmHg':''],['Lens',record.LensStatus_OS]])}</div></div>${drL([['EUA',record.EUA],['Visit Type',record.VisitType],['Examiner',record.Examiner],['Comments',record.Comments]])}${editedByFooter(record)}`;
+    body.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border-dim);border-radius:8px;overflow:hidden;margin-bottom:14px"><div style="padding:10px 14px;border-right:1px solid var(--border-dim);background:rgba(247,183,49,.04)"><div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--amber);margin-bottom:8px">OD — RIGHT</div>${drL([['VA',record.VA_OD],['IOP',record.IOP_OD?record.IOP_OD+' mmHg':''],['Lens',record.LensStatus_OD]])}</div><div style="padding:10px 14px;background:rgba(100,160,255,.04)"><div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:#7ab4ff;margin-bottom:8px">OS — LEFT</div>${drL([['VA',record.VA_OS],['IOP',record.IOP_OS?record.IOP_OS+' mmHg':''],['Lens',record.LensStatus_OS]])}</div></div>${drL([['EUA',record.EUA],['Visit Type',record.VisitType],['Examiner',record.Examiner],['Comments',record.Comments]])}${editedByFooter(record)}`;
   }
 }
 
 function editedByFooter(record){
-  var parts = [];
-  if(record.EditedBy){
-    parts.push(`<div style="font-family:DM Mono,monospace;font-size:10px;color:var(--text-faint)">✎ Entered by <strong style="color:var(--text-dim)">${record.EditedBy}</strong>${record.EntryDate?' on '+new Date(record.EntryDate).toLocaleDateString():''}</div>`);
-  }
-  if(record.ScanSourceUrl){
-    parts.push(`<a href="${record.ScanSourceUrl}" target="_blank" rel="noopener"
-      style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:5px 10px;background:rgba(45,207,202,.08);border:1px solid var(--border);border-radius:6px;font-family:DM Mono,monospace;font-size:10px;color:var(--teal);text-decoration:none;transition:background .15s"
-      onmouseover="this.style.background='rgba(45,207,202,.16)'" onmouseout="this.style.background='rgba(45,207,202,.08)'">
-      📎 View source scan ↗
-    </a>`);
-  }
-  if(!parts.length) return '';
-  return `<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border-dim)">${parts.join('')}</div>`;
+  if(!record.EditedBy)return'';
+  return`<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border-dim);font-family:'DM Mono',monospace;font-size:10px;color:var(--text-faint)">✎ Entered by <strong style="color:var(--text-dim)">${record.EditedBy}</strong>${record.EntryDate?' on '+new Date(record.EntryDate).toLocaleDateString():''}</div>`;
 }
 
 function chartShowNewForm(type,pid){
@@ -4597,7 +4480,7 @@ function openPDF(pid,idx){
     overlay.innerHTML=`
       <div style="width:100%;max-width:900px;display:flex;flex-direction:column;height:90vh">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <span id="pdf-viewer-title" style="color:#fff;font-family:DM Mono,monospace;font-size:12px;letter-spacing:1px"></span>
+          <span id="pdf-viewer-title" style="color:#fff;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:1px"></span>
           <div style="display:flex;gap:8px">
             <a id="pdf-download-btn" href="#" download class="btn btn-secondary btn-sm" style="text-decoration:none;color:var(--teal)">⬇ Download</a>
             <button onclick="document.getElementById('pdf-viewer-overlay').style.display='none';document.body.style.overflow=''" style="background:none;border:none;color:#fff;font-size:26px;cursor:pointer;line-height:1;opacity:.7">✕</button>
@@ -4629,7 +4512,7 @@ function openPDFUrl(url, name){
     overlay.innerHTML=`
       <div style="width:100%;max-width:900px;display:flex;flex-direction:column;height:90vh">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <span id="pdf-viewer-title" style="color:#fff;font-family:DM Mono,monospace;font-size:12px;letter-spacing:1px"></span>
+          <span id="pdf-viewer-title" style="color:#fff;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:1px"></span>
           <div style="display:flex;gap:8px">
             <a id="pdf-download-btn" href="#" target="_blank" class="btn btn-secondary btn-sm" style="text-decoration:none;color:var(--teal)">⬇ Open in Drive</a>
             <button onclick="document.getElementById('pdf-viewer-overlay').style.display='none';document.body.style.overflow=''" style="background:none;border:none;color:#fff;font-size:26px;cursor:pointer;line-height:1;opacity:.7">✕</button>
@@ -4721,387 +4604,5 @@ async function saveImages(files,pid,zid,description){
 }
 
 </script>
-
-// ═══════════════════════════════════════════════
-//  SCAN & IMPORT  — AI-powered handwriting OCR
-// ═══════════════════════════════════════════════
-let _scanFormType    = null;
-let _scanResults     = null;
-let _scanBase64      = null;
-let _scanDriveUrl    = null;   // Drive URL of the uploaded scan image
-let _scanDriveFileId = null;   // Drive file ID of the uploaded scan image
-let _scanMimeType    = null;   // mime type of the scanned file
-
-function openScanModal(formType){
-  _scanFormType = formType;
-  _scanResults     = null;
-  _scanBase64      = null;
-  _scanDriveUrl    = null;
-  _scanDriveFileId = null;
-  _scanMimeType    = null;
-  document.getElementById('scan-preview').style.display = 'none';
-  document.getElementById('scan-extracted').style.display = 'none';
-  document.getElementById('scan-status').textContent = '';
-  document.getElementById('scan-modal-actions').style.display = 'none';
-  document.getElementById('scan-file-input').value = '';
-  document.getElementById('scan-drop-zone').style.display = '';
-  document.getElementById('scan-modal-overlay').style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-}
-
-function closeScanModal(){
-  document.getElementById('scan-modal-overlay').style.display = 'none';
-  document.body.style.overflow = '';
-}
-
-function handleScanDrop(e){
-  e.preventDefault();
-  document.getElementById('scan-drop-zone').classList.remove('drag-over');
-  const file = [...e.dataTransfer.files].find(f=>f.type.startsWith('image/'));
-  if(file) processScanFile(file);
-}
-
-function handleScanFile(e){
-  const file = e.target.files[0];
-  if(file) processScanFile(file);
-}
-
-async function processScanFile(file){
-  const status = document.getElementById('scan-status');
-  const preview = document.getElementById('scan-preview');
-  const actions = document.getElementById('scan-modal-actions');
-  const rawPanel = document.getElementById('scan-raw-panel');
-  const fieldsPanel = document.getElementById('scan-fields-panel');
-  const rawEl = document.getElementById('scan-raw');
-  const extracted = document.getElementById('scan-extracted');
-
-  const objectUrl = URL.createObjectURL(file);
-  preview.src = objectUrl;
-  preview.style.display = 'block';
-  document.getElementById('scan-drop-zone').style.display = 'none';
-  rawPanel.style.display = 'none';
-  fieldsPanel.style.display = 'none';
-  actions.style.display = 'none';
-  status.textContent = 'Reading image...';
-
-  // Check API key before doing anything
-  if(!CONFIG.anthropicApiKey || !CONFIG.anthropicApiKey.trim()){
-    status.textContent = '';
-    status.innerHTML = '<span style="color:var(--red)">✗ No Anthropic API key configured.</span> <a href="#" onclick="closeScanModal();showView('setup')" style="color:var(--teal)">Go to Setup → Step 5 to add your key ↗</a>';
-    return;
-  }
-  _scanMimeType = file.type || 'image/jpeg';
-  _scanBase64 = await new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => res(r.result.split(',')[1]);
-    r.onerror = rej;
-    r.readAsDataURL(file);
-  });
-
-  // Step 1 prompt: transcribe raw text
-  const rawPrompt = 'Please transcribe ALL text visible in this handwritten medical sheet exactly as written, preserving layout as best you can. Include all numbers, abbreviations, dates, names and clinical values. Do not interpret or summarize — just transcribe faithfully.';
-
-  // Step 2 prompts: parse into structured JSON
-  const structuredPrompts = {
-    exam: 'Below is text transcribed from a handwritten preoperative ophthalmology examination sheet. Parse it into ONLY a JSON object with these keys (omit keys with no data, mark uncertain values with a leading "?" e.g. "?6/6"): {"DateOfExam":"YYYY-MM-DD","Examiner":"","EUA":"Yes or No","VA_OD":"","VA_OS":"","IOP_OD":"","IOP_OS":"","AxialLength_OD":"","AxialLength_OS":"","K1_OD":"","K2_OD":"","K1_OS":"","K2_OS":"","CorneaOpacity_OD":"Clear or Opacity","CorneaOpacity_OS":"Clear or Opacity","LensStatus_OD":"Clear or Cataract or Aphakic or Pseudophakic","LensStatus_OS":"","Fundus_OD":"Normal or Abnormal","Fundus_OS":"Normal or Abnormal","Syndrome":"","Comments":""}. Return ONLY valid JSON.',
-    op: 'Below is text from a handwritten cataract operation record. Parse into ONLY a JSON object (mark uncertain values with leading "?"): {"DateOfOp":"YYYY-MM-DD","Eye":"Right or Left or Both","Examiner":"","OperationName":"","IOL":"Yes or No","IOLType":"","IOLPower":"","IOLPlace":"In the bag or Sulcus or ACIOL","AnteriorCapsule":"","PosteriorCapsule":"","AnteriorVitrectomy":"Yes or No","OtherComplications":"","Comments":""}. Return ONLY valid JSON.',
-    fup: 'Below is text from a handwritten ophthalmology follow-up sheet. Parse into ONLY a JSON object (mark uncertain values with leading "?"): {"DateOfExam":"YYYY-MM-DD","Examiner":"","EUA":"Yes or No","VA_OD":"","VA_OS":"","IOP_OD":"","IOP_OS":"","Cornea_OD":"Clear or Abnormal","CorneaDesc_OD":"","Cornea_OS":"Clear or Abnormal","CorneaDesc_OS":"","LensStatus_OD":"Clear or Cataract or Aphakic or Pseudophakic or Opacified","LensStatus_OS":"","Opacification_OD":"","Opacification_OS":"","Fundus_OD":"Normal or Abnormal","Fundus_OS":"Normal or Abnormal","Sphere_OD":"","Cylinder_OD":"","Axis_OD":"","Sphere_OS":"","Cylinder_OS":"","Axis_OS":"","Comments":""}. Return ONLY valid JSON.',
-    hist: 'Below is text from a handwritten patient history sheet. Parse into ONLY a JSON object (mark uncertain values with leading "?"): {"Consanguinity":"Yes or No","FamilyHistory":"Yes or No","FamilyHistoryMembers":"","BluntTrauma":"Yes or No","PenetratingTrauma":"Yes or No","CardiacDisease":"Yes or No","CardiacDetails":"","NeurologicalDisease":"Yes or No","NeurologicalDetails":"","Medications":"","Comments":""}. Return ONLY valid JSON.'
-  };
-
-  try {
-    // ── Step 1: Get raw transcription ──
-    status.textContent = 'Step 1/2 — Transcribing handwriting...';
-    const resp1 = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','x-api-key':CONFIG.anthropicApiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 800,
-        messages: [{ role:'user', content:[
-          {type:'image', source:{type:'base64', media_type: file.type||'image/jpeg', data:_scanBase64}},
-          {type:'text', text: rawPrompt}
-        ]}]
-      })
-    });
-    const d1 = await resp1.json();
-    const rawText = (d1.content && d1.content[0]) ? d1.content[0].text : '';
-
-    // Show raw text immediately
-    rawEl.textContent = rawText || '(could not read text)';
-    rawPanel.style.display = 'block';
-    status.textContent = 'Step 2/2 — Extracting fields...';
-
-    // ── Step 2: Parse into structured JSON ──
-    const structPrompt = structuredPrompts[_scanFormType] || structuredPrompts.fup;
-    const resp2 = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','x-api-key':CONFIG.anthropicApiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 800,
-        messages: [{ role:'user', content:[
-          {type:'text', text: structPrompt + '
-
-Transcribed text:
-' + rawText}
-        ]}]
-      })
-    });
-    const d2 = await resp2.json();
-    const raw2 = (d2.content && d2.content[0]) ? d2.content[0].text : '';
-    const clean = raw2.replace(/```json|```/g,'').trim();
-
-    let parsed;
-    try { parsed = JSON.parse(clean); }
-    catch(pe){
-      status.textContent = 'Could not parse fields. Check the raw text above for the data.';
-      return;
-    }
-
-    _scanResults = parsed;
-
-    // Build summary — mark uncertain (?) fields differently
-    const certain = [], uncertain = [];
-    Object.entries(parsed).forEach(function(kv){
-      if(!kv[1]) return;
-      if(String(kv[1]).startsWith('?')) uncertain.push(kv[0]+': '+kv[1]);
-      else certain.push(kv[0]+': '+kv[1]);
-    });
-    var summary = '';
-    if(certain.length) summary += certain.join('
-');
-    if(uncertain.length) summary += (certain.length?'
-
-':'') + '-- UNCERTAIN (highlighted in amber) --
-' + uncertain.join('
-');
-    extracted.textContent = summary || '(no fields found)';
-    fieldsPanel.style.display = 'block';
-
-    var nCertain = certain.length, nUncertain = uncertain.length;
-    status.innerHTML = '<span style="color:var(--green)">✓ '+nCertain+' fields</span>'
-      + (nUncertain ? ' &nbsp;<span style="color:var(--amber)">⚠ '+nUncertain+' uncertain</span>' : '')
-      + ' &nbsp;— review then click Apply';
-    actions.style.display = 'flex';
-
-  } catch(err) {
-    status.textContent = 'Error: ' + err.message;
-  }
-}
-
-function applyScanResults(){
-  if(!_scanResults) return;
-  var d = _scanResults;
-  var filledIds = [];   // track all filled element IDs for highlighting
-
-  function isUncertain(val){ return val && String(val).startsWith('?'); }
-  function cleanVal(val){ return val ? String(val).replace(/^\?/,'') : val; }
-
-  function highlight(el, uncertain){
-    if(!el) return;
-    el.classList.add('scan-filled');
-    if(uncertain) el.style.setProperty('--amber','#f7b731');
-    filledIds.push(el.id || el.name || '');
-  }
-
-  function setVal(id, rawVal){
-    if(!rawVal) return;
-    var el = document.getElementById(id);
-    if(!el) return;
-    el.value = cleanVal(rawVal);
-    highlight(el, isUncertain(rawVal));
-  }
-
-  function setRadio(name, rawVal){
-    if(!rawVal) return;
-    var val = cleanVal(rawVal);
-    var el = document.querySelector('input[name="'+name+'"][value="'+val+'"]');
-    if(el){
-      el.checked = true;
-      // Highlight the label
-      var lbl = el.nextElementSibling;
-      if(lbl){ lbl.classList.add('scan-filled-radio'); el.classList.add('scan-filled-radio'); }
-      if(isUncertain(rawVal) && lbl) lbl.style.borderColor = 'var(--amber)';
-      filledIds.push(name);
-    }
-  }
-
-  function setChk(id, val){
-    if(!val) return;
-    var el = document.getElementById(id);
-    if(el) el.checked = (cleanVal(val)==='Yes');
-  }
-
-  function mapVA(rawVal, selectId){
-    if(!rawVal) return;
-    var raw = cleanVal(rawVal);
-    var sel = document.getElementById(selectId);
-    if(!sel) return;
-    var opts = Array.from(sel.options).map(function(o){ return o.value; });
-    var found = false;
-    if(opts.indexOf(raw) >= 0){ sel.value=raw; found=true; }
-    if(!found){
-      var vaMap = {'6/6':'1.0','6/9':'0.63','6/12':'0.5','6/18':'0.3','6/24':'0.25','6/36':'0.16','6/60':'0.1'};
-      var mapped = vaMap[raw.replace(/\s/g,'')];
-      if(mapped && opts.indexOf(mapped)>=0){ sel.value=mapped; found=true; }
-    }
-    if(!found){
-      var partial = opts.find(function(o){ return o.toLowerCase().indexOf(raw.toLowerCase())>=0; });
-      if(partial){ sel.value=partial; found=true; }
-    }
-    if(found) highlight(sel, isUncertain(rawVal));
-  }
-
-  if(_scanFormType==='exam'){
-    setVal('e-date',d.DateOfExam); setVal('e-examiner',d.Examiner); setChk('e-eua',d.EUA);
-    mapVA(d.VA_OD,'e-va-od'); mapVA(d.VA_OS,'e-va-os');
-    setVal('e-iop-od',d.IOP_OD); setVal('e-iop-os',d.IOP_OS);
-    setVal('e-axl-od',d.AxialLength_OD); setVal('e-axl-os',d.AxialLength_OS);
-    setVal('e-k1-od',d.K1_OD); setVal('e-k2-od',d.K2_OD); setVal('e-k1-os',d.K1_OS); setVal('e-k2-os',d.K2_OS);
-    if(d.CorneaOpacity_OD) setRadio('e-cornea-od', cleanVal(d.CorneaOpacity_OD)==='Clear'?'Clear':'Opacity');
-    if(d.CorneaOpacity_OS) setRadio('e-cornea-os', cleanVal(d.CorneaOpacity_OS)==='Clear'?'Clear':'Opacity');
-    if(d.Fundus_OD) setRadio('e-fundus-od', cleanVal(d.Fundus_OD)==='Normal'?'Normal':'Abnormal');
-    if(d.Fundus_OS) setRadio('e-fundus-os', cleanVal(d.Fundus_OS)==='Normal'?'Normal':'Abnormal');
-    setVal('e-syndrome',d.Syndrome); setVal('e-comments',d.Comments);
-  }
-  else if(_scanFormType==='op'){
-    setVal('s-date',d.DateOfOp); setRadio('s-eye',cleanVal(d.Eye)); setVal('s-examiner',d.Examiner);
-    setVal('s-optype',d.OperationName); setRadio('s-iol',cleanVal(d.IOL));
-    setVal('s-iol-type',d.IOLType); setVal('s-iol-power',d.IOLPower); setVal('s-iol-loc',d.IOLPlace);
-    setVal('s-ant-cap',d.AnteriorCapsule); setVal('s-post-cap',d.PosteriorCapsule);
-    if(d.AnteriorVitrectomy) setRadio('s-ant-vit',cleanVal(d.AnteriorVitrectomy));
-    setVal('s-complications',d.OtherComplications); setVal('s-comments',d.Comments);
-  }
-  else if(_scanFormType==='fup'){
-    setVal('f-date',d.DateOfExam); setVal('f-examiner',d.Examiner); setChk('f-eua',d.EUA);
-    mapVA(d.VA_OD,'f-va-od'); mapVA(d.VA_OS,'f-va-os');
-    setVal('f-iop-od',d.IOP_OD); setVal('f-iop-os',d.IOP_OS);
-    if(d.Cornea_OD) setRadio('f-cornea-od',cleanVal(d.Cornea_OD));
-    setVal('f-cornea-desc-od',d.CorneaDesc_OD);
-    if(d.Cornea_OS) setRadio('f-cornea-os',cleanVal(d.Cornea_OS));
-    setVal('f-cornea-desc-os',d.CorneaDesc_OS);
-    if(d.LensStatus_OD) setRadio('f-lens-status-od',cleanVal(d.LensStatus_OD));
-    if(d.LensStatus_OS) setRadio('f-lens-status-os',cleanVal(d.LensStatus_OS));
-    setVal('f-opacification-od',d.Opacification_OD); setVal('f-opacification-os',d.Opacification_OS);
-    if(d.Fundus_OD) setRadio('f-fundus-od',cleanVal(d.Fundus_OD)==='Normal'?'Normal':'Abnormal');
-    if(d.Fundus_OS) setRadio('f-fundus-os',cleanVal(d.Fundus_OS)==='Normal'?'Normal':'Abnormal');
-    setVal('f-sph-od',d.Sphere_OD); setVal('f-cyl-od',d.Cylinder_OD); setVal('f-axis-od',d.Axis_OD);
-    setVal('f-sph-os',d.Sphere_OS); setVal('f-cyl-os',d.Cylinder_OS); setVal('f-axis-os',d.Axis_OS);
-    setVal('f-comments',d.Comments);
-  }
-  else if(_scanFormType==='hist'){
-    setRadio('h-consang',cleanVal(d.Consanguinity)); setRadio('h-fhx',cleanVal(d.FamilyHistory));
-    setVal('h-fhx-members',d.FamilyHistoryMembers);
-    setRadio('h-blunt',cleanVal(d.BluntTrauma)); setRadio('h-pen',cleanVal(d.PenetratingTrauma));
-    setRadio('h-cardiac',cleanVal(d.CardiacDisease)); setVal('h-cardiac-desc',d.CardiacDetails);
-    setRadio('h-neuro',cleanVal(d.NeurologicalDisease)); setVal('h-neuro-desc',d.NeurologicalDetails);
-    setVal('h-medications',d.Medications);
-  }
-
-  closeScanModal();
-
-  // Silently upload the scanned image to this patient's Drive folder
-  var pid = ACTIVE_PATIENT ? ACTIVE_PATIENT.PID : null;
-  if(pid && _scanBase64 && CONFIG.webAppUrl){
-    var formLabels = {exam:'PreopExam', op:'Operation', fup:'Followup', hist:'History'};
-    var scanLabel = formLabels[_scanFormType] || 'Scan';
-    var scanFilename = 'Scan_' + scanLabel + '_' + new Date().toISOString().replace(/[:.]/g,'-').slice(0,19) + '.jpg';
-    fetch(CONFIG.webAppUrl, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        action: 'uploadScanImage',
-        pid: pid,
-        filename: scanFilename,
-        mimeType: _scanMimeType || 'image/jpeg',
-        data: _scanBase64
-      })
-    })
-    .then(function(r){ return r.json(); })
-    .then(function(result){
-      if(result.status === 'ok'){
-        _scanDriveUrl    = result.url;
-        _scanDriveFileId = result.fileId;
-        // Refresh image grid so scan appears in patient images immediately
-        if(_chartPID && String(_chartPID)===String(pid)) loadChartImageGrid(pid);
-        if(currentImagePID && String(currentImagePID)===String(pid)) loadPatientImages(pid);
-      }
-    })
-    .catch(function(){});  // silent — don't interrupt the form workflow
-  }
-
-  // Count uncertain fields
-  var nUncertain = Object.values(d).filter(function(v){ return v && String(v).startsWith('?'); }).length;
-  var msg = 'Form pre-filled from scan';
-  if(nUncertain){
-    msg += ' — ' + nUncertain + ' uncertain field'+(nUncertain>1?'s':'')+' highlighted in amber';
-  }
-  showToast(msg, nUncertain ? 'error' : 'success');
-
-  // Show clear-highlights button near form top if there are any highlights
-  var existingBtn = document.getElementById('scan-clear-highlights-btn');
-  if(existingBtn) existingBtn.remove();
-  var formView = document.getElementById('view-new-'+_scanFormType === 'exam' ? 'examination' :
-    _scanFormType === 'op' ? 'surgery' :
-    _scanFormType === 'fup' ? 'followup' : 'history');
-  // Map type to view id
-  var viewMap = {exam:'view-new-examination', op:'view-new-surgery', fup:'view-new-followup', hist:'view-new-history'};
-  var view = document.getElementById(viewMap[_scanFormType]);
-  if(view){
-    var clearBtn = document.createElement('div');
-    clearBtn.id = 'scan-clear-highlights-btn';
-    clearBtn.style.cssText = 'display:flex;align-items:center;gap:10px;background:rgba(247,183,49,.08);border:1px solid rgba(247,183,49,.3);border-radius:8px;padding:8px 14px;margin-bottom:12px;font-size:12px;color:var(--amber);font-family:DM Mono,monospace';
-    clearBtn.innerHTML = '<span>⚠ Fields filled by scan are highlighted. Amber = uncertain.</span><button onclick="clearScanHighlights()" style="margin-left:auto;background:none;border:1px solid rgba(247,183,49,.4);color:var(--amber);border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-family:Lato,sans-serif">Clear highlights</button>';
-    var scanBar = view.querySelector('.scan-bar');
-    if(scanBar) scanBar.after(clearBtn);
-    else view.insertBefore(clearBtn, view.firstChild);
-  }
-}
-
-function clearScanHighlights(){
-  document.querySelectorAll('.scan-filled').forEach(function(el){ el.classList.remove('scan-filled'); });
-  document.querySelectorAll('.scan-filled-radio').forEach(function(el){ el.classList.remove('scan-filled-radio'); });
-  var btn = document.getElementById('scan-clear-highlights-btn');
-  if(btn) btn.remove();
-}
-
-
-<!-- ═══ SCAN & IMPORT MODAL ═══ -->
-<div id="scan-modal-overlay" class="scan-modal-overlay" style="display:none">
-  <div class="scan-modal">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <h3>📷 Scan &amp; Import</h3>
-      <button onclick="closeScanModal()" style="background:none;border:none;color:var(--text-dim);font-size:22px;cursor:pointer;line-height:1">✕</button>
-    </div>
-    <p>Take or upload a photo of a handwritten clinical sheet. Claude reads the handwriting and pre-fills the form — uncertain fields are highlighted in amber for your review.</p>
-    <div id="scan-drop-zone" class="scan-drop-zone" onclick="document.getElementById('scan-file-input').click()"
-         ondragover="event.preventDefault();this.classList.add('drag-over')"
-         ondragleave="this.classList.remove('drag-over')"
-         ondrop="handleScanDrop(event)">
-      <input type="file" id="scan-file-input" accept="image/*" capture="environment" style="display:none" onchange="handleScanFile(event)">
-      <div class="icon">📄</div>
-      <p>Tap to take a photo or choose an image</p>
-      <p style="font-size:11px;opacity:.6;margin-top:4px">JPG, PNG — works with handwritten notes</p>
-    </div>
-    <img id="scan-preview" class="scan-preview" style="display:none">
-    <div id="scan-status" class="scan-status"></div>
-    <!-- Raw OCR text panel -->
-    <div id="scan-raw-panel" style="display:none">
-      <div class="scan-section-label">📝 Raw text read from sheet</div>
-      <div id="scan-raw" class="scan-raw"></div>
-    </div>
-    <!-- Parsed fields panel -->
-    <div id="scan-fields-panel" style="display:none">
-      <div class="scan-section-label">✓ Fields extracted — review before applying</div>
-      <div id="scan-extracted" class="scan-fields"></div>
-    </div>
-    <div id="scan-modal-actions" style="display:none;gap:10px;justify-content:flex-end;margin-top:4px">
-      <button class="btn btn-secondary" onclick="closeScanModal()">Cancel</button>
-      <button class="btn btn-primary" id="scan-apply-btn" onclick="applyScanResults()">✓ Apply to Form</button>
-    </div>
-  </div>
-</div>
-
 </body>
 </html>
