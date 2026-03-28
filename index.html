@@ -668,6 +668,12 @@
       <input type="password" id="login-password" placeholder="Enter your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <div id="login-error"></div>
+    <div id="login-cors-hint" style="display:none;margin-top:8px;padding:8px 12px;background:rgba(247,183,49,.1);border:1px solid rgba(247,183,49,.3);border-radius:6px;font-size:11px;color:var(--amber);line-height:1.5">
+      <strong>CORS / network error detected.</strong> This usually means:<br>
+      1. The Apps Script deployment settings are wrong — make sure it is deployed as <strong>Execute as: Me</strong> and <strong>Who has access: Anyone</strong><br>
+      2. The deployment URL in Setup may be outdated — check Setup → Step 4<br>
+      3. Try opening the URL directly in a new tab to confirm it responds
+    </div>
     <button class="login-btn" onclick="doLogin()">Sign In</button>
   </div>
 </div>
@@ -2449,7 +2455,7 @@ function buildResponse(data) { return ContentService.createTextOutput(JSON.strin
 
 <script>
 // ─── STATE ───
-let CONFIG={webAppUrl:'https://script.google.com/macros/s/AKfycbxehONI3-bwcViXoEc9bK7ZJFA3ZXBsR2y5z7JBOFXGdeWmeuJLBl1b6oZimBeZRx2XSA/exec', anthropicApiKey:''};
+let CONFIG={webAppUrl:'https://script.google.com/macros/s/AKfycbwXbAWSsmQQE9p5yrOF_PXEB4ar1l3Es3XUxPppyAHGtFjBdCslhYoarvE0iHvCUR0fAQ/exec', anthropicApiKey:''};
 let DB={patients:[],examinations:[],operations:[],followups:[],history:[]};
 let CURRENT_USER=null; // {username, displayName, role}
 
@@ -2459,6 +2465,7 @@ async function doLogin(){
   const password=document.getElementById('login-password').value;
   const errEl=document.getElementById('login-error');
   errEl.textContent='';
+  document.getElementById('login-cors-hint').style.display='none';
   if(!username||!password){errEl.textContent='Please enter username and password.';return;}
   const btn=document.querySelector('.login-btn');
   btn.textContent='Signing in…';btn.disabled=true;
@@ -2476,7 +2483,13 @@ async function doLogin(){
     }
   }catch(e){
     console.error('Login error:', e);
-    errEl.textContent='Cannot reach server. Check your connection or open Setup to run the Login Diagnostic.';
+    // Diagnose the specific failure
+    if(e instanceof TypeError && e.message.includes('fetch')){
+      errEl.innerHTML='Cannot reach server — possible CORS or network issue.';
+      document.getElementById('login-cors-hint').style.display='block';
+    } else {
+      errEl.textContent='Error: '+e.message+'. Check Setup → Login Diagnostic.';
+    }
   }
   btn.textContent='Sign In';btn.disabled=false;
 }
@@ -2567,7 +2580,7 @@ async function deleteUser(username){
 document.addEventListener('DOMContentLoaded',()=>{
   const saved=localStorage.getItem('pedicat_v2_config');
   if(saved){CONFIG=JSON.parse(saved);}
-  if(!CONFIG.webAppUrl){CONFIG.webAppUrl='https://script.google.com/macros/s/AKfycbxehONI3-bwcViXoEc9bK7ZJFA3ZXBsR2y5z7JBOFXGdeWmeuJLBl1b6oZimBeZRx2XSA/exec';localStorage.setItem('pedicat_v2_config',JSON.stringify(CONFIG));}
+  if(!CONFIG.webAppUrl){CONFIG.webAppUrl='https://script.google.com/macros/s/AKfycbwXbAWSsmQQE9p5yrOF_PXEB4ar1l3Es3XUxPppyAHGtFjBdCslhYoarvE0iHvCUR0fAQ/exec';localStorage.setItem('pedicat_v2_config',JSON.stringify(CONFIG));}
   document.getElementById('webapp-url-input').value=CONFIG.webAppUrl;
   if(document.getElementById('anthropic-key-input')) document.getElementById('anthropic-key-input').value=CONFIG.anthropicApiKey||'';
   updateConnectionBadge();
