@@ -4730,6 +4730,11 @@ let _scanDriveUrl    = null;   // Drive URL of the uploaded scan image
 let _scanDriveFileId = null;   // Drive file ID of the uploaded scan image
 let _scanMimeType    = null;   // mime type of the scanned file
 
+function goToApiKeySetup(){
+  closeScanModal();
+  showView('setup');
+}
+
 function openScanModal(formType){
   _scanFormType = formType;
   _scanResults     = null;
@@ -4747,9 +4752,9 @@ function openScanModal(formType){
   const hasKey = !!(CONFIG.anthropicApiKey && CONFIG.anthropicApiKey.trim());
   const statusEl = document.getElementById('scan-status');
   if(!hasKey){
-    statusEl.innerHTML = '<span style="color:var(--amber)">⚠ No Anthropic API key configured yet.</span>'
-      + ' <a href="#" onclick="closeScanModal();showView(\'setup\')" style="color:var(--teal)">Go to Setup → Step 5 to add it ↗</a>'
-      + '<br><span style="font-size:11px;color:var(--text-faint)">You can still upload a photo — it will be saved to the patient file — but auto-fill requires the API key.</span>';
+    statusEl.innerHTML = '<span style="color:var(--amber)">⚠ No Anthropic API key configured yet. </span>'
+      + '<a href="#" onclick="goToApiKeySetup()" style="color:var(--teal)">Go to Setup → Step 5 to add it ↗</a>'
+      + '<br><span style="font-size:11px;color:var(--text-faint)">Auto-fill requires the API key.</span>';
   } else {
     statusEl.textContent = '';
   }
@@ -4802,7 +4807,7 @@ async function processScanFile(file){
   // Check API key before doing anything
   if(!CONFIG.anthropicApiKey || !CONFIG.anthropicApiKey.trim()){
     status.textContent = '';
-    status.innerHTML = '<span style="color:var(--red)">✗ No Anthropic API key configured.</span> <a href="#" onclick="closeScanModal();showView(\'setup\')" style="color:var(--teal)">Go to Setup → Step 5 to add your key ↗</a>';
+    status.innerHTML = '<span style="color:var(--red)">✗ No Anthropic API key configured. </span><a href="#" onclick="goToApiKeySetup()" style="color:var(--teal)">Go to Setup → Step 5 ↗</a>';
     return;
   }
   _scanMimeType = file.type || 'image/jpeg';
@@ -4856,10 +4861,7 @@ async function processScanFile(file){
         model: 'claude-sonnet-4-20250514',
         max_tokens: 800,
         messages: [{ role:'user', content:[
-          {type:'text', text: structPrompt + '
-
-Transcribed text:
-' + rawText}
+          {type:'text', text: structPrompt + '\n\nTranscribed text:\n' + rawText}
         ]}]
       })
     });
@@ -4884,13 +4886,8 @@ Transcribed text:
       else certain.push(kv[0]+': '+kv[1]);
     });
     var summary = '';
-    if(certain.length) summary += certain.join('
-');
-    if(uncertain.length) summary += (certain.length?'
-
-':'') + '-- UNCERTAIN (highlighted in amber) --
-' + uncertain.join('
-');
+    if(certain.length) summary += certain.join('\n');
+    if(uncertain.length) summary += (certain.length?'\n\n':'') + '-- UNCERTAIN (highlighted in amber) --\n' + uncertain.join('\n');
     extracted.textContent = summary || '(no fields found)';
     fieldsPanel.style.display = 'block';
 
