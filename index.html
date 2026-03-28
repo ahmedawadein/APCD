@@ -5051,8 +5051,8 @@ function applyScanResults(){
   if(view){
     var clearBtn = document.createElement('div');
     clearBtn.id = 'scan-clear-highlights-btn';
-    clearBtn.style.cssText = 'display:flex;align-items:center;gap:10px;background:rgba(247,183,49,.08);border:1px solid rgba(247,183,49,.3);border-radius:8px;padding:8px 14px;margin-bottom:12px;font-size:12px;color:var(--amber);font-family:'DM Mono',monospace';
-    clearBtn.innerHTML = '<span>⚠ Fields filled by scan are highlighted. Amber = uncertain.</span><button onclick="clearScanHighlights()" style="margin-left:auto;background:none;border:1px solid rgba(247,183,49,.4);color:var(--amber);border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-family:'Lato',sans-serif">Clear highlights</button>';
+    clearBtn.style.cssText = 'display:flex;align-items:center;gap:10px;background:rgba(247,183,49,.08);border:1px solid rgba(247,183,49,.3);border-radius:8px;padding:8px 14px;margin-bottom:12px;font-size:12px;color:var(--amber);font-family:\'DM Mono\',monospace';
+    clearBtn.innerHTML = '<span>⚠ Fields filled by scan are highlighted. Amber = uncertain.</span><button onclick="clearScanHighlights()" style="margin-left:auto;background:none;border:1px solid rgba(247,183,49,.4);color:var(--amber);border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-family:\'Lato\',sans-serif">Clear highlights</button>';
     var scanBar = view.querySelector('.scan-bar');
     if(scanBar) scanBar.after(clearBtn);
     else view.insertBefore(clearBtn, view.firstChild);
