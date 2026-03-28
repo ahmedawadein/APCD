@@ -605,6 +605,12 @@
   .scan-preview{width:100%;max-height:220px;object-fit:contain;border-radius:8px;margin-bottom:12px;border:1px solid var(--border-dim)}
   .scan-extracted{background:rgba(0,0,0,.35);border-radius:8px;padding:12px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--teal);white-space:pre-wrap;max-height:180px;overflow-y:auto;margin-bottom:14px;line-height:1.6}
   .scan-status{font-size:12px;font-family:'DM Mono',monospace;color:var(--text-faint);margin-bottom:10px;min-height:18px}
+  .scan-raw{background:rgba(0,0,0,.35);border-radius:8px;padding:12px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);white-space:pre-wrap;max-height:140px;overflow-y:auto;margin-bottom:8px;line-height:1.6;border:1px solid var(--border-dim)}
+  .scan-fields{background:rgba(0,0,0,.35);border-radius:8px;padding:12px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--teal);white-space:pre-wrap;max-height:160px;overflow-y:auto;margin-bottom:14px;line-height:1.6}
+  .scan-section-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px}
+  /* Scan highlight — applied to form fields filled by OCR */
+  .scan-filled{box-shadow:0 0 0 2px var(--amber),0 0 8px rgba(247,183,49,.25) !important;border-color:var(--amber) !important;background:rgba(247,183,49,.06) !important;transition:box-shadow .3s,border-color .3s}
+  .scan-filled-radio+label{border-color:var(--amber) !important;background:rgba(247,183,49,.12) !important;color:var(--amber) !important;opacity:1 !important}
   @media(max-width:640px){
     #view-patients .table-wrap{display:none}
     #patients-cardlist{display:flex;flex-direction:column;gap:10px}
@@ -2432,7 +2438,7 @@ function buildResponse(data) { return ContentService.createTextOutput(JSON.strin
 
 <script>
 // ─── STATE ───
-let CONFIG={webAppUrl:'https://script.google.com/macros/s/AKfycbw3hsgKz6Hp5GhKgQxhPhl2WnaWnu8sJcPuZuSl4ZputAWzmJ8f_m-On95NHcr-ErXrsg/exec'};
+let CONFIG={webAppUrl:'https://script.google.com/macros/s/AKfycbxehONI3-bwcViXoEc9bK7ZJFA3ZXBsR2y5z7JBOFXGdeWmeuJLBl1b6oZimBeZRx2XSA/exec'};
 let DB={patients:[],examinations:[],operations:[],followups:[],history:[]};
 let CURRENT_USER=null; // {username, displayName, role}
 
@@ -2550,7 +2556,7 @@ async function deleteUser(username){
 document.addEventListener('DOMContentLoaded',()=>{
   const saved=localStorage.getItem('pedicat_v2_config');
   if(saved){CONFIG=JSON.parse(saved);}
-  if(!CONFIG.webAppUrl){CONFIG.webAppUrl='https://script.google.com/macros/s/AKfycbw3hsgKz6Hp5GhKgQxhPhl2WnaWnu8sJcPuZuSl4ZputAWzmJ8f_m-On95NHcr-ErXrsg/exec';localStorage.setItem('pedicat_v2_config',JSON.stringify(CONFIG));}
+  if(!CONFIG.webAppUrl){CONFIG.webAppUrl='https://script.google.com/macros/s/AKfycbxehONI3-bwcViXoEc9bK7ZJFA3ZXBsR2y5z7JBOFXGdeWmeuJLBl1b6oZimBeZRx2XSA/exec';localStorage.setItem('pedicat_v2_config',JSON.stringify(CONFIG));}
   document.getElementById('webapp-url-input').value=CONFIG.webAppUrl;
   updateConnectionBadge();
   // Check for existing session
@@ -2977,7 +2983,8 @@ async function submitExamination(e){
     Syndrome:g('e-syndrome')?.value||'',Investigations:g('e-invest')?.value||'',
     Consanguinity:g('e-consang')?.checked?'Yes':'No',
     FamilyHistory:g('e-fhx')?.checked?'Yes':'No',FamilyHistoryDesc:g('e-fhx-desc')?.value||'',
-    Comments:g('e-comments').value,EntryDate:today()
+    Comments:g('e-comments').value,EntryDate:today(),
+    ScanSourceUrl: (_scanFormType==='exam' && _scanDriveUrl) ? _scanDriveUrl : ''
   };
   const editing = _editingRecord && _editingRecord.sheet === 'Examinations';
   if(editing){
@@ -3046,7 +3053,7 @@ async function submitSurgery(e){
       if(place==='Iris-claw'){const el=document.querySelector('input[name="s-iris-encl"]:checked');return el?el.value:'';}
       if(place==='Scleral fixation'){const tech=document.querySelector('input[name="s-scler-tech"]:checked')?.value||''; const pts=document.querySelector('input[name="s-scler-pts"]:checked')?.value||''; return [tech,pts].filter(Boolean).join(' — ');}
       return '';
-    })(),IOLPower:document.getElementById('s-iol-power').value,TargetRefraction:document.getElementById('s-target-ref').value,Orientation:document.getElementById('s-orientation').value,Steroids:document.getElementById('s-steroids').checked?'Yes':'No',Atropine:document.getElementById('s-atropine').checked?'Yes':'No',Route:document.getElementById('s-route').value,Medications:document.getElementById('s-meds').value,Examiner:document.getElementById('s-examiner').value,Duration:document.getElementById('s-duration').value,Comments:document.getElementById('s-comments').value,EntryDate:today(),EditedBy:CURRENT_USER?.displayName||CURRENT_USER?.username||'unknown'};
+    })(),IOLPower:document.getElementById('s-iol-power').value,TargetRefraction:document.getElementById('s-target-ref').value,Orientation:document.getElementById('s-orientation').value,Steroids:document.getElementById('s-steroids').checked?'Yes':'No',Atropine:document.getElementById('s-atropine').checked?'Yes':'No',Route:document.getElementById('s-route').value,Medications:document.getElementById('s-meds').value,Examiner:document.getElementById('s-examiner').value,Duration:document.getElementById('s-duration').value,Comments:document.getElementById('s-comments').value,EntryDate:today(),EditedBy:CURRENT_USER?.displayName||CURRENT_USER?.username||'unknown',ScanSourceUrl:(_scanFormType==='op'&&_scanDriveUrl)?_scanDriveUrl:''};
   DB.operations.push(row);
   showToast('Operation saved ✓','success');
   document.getElementById('surgery-form').reset();
@@ -3098,7 +3105,8 @@ async function submitFollowup(e){
     AxialLength_OS:g('f-axl-os').value,K1_OS:g('f-k1-os').value,K2_OS:g('f-k2-os').value,Formulas_OS:getFormulasJSON('f','os'),
     Complications_OD:getFupComplications('od'),
     Complications_OS:getFupComplications('os'),
-    Comments:g('f-comments').value,EntryDate:today()
+    Comments:g('f-comments').value,EntryDate:today(),
+    ScanSourceUrl: (_scanFormType==='fup' && _scanDriveUrl) ? _scanDriveUrl : ''
   };
   const editing = _editingRecord && _editingRecord.sheet === 'Followup';
   if(editing){
@@ -3641,7 +3649,8 @@ async function submitHistory(e){
     Medications:g('h-medications')?.value||'',
     EntryDate:today()
   };
-  DB.history = DB.history || [];
+  DB.history,
+    ScanSourceUrl: (_scanFormType==='hist' && _scanDriveUrl) ? _scanDriveUrl : '' = DB.history || [];
   const editing = _editingRecord && _editingRecord.sheet === 'History';
   if(editing){
     const dbIdx = DB.history.findIndex(x => x.ID === _editingRecord.id);
@@ -4221,8 +4230,19 @@ function chartShowRecord(type,record,idx){
 }
 
 function editedByFooter(record){
-  if(!record.EditedBy)return'';
-  return`<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border-dim);font-family:'DM Mono',monospace;font-size:10px;color:var(--text-faint)">✎ Entered by <strong style="color:var(--text-dim)">${record.EditedBy}</strong>${record.EntryDate?' on '+new Date(record.EntryDate).toLocaleDateString():''}</div>`;
+  var parts = [];
+  if(record.EditedBy){
+    parts.push(`<div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-faint)">✎ Entered by <strong style="color:var(--text-dim)">${record.EditedBy}</strong>${record.EntryDate?' on '+new Date(record.EntryDate).toLocaleDateString():''}</div>`);
+  }
+  if(record.ScanSourceUrl){
+    parts.push(`<a href="${record.ScanSourceUrl}" target="_blank" rel="noopener"
+      style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:5px 10px;background:rgba(45,207,202,.08);border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;font-size:10px;color:var(--teal);text-decoration:none;transition:background .15s"
+      onmouseover="this.style.background='rgba(45,207,202,.16)'" onmouseout="this.style.background='rgba(45,207,202,.08)'">
+      📎 View source scan ↗
+    </a>`);
+  }
+  if(!parts.length) return '';
+  return `<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border-dim)">${parts.join('')}</div>`;
 }
 
 function chartShowNewForm(type,pid){
@@ -4642,14 +4662,20 @@ async function saveImages(files,pid,zid,description){
 // ═══════════════════════════════════════════════
 //  SCAN & IMPORT  — AI-powered handwriting OCR
 // ═══════════════════════════════════════════════
-let _scanFormType = null;
-let _scanResults  = null;
-let _scanBase64   = null;
+let _scanFormType    = null;
+let _scanResults     = null;
+let _scanBase64      = null;
+let _scanDriveUrl    = null;   // Drive URL of the uploaded scan image
+let _scanDriveFileId = null;   // Drive file ID of the uploaded scan image
+let _scanMimeType    = null;   // mime type of the scanned file
 
 function openScanModal(formType){
   _scanFormType = formType;
-  _scanResults  = null;
-  _scanBase64   = null;
+  _scanResults     = null;
+  _scanBase64      = null;
+  _scanDriveUrl    = null;
+  _scanDriveFileId = null;
+  _scanMimeType    = null;
   document.getElementById('scan-preview').style.display = 'none';
   document.getElementById('scan-extracted').style.display = 'none';
   document.getElementById('scan-status').textContent = '';
@@ -4680,17 +4706,22 @@ function handleScanFile(e){
 async function processScanFile(file){
   const status = document.getElementById('scan-status');
   const preview = document.getElementById('scan-preview');
-  const extracted = document.getElementById('scan-extracted');
   const actions = document.getElementById('scan-modal-actions');
+  const rawPanel = document.getElementById('scan-raw-panel');
+  const fieldsPanel = document.getElementById('scan-fields-panel');
+  const rawEl = document.getElementById('scan-raw');
+  const extracted = document.getElementById('scan-extracted');
 
   const objectUrl = URL.createObjectURL(file);
   preview.src = objectUrl;
   preview.style.display = 'block';
   document.getElementById('scan-drop-zone').style.display = 'none';
-  extracted.style.display = 'none';
+  rawPanel.style.display = 'none';
+  fieldsPanel.style.display = 'none';
   actions.style.display = 'none';
   status.textContent = 'Reading image...';
 
+  _scanMimeType = file.type || 'image/jpeg';
   _scanBase64 = await new Promise((res, rej) => {
     const r = new FileReader();
     r.onload = () => res(r.result.split(',')[1]);
@@ -4698,52 +4729,91 @@ async function processScanFile(file){
     r.readAsDataURL(file);
   });
 
-  const prompts = {
-    exam: 'You are reading a handwritten pediatric ophthalmology preoperative examination sheet. Extract every clinical value and return ONLY a JSON object with these keys (omit keys you cannot find, use null for uncertain values): {"DateOfExam":"YYYY-MM-DD","Examiner":"","EUA":"Yes or No","VA_OD":"e.g. 6/6 or 0.5","VA_OS":"","IOP_OD":"mmHg number","IOP_OS":"","AxialLength_OD":"mm","AxialLength_OS":"","K1_OD":"","K2_OD":"","K1_OS":"","K2_OS":"","CorneaOpacity_OD":"Clear or Opacity","CorneaOpacity_OS":"Clear or Opacity","LensStatus_OD":"Clear or Cataract or Aphakic or Pseudophakic","LensStatus_OS":"","Fundus_OD":"Normal or Abnormal","Fundus_OS":"Normal or Abnormal","Syndrome":"","Comments":"anything else not captured above"}. Return ONLY valid JSON, no markdown.',
-    op: 'You are reading a handwritten pediatric cataract operation record. Extract every value and return ONLY a JSON object: {"DateOfOp":"YYYY-MM-DD","Eye":"Right or Left or Both","Examiner":"surgeon name","OperationName":"e.g. ECCE+IOL or Phaco or Lensectomy","IOL":"Yes or No","IOLType":"","IOLPower":"diopters","IOLPlace":"In the bag or Sulcus or ACIOL","AnteriorCapsule":"CCC or Can opener","PosteriorCapsule":"Intact or Primary posterior capsulotomy","AnteriorVitrectomy":"Yes or No","OtherComplications":"","Comments":""}. Return ONLY valid JSON, no markdown.',
-    fup: 'You are reading a handwritten pediatric ophthalmology follow-up sheet. Extract every clinical value and return ONLY a JSON object: {"DateOfExam":"YYYY-MM-DD","Examiner":"","EUA":"Yes or No","VA_OD":"e.g. 6/6 or 0.5","VA_OS":"","IOP_OD":"mmHg","IOP_OS":"","Cornea_OD":"Clear or Abnormal","CorneaDesc_OD":"description if abnormal","Cornea_OS":"Clear or Abnormal","CorneaDesc_OS":"","LensStatus_OD":"Clear or Cataract or Aphakic or Pseudophakic or Opacified","LensStatus_OS":"","Opacification_OD":"","Opacification_OS":"","Fundus_OD":"Normal or Abnormal","Fundus_OS":"Normal or Abnormal","Sphere_OD":"","Cylinder_OD":"","Axis_OD":"","Sphere_OS":"","Cylinder_OS":"","Axis_OS":"","Comments":"include follow-up interval if written"}. Return ONLY valid JSON, no markdown.',
-    hist: 'You are reading a handwritten pediatric patient history sheet. Extract every value and return ONLY a JSON object: {"Consanguinity":"Yes or No","FamilyHistory":"Yes or No","FamilyHistoryMembers":"description","BluntTrauma":"Yes or No","PenetratingTrauma":"Yes or No","CardiacDisease":"Yes or No","CardiacDetails":"","NeurologicalDisease":"Yes or No","NeurologicalDetails":"","Medications":"","Comments":""}. Return ONLY valid JSON, no markdown.'
+  // Step 1 prompt: transcribe raw text
+  const rawPrompt = 'Please transcribe ALL text visible in this handwritten medical sheet exactly as written, preserving layout as best you can. Include all numbers, abbreviations, dates, names and clinical values. Do not interpret or summarize — just transcribe faithfully.';
+
+  // Step 2 prompts: parse into structured JSON
+  const structuredPrompts = {
+    exam: 'Below is text transcribed from a handwritten preoperative ophthalmology examination sheet. Parse it into ONLY a JSON object with these keys (omit keys with no data, mark uncertain values with a leading "?" e.g. "?6/6"): {"DateOfExam":"YYYY-MM-DD","Examiner":"","EUA":"Yes or No","VA_OD":"","VA_OS":"","IOP_OD":"","IOP_OS":"","AxialLength_OD":"","AxialLength_OS":"","K1_OD":"","K2_OD":"","K1_OS":"","K2_OS":"","CorneaOpacity_OD":"Clear or Opacity","CorneaOpacity_OS":"Clear or Opacity","LensStatus_OD":"Clear or Cataract or Aphakic or Pseudophakic","LensStatus_OS":"","Fundus_OD":"Normal or Abnormal","Fundus_OS":"Normal or Abnormal","Syndrome":"","Comments":""}. Return ONLY valid JSON.',
+    op: 'Below is text from a handwritten cataract operation record. Parse into ONLY a JSON object (mark uncertain values with leading "?"): {"DateOfOp":"YYYY-MM-DD","Eye":"Right or Left or Both","Examiner":"","OperationName":"","IOL":"Yes or No","IOLType":"","IOLPower":"","IOLPlace":"In the bag or Sulcus or ACIOL","AnteriorCapsule":"","PosteriorCapsule":"","AnteriorVitrectomy":"Yes or No","OtherComplications":"","Comments":""}. Return ONLY valid JSON.',
+    fup: 'Below is text from a handwritten ophthalmology follow-up sheet. Parse into ONLY a JSON object (mark uncertain values with leading "?"): {"DateOfExam":"YYYY-MM-DD","Examiner":"","EUA":"Yes or No","VA_OD":"","VA_OS":"","IOP_OD":"","IOP_OS":"","Cornea_OD":"Clear or Abnormal","CorneaDesc_OD":"","Cornea_OS":"Clear or Abnormal","CorneaDesc_OS":"","LensStatus_OD":"Clear or Cataract or Aphakic or Pseudophakic or Opacified","LensStatus_OS":"","Opacification_OD":"","Opacification_OS":"","Fundus_OD":"Normal or Abnormal","Fundus_OS":"Normal or Abnormal","Sphere_OD":"","Cylinder_OD":"","Axis_OD":"","Sphere_OS":"","Cylinder_OS":"","Axis_OS":"","Comments":""}. Return ONLY valid JSON.',
+    hist: 'Below is text from a handwritten patient history sheet. Parse into ONLY a JSON object (mark uncertain values with leading "?"): {"Consanguinity":"Yes or No","FamilyHistory":"Yes or No","FamilyHistoryMembers":"","BluntTrauma":"Yes or No","PenetratingTrauma":"Yes or No","CardiacDisease":"Yes or No","CardiacDetails":"","NeurologicalDisease":"Yes or No","NeurologicalDetails":"","Medications":"","Comments":""}. Return ONLY valid JSON.'
   };
 
   try {
-    status.textContent = 'Claude is reading the handwriting...';
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    // ── Step 1: Get raw transcription ──
+    status.textContent = 'Step 1/2 — Transcribing handwriting...';
+    const resp1 = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {'Content-Type':'application/json'},
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'image', source: { type: 'base64', media_type: file.type || 'image/jpeg', data: _scanBase64 } },
-            { type: 'text', text: prompts[_scanFormType] || prompts.fup }
-          ]
-        }]
+        max_tokens: 800,
+        messages: [{ role:'user', content:[
+          {type:'image', source:{type:'base64', media_type: file.type||'image/jpeg', data:_scanBase64}},
+          {type:'text', text: rawPrompt}
+        ]}]
       })
     });
+    const d1 = await resp1.json();
+    const rawText = (d1.content && d1.content[0]) ? d1.content[0].text : '';
 
-    const data = await response.json();
-    const raw = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : '';
-    const clean = raw.replace(/```json|```/g, '').trim();
+    // Show raw text immediately
+    rawEl.textContent = rawText || '(could not read text)';
+    rawPanel.style.display = 'block';
+    status.textContent = 'Step 2/2 — Extracting fields...';
+
+    // ── Step 2: Parse into structured JSON ──
+    const structPrompt = structuredPrompts[_scanFormType] || structuredPrompts.fup;
+    const resp2 = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 800,
+        messages: [{ role:'user', content:[
+          {type:'text', text: structPrompt + '
+
+Transcribed text:
+' + rawText}
+        ]}]
+      })
+    });
+    const d2 = await resp2.json();
+    const raw2 = (d2.content && d2.content[0]) ? d2.content[0].text : '';
+    const clean = raw2.replace(/```json|```/g,'').trim();
+
     let parsed;
-    try {
-      parsed = JSON.parse(clean);
-    } catch(pe) {
-      status.textContent = 'Could not parse response. Showing raw text below.';
-      extracted.textContent = raw;
-      extracted.style.display = 'block';
+    try { parsed = JSON.parse(clean); }
+    catch(pe){
+      status.textContent = 'Could not parse fields. Check the raw text above for the data.';
       return;
     }
 
     _scanResults = parsed;
-    const summary = Object.entries(parsed).filter(function(kv){ return kv[1]; }).map(function(kv){ return kv[0]+': '+kv[1]; }).join('
-');
-    extracted.textContent = '-- Extracted fields --
 
-' + (summary || '(no fields found)');
-    extracted.style.display = 'block';
-    status.textContent = 'Found ' + Object.keys(parsed).filter(function(k){ return parsed[k]; }).length + ' fields -- review below then click Apply to Form';
+    // Build summary — mark uncertain (?) fields differently
+    const certain = [], uncertain = [];
+    Object.entries(parsed).forEach(function(kv){
+      if(!kv[1]) return;
+      if(String(kv[1]).startsWith('?')) uncertain.push(kv[0]+': '+kv[1]);
+      else certain.push(kv[0]+': '+kv[1]);
+    });
+    var summary = '';
+    if(certain.length) summary += certain.join('
+');
+    if(uncertain.length) summary += (certain.length?'
+
+':'') + '-- UNCERTAIN (highlighted in amber) --
+' + uncertain.join('
+');
+    extracted.textContent = summary || '(no fields found)';
+    fieldsPanel.style.display = 'block';
+
+    var nCertain = certain.length, nUncertain = uncertain.length;
+    status.innerHTML = '<span style="color:var(--green)">✓ '+nCertain+' fields</span>'
+      + (nUncertain ? ' &nbsp;<span style="color:var(--amber)">⚠ '+nUncertain+' uncertain</span>' : '')
+      + ' &nbsp;— review then click Apply';
     actions.style.display = 'flex';
 
   } catch(err) {
@@ -4754,25 +4824,64 @@ async function processScanFile(file){
 function applyScanResults(){
   if(!_scanResults) return;
   var d = _scanResults;
+  var filledIds = [];   // track all filled element IDs for highlighting
 
-  function setVal(id, val){ var el=document.getElementById(id); if(el && val) el.value=val; }
-  function setRadio(name, val){
-    if(!val) return;
-    var el = document.querySelector('input[name="'+name+'"][value="'+val+'"]');
-    if(el) el.checked = true;
+  function isUncertain(val){ return val && String(val).startsWith('?'); }
+  function cleanVal(val){ return val ? String(val).replace(/^\?/,'') : val; }
+
+  function highlight(el, uncertain){
+    if(!el) return;
+    el.classList.add('scan-filled');
+    if(uncertain) el.style.setProperty('--amber','#f7b731');
+    filledIds.push(el.id || el.name || '');
   }
-  function setChk(id, val){ var el=document.getElementById(id); if(el && val) el.checked=(val==='Yes'); }
-  function mapVA(raw, selectId){
-    if(!raw) return;
+
+  function setVal(id, rawVal){
+    if(!rawVal) return;
+    var el = document.getElementById(id);
+    if(!el) return;
+    el.value = cleanVal(rawVal);
+    highlight(el, isUncertain(rawVal));
+  }
+
+  function setRadio(name, rawVal){
+    if(!rawVal) return;
+    var val = cleanVal(rawVal);
+    var el = document.querySelector('input[name="'+name+'"][value="'+val+'"]');
+    if(el){
+      el.checked = true;
+      // Highlight the label
+      var lbl = el.nextElementSibling;
+      if(lbl){ lbl.classList.add('scan-filled-radio'); el.classList.add('scan-filled-radio'); }
+      if(isUncertain(rawVal) && lbl) lbl.style.borderColor = 'var(--amber)';
+      filledIds.push(name);
+    }
+  }
+
+  function setChk(id, val){
+    if(!val) return;
+    var el = document.getElementById(id);
+    if(el) el.checked = (cleanVal(val)==='Yes');
+  }
+
+  function mapVA(rawVal, selectId){
+    if(!rawVal) return;
+    var raw = cleanVal(rawVal);
     var sel = document.getElementById(selectId);
     if(!sel) return;
     var opts = Array.from(sel.options).map(function(o){ return o.value; });
-    if(opts.indexOf(raw) >= 0){ sel.value=raw; return; }
-    var vaMap = {'6/6':'1.0','6/9':'0.63','6/12':'0.5','6/18':'0.3','6/24':'0.25','6/36':'0.16','6/60':'0.1'};
-    var mapped = vaMap[raw.replace(/\s/g,'')];
-    if(mapped && opts.indexOf(mapped)>=0){ sel.value=mapped; return; }
-    var partial = opts.find(function(o){ return o.toLowerCase().indexOf(raw.toLowerCase())>=0; });
-    if(partial) sel.value=partial;
+    var found = false;
+    if(opts.indexOf(raw) >= 0){ sel.value=raw; found=true; }
+    if(!found){
+      var vaMap = {'6/6':'1.0','6/9':'0.63','6/12':'0.5','6/18':'0.3','6/24':'0.25','6/36':'0.16','6/60':'0.1'};
+      var mapped = vaMap[raw.replace(/\s/g,'')];
+      if(mapped && opts.indexOf(mapped)>=0){ sel.value=mapped; found=true; }
+    }
+    if(!found){
+      var partial = opts.find(function(o){ return o.toLowerCase().indexOf(raw.toLowerCase())>=0; });
+      if(partial){ sel.value=partial; found=true; }
+    }
+    if(found) highlight(sel, isUncertain(rawVal));
   }
 
   if(_scanFormType==='exam'){
@@ -4781,48 +4890,111 @@ function applyScanResults(){
     setVal('e-iop-od',d.IOP_OD); setVal('e-iop-os',d.IOP_OS);
     setVal('e-axl-od',d.AxialLength_OD); setVal('e-axl-os',d.AxialLength_OS);
     setVal('e-k1-od',d.K1_OD); setVal('e-k2-od',d.K2_OD); setVal('e-k1-os',d.K1_OS); setVal('e-k2-os',d.K2_OS);
-    if(d.CorneaOpacity_OD) setRadio('e-cornea-od', d.CorneaOpacity_OD==='Clear'?'Clear':'Opacity');
-    if(d.CorneaOpacity_OS) setRadio('e-cornea-os', d.CorneaOpacity_OS==='Clear'?'Clear':'Opacity');
-    if(d.Fundus_OD) setRadio('e-fundus-od', d.Fundus_OD==='Normal'?'Normal':'Abnormal');
-    if(d.Fundus_OS) setRadio('e-fundus-os', d.Fundus_OS==='Normal'?'Normal':'Abnormal');
+    if(d.CorneaOpacity_OD) setRadio('e-cornea-od', cleanVal(d.CorneaOpacity_OD)==='Clear'?'Clear':'Opacity');
+    if(d.CorneaOpacity_OS) setRadio('e-cornea-os', cleanVal(d.CorneaOpacity_OS)==='Clear'?'Clear':'Opacity');
+    if(d.Fundus_OD) setRadio('e-fundus-od', cleanVal(d.Fundus_OD)==='Normal'?'Normal':'Abnormal');
+    if(d.Fundus_OS) setRadio('e-fundus-os', cleanVal(d.Fundus_OS)==='Normal'?'Normal':'Abnormal');
     setVal('e-syndrome',d.Syndrome); setVal('e-comments',d.Comments);
   }
   else if(_scanFormType==='op'){
-    setVal('s-date',d.DateOfOp); setRadio('s-eye',d.Eye); setVal('s-examiner',d.Examiner);
-    setVal('s-optype',d.OperationName); setRadio('s-iol',d.IOL);
+    setVal('s-date',d.DateOfOp); setRadio('s-eye',cleanVal(d.Eye)); setVal('s-examiner',d.Examiner);
+    setVal('s-optype',d.OperationName); setRadio('s-iol',cleanVal(d.IOL));
     setVal('s-iol-type',d.IOLType); setVal('s-iol-power',d.IOLPower); setVal('s-iol-loc',d.IOLPlace);
     setVal('s-ant-cap',d.AnteriorCapsule); setVal('s-post-cap',d.PosteriorCapsule);
-    if(d.AnteriorVitrectomy) setRadio('s-ant-vit',d.AnteriorVitrectomy);
+    if(d.AnteriorVitrectomy) setRadio('s-ant-vit',cleanVal(d.AnteriorVitrectomy));
     setVal('s-complications',d.OtherComplications); setVal('s-comments',d.Comments);
   }
   else if(_scanFormType==='fup'){
     setVal('f-date',d.DateOfExam); setVal('f-examiner',d.Examiner); setChk('f-eua',d.EUA);
     mapVA(d.VA_OD,'f-va-od'); mapVA(d.VA_OS,'f-va-os');
     setVal('f-iop-od',d.IOP_OD); setVal('f-iop-os',d.IOP_OS);
-    if(d.Cornea_OD) setRadio('f-cornea-od',d.Cornea_OD);
+    if(d.Cornea_OD) setRadio('f-cornea-od',cleanVal(d.Cornea_OD));
     setVal('f-cornea-desc-od',d.CorneaDesc_OD);
-    if(d.Cornea_OS) setRadio('f-cornea-os',d.Cornea_OS);
+    if(d.Cornea_OS) setRadio('f-cornea-os',cleanVal(d.Cornea_OS));
     setVal('f-cornea-desc-os',d.CorneaDesc_OS);
-    if(d.LensStatus_OD) setRadio('f-lens-status-od',d.LensStatus_OD);
-    if(d.LensStatus_OS) setRadio('f-lens-status-os',d.LensStatus_OS);
+    if(d.LensStatus_OD) setRadio('f-lens-status-od',cleanVal(d.LensStatus_OD));
+    if(d.LensStatus_OS) setRadio('f-lens-status-os',cleanVal(d.LensStatus_OS));
     setVal('f-opacification-od',d.Opacification_OD); setVal('f-opacification-os',d.Opacification_OS);
-    if(d.Fundus_OD) setRadio('f-fundus-od',d.Fundus_OD==='Normal'?'Normal':'Abnormal');
-    if(d.Fundus_OS) setRadio('f-fundus-os',d.Fundus_OS==='Normal'?'Normal':'Abnormal');
+    if(d.Fundus_OD) setRadio('f-fundus-od',cleanVal(d.Fundus_OD)==='Normal'?'Normal':'Abnormal');
+    if(d.Fundus_OS) setRadio('f-fundus-os',cleanVal(d.Fundus_OS)==='Normal'?'Normal':'Abnormal');
     setVal('f-sph-od',d.Sphere_OD); setVal('f-cyl-od',d.Cylinder_OD); setVal('f-axis-od',d.Axis_OD);
     setVal('f-sph-os',d.Sphere_OS); setVal('f-cyl-os',d.Cylinder_OS); setVal('f-axis-os',d.Axis_OS);
     setVal('f-comments',d.Comments);
   }
   else if(_scanFormType==='hist'){
-    setRadio('h-consang',d.Consanguinity); setRadio('h-fhx',d.FamilyHistory);
+    setRadio('h-consang',cleanVal(d.Consanguinity)); setRadio('h-fhx',cleanVal(d.FamilyHistory));
     setVal('h-fhx-members',d.FamilyHistoryMembers);
-    setRadio('h-blunt',d.BluntTrauma); setRadio('h-pen',d.PenetratingTrauma);
-    setRadio('h-cardiac',d.CardiacDisease); setVal('h-cardiac-desc',d.CardiacDetails);
-    setRadio('h-neuro',d.NeurologicalDisease); setVal('h-neuro-desc',d.NeurologicalDetails);
+    setRadio('h-blunt',cleanVal(d.BluntTrauma)); setRadio('h-pen',cleanVal(d.PenetratingTrauma));
+    setRadio('h-cardiac',cleanVal(d.CardiacDisease)); setVal('h-cardiac-desc',d.CardiacDetails);
+    setRadio('h-neuro',cleanVal(d.NeurologicalDisease)); setVal('h-neuro-desc',d.NeurologicalDetails);
     setVal('h-medications',d.Medications);
   }
 
   closeScanModal();
-  showToast('Form pre-filled from scan -- please review and correct before saving','success');
+
+  // Silently upload the scanned image to this patient's Drive folder
+  var pid = ACTIVE_PATIENT ? ACTIVE_PATIENT.PID : null;
+  if(pid && _scanBase64 && CONFIG.webAppUrl){
+    var formLabels = {exam:'PreopExam', op:'Operation', fup:'Followup', hist:'History'};
+    var scanLabel = formLabels[_scanFormType] || 'Scan';
+    var scanFilename = 'Scan_' + scanLabel + '_' + new Date().toISOString().replace(/[:.]/g,'-').slice(0,19) + '.jpg';
+    fetch(CONFIG.webAppUrl, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        action: 'uploadScanImage',
+        pid: pid,
+        filename: scanFilename,
+        mimeType: _scanMimeType || 'image/jpeg',
+        data: _scanBase64
+      })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(result){
+      if(result.status === 'ok'){
+        _scanDriveUrl    = result.url;
+        _scanDriveFileId = result.fileId;
+        // Refresh image grid so scan appears in patient images immediately
+        if(_chartPID && String(_chartPID)===String(pid)) loadChartImageGrid(pid);
+        if(currentImagePID && String(currentImagePID)===String(pid)) loadPatientImages(pid);
+      }
+    })
+    .catch(function(){});  // silent — don't interrupt the form workflow
+  }
+
+  // Count uncertain fields
+  var nUncertain = Object.values(d).filter(function(v){ return v && String(v).startsWith('?'); }).length;
+  var msg = 'Form pre-filled from scan';
+  if(nUncertain){
+    msg += ' — ' + nUncertain + ' uncertain field'+(nUncertain>1?'s':'')+' highlighted in amber';
+  }
+  showToast(msg, nUncertain ? 'error' : 'success');
+
+  // Show clear-highlights button near form top if there are any highlights
+  var existingBtn = document.getElementById('scan-clear-highlights-btn');
+  if(existingBtn) existingBtn.remove();
+  var formView = document.getElementById('view-new-'+_scanFormType === 'exam' ? 'examination' :
+    _scanFormType === 'op' ? 'surgery' :
+    _scanFormType === 'fup' ? 'followup' : 'history');
+  // Map type to view id
+  var viewMap = {exam:'view-new-examination', op:'view-new-surgery', fup:'view-new-followup', hist:'view-new-history'};
+  var view = document.getElementById(viewMap[_scanFormType]);
+  if(view){
+    var clearBtn = document.createElement('div');
+    clearBtn.id = 'scan-clear-highlights-btn';
+    clearBtn.style.cssText = 'display:flex;align-items:center;gap:10px;background:rgba(247,183,49,.08);border:1px solid rgba(247,183,49,.3);border-radius:8px;padding:8px 14px;margin-bottom:12px;font-size:12px;color:var(--amber);font-family:'DM Mono',monospace';
+    clearBtn.innerHTML = '<span>⚠ Fields filled by scan are highlighted. Amber = uncertain.</span><button onclick="clearScanHighlights()" style="margin-left:auto;background:none;border:1px solid rgba(247,183,49,.4);color:var(--amber);border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-family:'Lato',sans-serif">Clear highlights</button>';
+    var scanBar = view.querySelector('.scan-bar');
+    if(scanBar) scanBar.after(clearBtn);
+    else view.insertBefore(clearBtn, view.firstChild);
+  }
+}
+
+function clearScanHighlights(){
+  document.querySelectorAll('.scan-filled').forEach(function(el){ el.classList.remove('scan-filled'); });
+  document.querySelectorAll('.scan-filled-radio').forEach(function(el){ el.classList.remove('scan-filled-radio'); });
+  var btn = document.getElementById('scan-clear-highlights-btn');
+  if(btn) btn.remove();
 }
 
 
@@ -4833,7 +5005,7 @@ function applyScanResults(){
       <h3>📷 Scan &amp; Import</h3>
       <button onclick="closeScanModal()" style="background:none;border:none;color:var(--text-dim);font-size:22px;cursor:pointer;line-height:1">✕</button>
     </div>
-    <p>Take or upload a photo of a handwritten clinical sheet. Claude will read it and pre-fill the form fields for you to review before saving.</p>
+    <p>Take or upload a photo of a handwritten clinical sheet. Claude reads the handwriting and pre-fills the form — uncertain fields are highlighted in amber for your review.</p>
     <div id="scan-drop-zone" class="scan-drop-zone" onclick="document.getElementById('scan-file-input').click()"
          ondragover="event.preventDefault();this.classList.add('drag-over')"
          ondragleave="this.classList.remove('drag-over')"
@@ -4845,8 +5017,17 @@ function applyScanResults(){
     </div>
     <img id="scan-preview" class="scan-preview" style="display:none">
     <div id="scan-status" class="scan-status"></div>
-    <div id="scan-extracted" class="scan-extracted" style="display:none"></div>
-    <div id="scan-modal-actions" style="display:flex;gap:10px;justify-content:flex-end;display:none">
+    <!-- Raw OCR text panel -->
+    <div id="scan-raw-panel" style="display:none">
+      <div class="scan-section-label">📝 Raw text read from sheet</div>
+      <div id="scan-raw" class="scan-raw"></div>
+    </div>
+    <!-- Parsed fields panel -->
+    <div id="scan-fields-panel" style="display:none">
+      <div class="scan-section-label">✓ Fields extracted — review before applying</div>
+      <div id="scan-extracted" class="scan-fields"></div>
+    </div>
+    <div id="scan-modal-actions" style="display:none;gap:10px;justify-content:flex-end;margin-top:4px">
       <button class="btn btn-secondary" onclick="closeScanModal()">Cancel</button>
       <button class="btn btn-primary" id="scan-apply-btn" onclick="applyScanResults()">✓ Apply to Form</button>
     </div>
