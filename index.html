@@ -2455,7 +2455,7 @@ function buildResponse(data) { return ContentService.createTextOutput(JSON.strin
 
 <script>
 // ─── STATE ───
-let CONFIG={webAppUrl:'https://script.google.com/macros/s/AKfycbxvqgG7zl2IPcRdMIJ684nqdEH4EPfJ1GblfMmvbK6DA21ttAvQeTauR286Uc1Pgw1x6A/exec', anthropicApiKey:'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'};
+let CONFIG={webAppUrl:'https://script.google.com/macros/s/AKfycbxvqgG7zl2IPcRdMIJ684nqdEH4EPfJ1GblfMmvbK6DA21ttAvQeTauR286Uc1Pgw1x6A/exec', anthropicApiKey:''};
 let DB={patients:[],examinations:[],operations:[],followups:[],history:[]};
 let CURRENT_USER=null; // {username, displayName, role}
 
@@ -4845,11 +4845,22 @@ async function processScanFile(file){
       })
     });
     const d1 = await resp1.json();
+
+    // Check for API-level errors (wrong key, quota, etc.)
+    if(d1.error){
+      rawEl.textContent = 'API error: ' + d1.error.message + ' (type: ' + d1.error.type + ')';
+      rawPanel.style.display = 'block';
+      status.innerHTML = '<span style="color:var(--red)">✗ API error — ' + d1.error.message + '</span>'
+        + (d1.error.type === 'authentication_error' ? ' &nbsp;<a href="#" onclick="closeScanModal();showView(\'setup\')" style="color:var(--teal)">Check your API key in Setup → Step 5 ↗</a>' : '');
+      return;
+    }
+
     const rawText = (d1.content && d1.content[0]) ? d1.content[0].text : '';
 
     // Show raw text immediately
-    rawEl.textContent = rawText || '(could not read text)';
+    rawEl.textContent = rawText || '(could not read text — API returned no content)';
     rawPanel.style.display = 'block';
+    if(!rawText){ status.innerHTML = '<span style="color:var(--red)">✗ No text returned from API. Full response: ' + JSON.stringify(d1).slice(0,200) + '</span>'; return; }
     status.textContent = 'Step 2/2 — Extracting fields...';
 
     // ── Step 2: Parse into structured JSON ──
@@ -4869,10 +4880,16 @@ async function processScanFile(file){
     const raw2 = (d2.content && d2.content[0]) ? d2.content[0].text : '';
     const clean = raw2.replace(/```json|```/g,'').trim();
 
+    // Check for API-level errors on step 2
+    if(d2.error){
+      status.innerHTML = '<span style="color:var(--red)">✗ Step 2 API error: ' + d2.error.message + '</span>';
+      return;
+    }
+
     let parsed;
     try { parsed = JSON.parse(clean); }
     catch(pe){
-      status.textContent = 'Could not parse fields. Check the raw text above for the data.';
+      status.innerHTML = '<span style="color:var(--amber)">⚠ Could not parse fields as JSON. Raw response: ' + raw2.slice(0,300) + '</span>';
       return;
     }
 
@@ -4898,7 +4915,9 @@ async function processScanFile(file){
     actions.style.display = 'flex';
 
   } catch(err) {
-    status.textContent = 'Error: ' + err.message;
+    status.innerHTML = '<span style="color:var(--red)">✗ Network error: ' + err.message + '</span><br>'
+      + '<span style="font-size:11px;color:var(--text-faint)">Check your internet connection. If connected, verify your API key in Setup → Step 5.</span>';
+    console.error('Scan error:', err);
   }
 }
 
