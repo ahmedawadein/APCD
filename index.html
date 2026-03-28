@@ -2742,7 +2742,7 @@ function updateScanBadge(){
     if(!hasKey && !existing){
       var warn = document.createElement('span');
       warn.className = 'scan-no-key-warn';
-      warn.style.cssText = 'font-size:10.5px;color:var(--amber);font-family:'DM Mono',monospace';
+      warn.style.cssText = 'font-size:10.5px;color:var(--amber);font-family:\'DM Mono\',monospace';
       warn.textContent = '⚠ API key needed — configure in Setup';
       bar.appendChild(warn);
     } else if(hasKey && existing){
@@ -3710,10 +3710,10 @@ async function submitHistory(e){
     ChestDisease:r('h-chest'), ChestDetails:g('h-chest-desc')?.value||'',
     OtherSystemicDisease:r('h-other-sys'), OtherSystemicDetails:g('h-other-sys-desc')?.value||'',
     Medications:g('h-medications')?.value||'',
-    EntryDate:today()
+    EntryDate:today(),
+    ScanSourceUrl: (_scanFormType==='hist' && _scanDriveUrl) ? _scanDriveUrl : ''
   };
-  DB.history,
-    ScanSourceUrl: (_scanFormType==='hist' && _scanDriveUrl) ? _scanDriveUrl : '' = DB.history || [];
+  DB.history = DB.history || [];
   const editing = _editingRecord && _editingRecord.sheet === 'History';
   if(editing){
     const dbIdx = DB.history.findIndex(x => x.ID === _editingRecord.id);
