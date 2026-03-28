@@ -4741,10 +4741,27 @@ function openScanModal(formType){
   _scanMimeType    = null;
   document.getElementById('scan-preview').style.display = 'none';
   document.getElementById('scan-extracted').style.display = 'none';
-  document.getElementById('scan-status').textContent = '';
   document.getElementById('scan-modal-actions').style.display = 'none';
   document.getElementById('scan-file-input').value = '';
   document.getElementById('scan-drop-zone').style.display = '';
+
+  // Check API key up front — show a clear message instead of silently failing later
+  const hasKey = !!(CONFIG.anthropicApiKey && CONFIG.anthropicApiKey.trim());
+  const statusEl = document.getElementById('scan-status');
+  if(!hasKey){
+    statusEl.innerHTML = '<span style="color:var(--amber)">⚠ No Anthropic API key configured yet.</span>'
+      + ' <a href="#" onclick="closeScanModal();showView(\'setup\')" style="color:var(--teal)">Go to Setup → Step 5 to add it ↗</a>'
+      + '<br><span style="font-size:11px;color:var(--text-faint)">You can still upload a photo — it will be saved to the patient file — but auto-fill requires the API key.</span>';
+  } else {
+    statusEl.textContent = '';
+  }
+
+  // Show modal after raw-panel and fields-panel are reset too
+  const rawPanel = document.getElementById('scan-raw-panel');
+  const fieldsPanel = document.getElementById('scan-fields-panel');
+  if(rawPanel) rawPanel.style.display = 'none';
+  if(fieldsPanel) fieldsPanel.style.display = 'none';
+
   document.getElementById('scan-modal-overlay').style.display = 'flex';
   document.body.style.overflow = 'hidden';
 }
@@ -4787,7 +4804,7 @@ async function processScanFile(file){
   // Check API key before doing anything
   if(!CONFIG.anthropicApiKey || !CONFIG.anthropicApiKey.trim()){
     status.textContent = '';
-    status.innerHTML = '<span style="color:var(--red)">✗ No Anthropic API key configured.</span> <a href="#" onclick="closeScanModal();showView('setup')" style="color:var(--teal)">Go to Setup → Step 5 to add your key ↗</a>';
+    status.innerHTML = '<span style="color:var(--red)">✗ No Anthropic API key configured.</span> <a href="#" onclick="closeScanModal();showView(\'setup\')" style="color:var(--teal)">Go to Setup → Step 5 to add your key ↗</a>';
     return;
   }
   _scanMimeType = file.type || 'image/jpeg';
