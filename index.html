@@ -4720,8 +4720,6 @@ async function saveImages(files,pid,zid,description){
   if(saved>0){const label=saved+' file'+(saved!==1?'s':'')+' saved ✓';showToast(label,'success');}
 }
 
-</script>
-
 // ═══════════════════════════════════════════════
 //  SCAN & IMPORT  — AI-powered handwriting OCR
 // ═══════════════════════════════════════════════
@@ -5082,6 +5080,9 @@ function clearScanHighlights(){
   var btn = document.getElementById('scan-clear-highlights-btn');
   if(btn) btn.remove();
 }
+
+
+</script>
 
 
 <!-- ═══ SCAN & IMPORT MODAL ═══ -->
