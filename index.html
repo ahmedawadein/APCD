@@ -2367,6 +2367,7 @@ function buildResponse(data) { return ContentService.createTextOutput(JSON.strin
             <div class="chart-cat-count" style="font-size:16px;margin:0" id="cc-img-count">0</div>
           </div>
           <button class="btn btn-secondary btn-sm editor-only" onclick="chartShowNewForm('img',_chartPID)" style="font-size:11px">＋ Upload</button>
+            <button class="btn btn-secondary btn-sm" onclick="loadChartImageGrid(_chartPID)" title="Refresh images" style="font-size:11px;padding:6px 10px">↻</button>
         </div>
         <div id="chart-img-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;min-height:60px">
           <div style="color:var(--text-faint);font-size:12px;grid-column:1/-1;padding:8px 0">Loading images…</div>
@@ -5038,8 +5039,9 @@ function applyScanResults(){
     var formLabels = {exam:'PreopExam', op:'Operation', fup:'Followup', hist:'History'};
     var scanLabel = formLabels[_scanFormType] || 'Scan';
     var scanFilename = 'Scan_' + scanLabel + '_' + new Date().toISOString().replace(/[:.]/g,'-').slice(0,19) + '.jpg';
-    // Use no-cors since Apps Script doesn't return CORS headers
-    // The upload will succeed in Drive even though we can't read the response
+    // Upload scan image to patient's Drive folder
+    // Use no-cors — Apps Script doesn't return CORS headers but the upload still works
+    showToast('Saving scan image to patient file…', '');
     fetch(CONFIG.webAppUrl, {
       method: 'POST',
       mode: 'no-cors',
@@ -5052,12 +5054,17 @@ function applyScanResults(){
       })
     }).catch(function(){});
 
-    // Refresh image grids after a short delay to let Drive process the upload
-    // (we can't read the response in no-cors mode, so we just wait and reload)
+    // Refresh image grids after delay — Drive needs a few seconds to process
+    // First refresh at 4s, second at 8s to catch slower uploads
+    setTimeout(function(){
+      showToast('Scan image saved to patient file ✓', 'success');
+      if(_chartPID && String(_chartPID)===String(pid)) loadChartImageGrid(pid);
+      if(currentImagePID && String(currentImagePID)===String(pid)) loadPatientImages(pid);
+    }, 4000);
     setTimeout(function(){
       if(_chartPID && String(_chartPID)===String(pid)) loadChartImageGrid(pid);
       if(currentImagePID && String(currentImagePID)===String(pid)) loadPatientImages(pid);
-    }, 3000);
+    }, 9000);
   }
 
   // Count uncertain fields
